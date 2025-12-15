@@ -4,6 +4,9 @@ const http = require('http');
 const UserRouter = require('./routes/userRouter');
 const mongoose = require('mongoose');
 const UserController = require('./controllers/userController');
+const MatchController = require('./controllers/matchController');
+const MatchRouter = require('./routes/matchRoutes');
+require('./models/Match');
 require('./models/User');
 const dotenv = require('dotenv');
 dotenv.config({ path: require("path").resolve(__dirname, ".env") });
@@ -23,11 +26,12 @@ mongoose.connection.on('error', (err) => {
 });
 
 const userRouter = new UserRouter(UserController);
+const matchRouter = new MatchRouter(MatchController);
 
-const server = http.createServer(app);
 app.setMaxListeners(15);
 
 app.use('/api/users', userRouter.getRouter());
+app.use('/api/matches', matchRouter.getRouter());
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
