@@ -5,11 +5,8 @@ namespace Csocsesz;
 
 public partial class LiveGamePage : ContentPage
 {
-    int leftCounter = 0;
-    int rightCounter = 0;
-    bool rbOrder = true;
     bool gameWon = false;
-    List<int> scores = new List<int>();
+    List<Side> scores = new List<Side>();
 
     Player player1 = new Player(0, "Hugo", 0, 0, 0, 0, 0, Side.red);
     Player player2 = new Player(1, "Zalan", 0, 0, 0, 0, 0, Side.blue);
@@ -19,98 +16,110 @@ public partial class LiveGamePage : ContentPage
     }
     private void UpdateCounterButtons()
     {
-        if (rbOrder)
-        {
-            LeftButton.Text = $"{leftCounter}";
-            RightButton.Text = $"{rightCounter}";
-        }
-        else
-        {
-            LeftButton.Text = $"{rightCounter}";
-            RightButton.Text = $"{leftCounter}";
-        }
+        BlueButton.Text = $"{GetPlayerBySide(Side.blue).inGame.goals}";
+        RedButton.Text = $"{GetPlayerBySide(Side.red).inGame.goals}";
     }
-    private void Goal(bool left)
-    {
-        if (left && rbOrder || !left && !rbOrder) leftCounter++;
-        else rightCounter++;
-        if (leftCounter == 10) GameWon(true);
-        else if (rightCounter == 10) GameWon(false);
-        else UpdateCounterButtons();
-    }
-    private void GameWon(bool red)
+    private void GameWon(Side side)
     {
         gameWon = true;
-        if (red)
+        if (side == Side.red)
         {
-            LeftButton.BackgroundColor = Color.FromHex("#FF0000");
-            RightButton.BackgroundColor = Color.FromHex("#FF0000");
-            LeftButton.Text = "RED";
-            RightButton.Text = "WON";
+            BlueButton.BackgroundColor = Color.FromHex("#FF0000");
+            RedButton.BackgroundColor = Color.FromHex("#FF0000");
+            if (Grid.GetRow(BlueButton) == 0)
+            {
+                BlueButton.Text = "RED";
+                RedButton.Text = "WON";
+            }
+            else
+            {
+                RedButton.Text = "RED";
+                BlueButton.Text = "WON";
+            }
         }
         else
         {
-            LeftButton.BackgroundColor = Color.FromHex("#2121E3");
-            RightButton.BackgroundColor = Color.FromHex("#2121E3");
-            LeftButton.Text = "BLUE";
-            RightButton.Text = "WON";
+            BlueButton.BackgroundColor = Color.FromHex("#2121E3");
+            RedButton.BackgroundColor = Color.FromHex("#2121E3");
+            if (Grid.GetRow(BlueButton) == 0)
+            {
+                BlueButton.Text = "BLUE";
+                RedButton.Text = "WON";
+            }
+            else
+            {
+                RedButton.Text = "BLUE";
+                BlueButton.Text = "WON";
+            }
         }
     }
     private void CounterButtonClicked(object sender, EventArgs e)
     {
+        if (gameWon) return;
         var button = sender as Button;
-        if (!gameWon)
+        if (sender == RedButton)
         {
-            if (rbOrder)
-            {
-                if (button == LeftButton) Goal(true);
-                else Goal(false);
-            }
-            else
-            {
-                if (button == LeftButton) Goal(true);
-                else Goal(false);
-            }
+            GetPlayerBySide(Side.red).inGame.goals++;
+            scores.Add(Side.red);
         }
+        else
+        {
+            GetPlayerBySide(Side.blue).inGame.goals++;
+            scores.Add(Side.blue);
+        }
+        UpdateCounterButtons();
+        if (RedButton.Text == "10") GameWon(Side.red);
+        else if (BlueButton.Text == "10") GameWon(Side.blue);
     }
+    private Player GetPlayerBySide(Side side)
+    {
+        if ((side == Side.red && player1.inGame.side == Side.red) || (side == Side.blue && player1.inGame.side == Side.blue)) return player1;
+        else return player2;
+    }
+
+    //----------------------------------------------------------------------------------------------------
+    //BUTTONS---------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------------
     private async void ExitButtonClicked(object sender, EventArgs e)
     {
         await Navigation.PushAsync(new MainPage(), false);
     }
     private void BackButtonClicked(object sender, EventArgs e)
     {
+        if (scores.Count == 0) return;
+        if (scores[scores.Count() - 1] == Side.red) GetPlayerBySide(Side.red).inGame.goals--;
+        else GetPlayerBySide(Side.blue).inGame.goals--;
+        scores.RemoveAt(scores.Count() - 1);
 
+        UpdateCounterButtons();
+        if(gameWon)
+        {
+            BlueButton.BackgroundColor = Color.FromHex("#2121E3");
+            RedButton.BackgroundColor = Color.FromHex("#FF0000");
+            gameWon = false;
+        }
     }
     private void SwapButtonClicked(object sender, EventArgs e)
     {
-        rbOrder = !rbOrder;
-        if (rbOrder)
+        if (gameWon) return;
+        if (Grid.GetRow(BlueButton) == 0)
         {
-            LeftButton.BackgroundColor = Color.FromHex("#FF0000");
-            RightButton.BackgroundColor = Color.FromHex("#2121E3");
+            Grid.SetRow(BlueButton, 2);
+            Grid.SetRow(RedButton, 0);
         }
         else
         {
-            RightButton.BackgroundColor = Color.FromHex("#FF0000");
-            LeftButton.BackgroundColor = Color.FromHex("#2121E3");
+            Grid.SetRow(BlueButton, 0);
+            Grid.SetRow(RedButton, 2);
         }
-        UpdateCounterButtons();
     }
     private void ResetButtonClicked(object sender, EventArgs e)
     {
-        if (gameWon) return;
-        leftCounter = 0; rightCounter = 0;
+        GetPlayerBySide(Side.red).inGame.goals = 0;
+        GetPlayerBySide(Side.blue).inGame.goals = 0;
         UpdateCounterButtons();
-        if (rbOrder)
-        {
-            LeftButton.BackgroundColor = Color.FromHex("#FF0000");
-            RightButton.BackgroundColor = Color.FromHex("#2121E3");
-        }
-        else
-        {
-            RightButton.BackgroundColor = Color.FromHex("#FF0000");
-            LeftButton.BackgroundColor = Color.FromHex("#2121E3");
-        }
+        BlueButton.BackgroundColor = Color.FromHex("#2121E3");
+        RedButton.BackgroundColor = Color.FromHex("#FF0000");
         gameWon = false;
     }
 }

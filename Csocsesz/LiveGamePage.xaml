@@ -7,7 +7,7 @@
              BackgroundColor="Black">
     <Grid RowDefinitions="*, 100, *" Margin="10">
         <Button
-            x:Name="RightButton"
+            x:Name="BlueButton"
             Text="0"
             Clicked="CounterButtonClicked"
             BackgroundColor="{StaticResource Blue}"
@@ -20,23 +20,15 @@
             Padding="0"
             BackgroundColor="{StaticResource DarkGray}">
             <Grid ColumnDefinitions="*,*,*,*">
+
                 <ImageButton
-                x:Name="PlayTabBtn"
-                Source="exit_icon.svg"
+                x:Name="SettingsTabBtn"
+                Source="reset_icon.svg"
                 Style="{StaticResource NavBarButtonStyle}"
                 BackgroundColor="{StaticResource Gray}"
-                Clicked="ExitButtonClicked"
-                Rotation="-90"
+                Clicked="ResetButtonClicked"
+                Rotation="90"
                 Grid.Column="0"
-                />
-                <ImageButton
-                x:Name="HistoryTabBtn"
-                Source="back_icon.svg"
-                Style="{StaticResource NavBarButtonStyle}"
-                BackgroundColor="{StaticResource Gray}"
-                Clicked="BackButtonClicked"
-                Rotation="-90"
-                Grid.Column="1"
                 />
                 <ImageButton
                 x:Name="StatsTabBtn"
@@ -45,21 +37,31 @@
                 BackgroundColor="{StaticResource Gray}"
                 Clicked="SwapButtonClicked"
                 Rotation="0"
+                Grid.Column="1"
+                />
+                <ImageButton
+                x:Name="HistoryTabBtn"
+                Source="back_icon.svg"
+                Style="{StaticResource NavBarButtonStyle}"
+                BackgroundColor="{StaticResource Gray}"
+                Clicked="BackButtonClicked"
+                Rotation="90"
                 Grid.Column="2"
                 />
                 <ImageButton
-                x:Name="SettingsTabBtn"
-                Source="reset_icon.svg"
+                x:Name="PlayTabBtn"
+                Source="exit_icon.svg"
                 Style="{StaticResource NavBarButtonStyle}"
                 BackgroundColor="{StaticResource Gray}"
-                Clicked="ResetButtonClicked"
-                Rotation="-90"
+                Clicked="ExitButtonClicked"
+                Rotation="90"
                 Grid.Column="3"
                 />
+
             </Grid>
         </Frame>
         <Button
-            x:Name="LeftButton"
+            x:Name="RedButton"
             Text="0"
             BackgroundColor="{StaticResource Red}"
             Clicked="CounterButtonClicked"

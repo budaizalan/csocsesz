@@ -6,14 +6,14 @@ namespace Csocsesz.Classes
 {
     class Player
     {
-        public int userId { get; set; }
+        public int id { get; set; }
         public string name { get; set; }
         public Stats stats { get; set; }
         public InGame? inGame { get; set; }
 
-        public Player(int userId, string name, int streak, int totalMatchWon, int totalMatchLost, int matchWon, int goals, Side side)
+        public Player(int id, string name, int streak, int totalMatchWon, int totalMatchLost, int matchWon, int goals, Side side)
         {
-            this.userId = userId;
+            this.id = id;
             this.name = name;
             this.stats = new Stats(streak, totalMatchWon, totalMatchLost);
             this.inGame = new InGame(matchWon, goals, side);
