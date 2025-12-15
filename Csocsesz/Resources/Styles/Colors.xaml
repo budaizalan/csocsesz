@@ -5,6 +5,7 @@
 
     <Color x:Key="Red">#FF0000</Color>
     <Color x:Key="Blue">#2121E3</Color>
+    <Color x:Key="Green">#1FDB48</Color>
     <Color x:Key="White">#FFFFFF</Color>
     <Color x:Key="Gray">#7E7E7E</Color>
     <Color x:Key="DarkGray">#2D2D2D</Color>
@@ -12,6 +13,7 @@
 
     <SolidColorBrush x:Key="RedBrush" Color="{StaticResource Red}"/>
     <SolidColorBrush x:Key="BlueBrush" Color="{StaticResource Blue}"/>
+    <SolidColorBrush x:Key="GreenBrush" Color="{StaticResource Green}"/>
     <SolidColorBrush x:Key="DarkGrayBrush" Color="{StaticResource White}"/>
     <SolidColorBrush x:Key="White300Brush" Color="{StaticResource Gray}"/>
     <SolidColorBrush x:Key="GrayBrush" Color="{StaticResource DarkGray}"/>

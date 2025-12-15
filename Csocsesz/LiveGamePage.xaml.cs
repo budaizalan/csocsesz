@@ -5,6 +5,10 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
+using Microsoft.Maui.Devices;
+
+using Microsoft.Maui.Dispatching;
+
 namespace Csocsesz;
 
 public partial class LiveGamePage : ContentPage
@@ -66,11 +70,12 @@ public partial class LiveGamePage : ContentPage
     }
     #endregion
 
-    bool gameWon = false;
-    List<Side> scores = new List<Side>();
+    private bool gameWon = false;
+    private bool started = false;
+    private List<Side> scores = new List<Side>();
 
-    Player player1 = new Player("6940641da85c35114c9ca6f9", "Hugo", 0, 0, 0, 0, 0, 0, Side.red);
-    Player player2 = new Player("6940642ca85c35114c9ca6fb", "Zalan", 0, 0, 0, 0, 0, 0, Side.blue);
+    private Player player1 = new Player("694077cfe93c946a4ce8fdaf", "Hugo", 0, 0, 0, 0, 0, 0, Side.red);
+    private Player player2 = new Player("694077dbe93c946a4ce8fdb1", "Zalan", 0, 0, 0, 0, 0, 0, Side.blue);
     public LiveGamePage()
     {
         InitializeComponent();
@@ -84,6 +89,9 @@ public partial class LiveGamePage : ContentPage
     private void GameWon(Side side)
     {
         gameWon = true;
+        NewGameButton.IsVisible = true;
+        SwapButton.IsVisible = true;
+        ExitButton.BackgroundColor = Color.FromHex("#1FDB48");
         if (side == Side.red)
         {
             BlueButton.BackgroundColor = Color.FromHex("#FF0000");
@@ -114,10 +122,15 @@ public partial class LiveGamePage : ContentPage
                 BCBgoalLabel.Text = "WON";
             }
         }
+
+        TimeSpan duration = TimeSpan.FromMilliseconds(1001);
+        Vibration.Default.Vibrate(duration);
+
+        StopTimer();
     }
     private void CounterButtonClicked(object sender, EventArgs e)
     {
-        if (gameWon) return;
+        if (gameWon || !started) return;
         var button = sender as Button;
         if (sender == RedButton)
         {
@@ -139,16 +152,68 @@ public partial class LiveGamePage : ContentPage
         else return player2;
     }
 
-    //----------------------------------------------------------------------------------------------------
-    //BUTTONS---------------------------------------------------------------------------------------------
-    //----------------------------------------------------------------------------------------------------
+    #region Timer
+    private IDispatcherTimer? gameTimer; // Az idõzítõ objektum
+    private int secondsElapsed = 0; // Eltelt idõ másodpercben (a számláló)
+    private void StartTimer()
+    {
+        // Megakadályozzuk, hogy újra elinduljon, ha már fut
+        if (gameTimer != null && gameTimer.IsRunning)
+        {
+            return;
+        }
+
+        // 1. Az idõzítõ létrehozása
+        gameTimer = Dispatcher.CreateTimer();
+
+        // 2. Intervallum beállítása 1 másodpercre
+        gameTimer.Interval = TimeSpan.FromSeconds(1);
+
+        // 3. Eseménykezelõ beállítása (ez hívódik meg minden másodpercben)
+        gameTimer.Tick += OnGameTimerTick;
+
+        // 4. Az idõzítõ elindítása
+        gameTimer.Start();
+    }
+    private void StopTimer()
+    {
+        if (gameTimer != null && gameTimer.IsRunning)
+        {
+            gameTimer.Stop();
+
+            // Opcionális: Szabadítsd fel az erõforrásokat
+            gameTimer.Tick -= OnGameTimerTick;
+            gameTimer = null;
+        }
+    }
+    private void OnGameTimerTick(object? sender, EventArgs e)
+    {
+        secondsElapsed++; // Növeljük a másodperceket
+
+        // Átalakítjuk a másodperceket MM:SS formátumra
+        TimeSpan time = TimeSpan.FromSeconds(secondsElapsed);
+
+        // Frissítjük a Label-t (feltételezve, hogy TimerLabel a neve a Label-ödnek)
+        TimerLabel.Text = time.ToString(@"mm\:ss");
+
+        // Opcionális: itt teheted meg a GameWon ellenõrzéseket idõalapú meccsek esetén
+    }
+    private void ResetTimer()
+    {
+        secondsElapsed = 0;
+        TimerLabel.Text = "00:00";
+    }
+    #endregion
+
+    #region Buttons
     private async void ExitButtonClicked(object sender, EventArgs e)
     {
-        SaveGame();
+        if(!gameWon || !started) SaveGame();
         await Navigation.PushAsync(new MainPage(), false);
     }
     private void BackButtonClicked(object sender, EventArgs e)
     {
+        if (!started) return;
         if (scores.Count == 0) return;
         if (scores[scores.Count() - 1] == Side.red) GetPlayerBySide(Side.red).inGame.goals--;
         else GetPlayerBySide(Side.blue).inGame.goals--;
@@ -157,6 +222,7 @@ public partial class LiveGamePage : ContentPage
         UpdateCounterButtons();
         if(gameWon)
         {
+            StartTimer();
             BlueButton.BackgroundColor = Color.FromHex("#2121E3");
             RedButton.BackgroundColor = Color.FromHex("#FF0000");
             gameWon = false;
@@ -164,7 +230,6 @@ public partial class LiveGamePage : ContentPage
     }
     private void SwapButtonClicked(object sender, EventArgs e)
     {
-        if (gameWon) return;
         if (Grid.GetRow(BlueButton) == 0)
         {
             Grid.SetRow(BlueButton, 2);
@@ -175,14 +240,41 @@ public partial class LiveGamePage : ContentPage
             Grid.SetRow(BlueButton, 0);
             Grid.SetRow(RedButton, 2);
         }
+        if(gameWon)
+        {
+            UpdateCounterButtons();
+            BlueButton.BackgroundColor = Color.FromHex("#2121E3");
+            RedButton.BackgroundColor = Color.FromHex("#FF0000");
+        }
     }
-    private void ResetButtonClicked(object sender, EventArgs e)
+    private void NewGameButtonClicked(object sender, EventArgs e)
     {
+        if (!started) started = true;
+        if(gameWon) SaveGame();
+
+        if (player1.inGame.goals == 10)
+        {
+            if (player1.inGame.side == Side.red) RCBmatchLabel.Text = $"{++player1.inGame.matchWon}";
+            else BCBmatchLabel.Text = $"{++player1.inGame.matchWon}";
+        }
+        else if (player2.inGame.goals == 10)
+        {
+            if (player2.inGame.side == Side.red) RCBmatchLabel.Text = $"{++player2.inGame.matchWon}";
+            else BCBmatchLabel.Text = $"{++player2.inGame.matchWon}";
+        }
+
+        ResetTimer();
+        StartTimer();
+        NewGameButton.IsVisible = false;
+        SwapButton.IsVisible = false;
+        ExitButton.BackgroundColor = Color.FromHex("#7f7f7f");
         GetPlayerBySide(Side.red).inGame.goals = 0;
         GetPlayerBySide(Side.blue).inGame.goals = 0;
         UpdateCounterButtons();
         BlueButton.BackgroundColor = Color.FromHex("#2121E3");
         RedButton.BackgroundColor = Color.FromHex("#FF0000");
         gameWon = false;
+        scores.Clear();
     }
+    #endregion
 }
