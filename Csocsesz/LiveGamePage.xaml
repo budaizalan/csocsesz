@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Csocsesz.LiveGamePage"
+             Shell.NavBarIsVisible="False"
+             Title="LiveGamePage"
+             BackgroundColor="Black">
+    <Grid RowDefinitions="*, 100, *" Margin="10">
+        <Button
+            x:Name="RightButton"
+            Text="0"
+            Clicked="CounterButtonClicked"
+            BackgroundColor="{StaticResource Blue}"
+            Style="{StaticResource CounterButtonStyle}"
+            Grid.Row="0"
+            />
+        <Frame
+            Grid.Row="1"
+            CornerRadius="20"
+            Padding="0"
+            BackgroundColor="{StaticResource DarkGray}">
+            <Grid ColumnDefinitions="*,*,*,*">
+                <ImageButton
+                x:Name="PlayTabBtn"
+                Source="exit_icon.svg"
+                Style="{StaticResource NavBarButtonStyle}"
+                BackgroundColor="{StaticResource Gray}"
+                Clicked="ExitButtonClicked"
+                Rotation="-90"
+                Grid.Column="0"
+                />
+                <ImageButton
+                x:Name="HistoryTabBtn"
+                Source="back_icon.svg"
+                Style="{StaticResource NavBarButtonStyle}"
+                BackgroundColor="{StaticResource Gray}"
+                Clicked="BackButtonClicked"
+                Rotation="-90"
+                Grid.Column="1"
+                />
+                <ImageButton
+                x:Name="StatsTabBtn"
+                Source="swap_icon.svg"
+                Style="{StaticResource NavBarButtonStyle}"
+                BackgroundColor="{StaticResource Gray}"
+                Clicked="SwapButtonClicked"
+                Rotation="0"
+                Grid.Column="2"
+                />
+                <ImageButton
+                x:Name="SettingsTabBtn"
+                Source="reset_icon.svg"
+                Style="{StaticResource NavBarButtonStyle}"
+                BackgroundColor="{StaticResource Gray}"
+                Clicked="ResetButtonClicked"
+                Rotation="-90"
+                Grid.Column="3"
+                />
+            </Grid>
+        </Frame>
+        <Button
+            x:Name="LeftButton"
+            Text="0"
+            BackgroundColor="{StaticResource Red}"
+            Clicked="CounterButtonClicked"
+            Style="{StaticResource CounterButtonStyle}"
+            Grid.Row="2"
+            />
+    </Grid>
+</ContentPage>

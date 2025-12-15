@@ -1,0 +1,50 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Csocsesz.Classes
+{
+    class Player
+    {
+        public int userId { get; set; }
+        public string name { get; set; }
+        public Stats stats { get; set; }
+        public InGame? inGame { get; set; }
+
+        public Player(int userId, string name, int streak, int totalMatchWon, int totalMatchLost, int matchWon, int goals, Side side)
+        {
+            this.userId = userId;
+            this.name = name;
+            this.stats = new Stats(streak, totalMatchWon, totalMatchLost);
+            this.inGame = new InGame(matchWon, goals, side);
+        }
+    }
+    class Stats
+    {
+        public int streak { get; set; }
+        static public int totalMatchWon { get; set; }
+        static public int totalMatchLost { get; set; }
+        public double winRate { get { return totalMatchWon / (totalMatchLost + totalMatchWon); } }
+        public Stats(int steak, int totalMatchWonn, int totalMatchLostt)
+        {
+            this.streak = steak;
+            totalMatchWon = totalMatchWonn;
+            totalMatchLost = totalMatchLostt;
+        }
+    }
+    enum Side { red, blue };
+    class InGame
+    {
+        public int matchWon { get; set; }
+        public int goals { get; set; }
+        public Side side { get; set; }
+        public InGame(int matchWon, int goals, Side side)
+        {
+            this.matchWon = matchWon;
+            this.goals = goals;
+            this.side = side;
+        }
+    }
+
+
+}
