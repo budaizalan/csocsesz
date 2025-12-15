@@ -36,6 +36,7 @@ const userSchema = new mongoose.Schema(
     id: {
       type: mongoose.Schema.Types.ObjectId,
       unique: true,
+      sparse: true
     },
     name: {
       type: String,
@@ -66,15 +67,11 @@ const userSchema = new mongoose.Schema(
         { _id: false }
       ),
       default: null,
-    },
-
-    lastActiveAt: {
-      type: Date,
-      default: Date.now,
-    },
+    }
   },
   {
     timestamps: true,
+    versionKey: false
   }
 );
 
