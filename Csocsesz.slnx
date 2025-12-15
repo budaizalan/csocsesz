@@ -1,5 +1,3 @@
 <Solution>
-  <Project Path="FirstMAUI/Csocsesz.csproj">
-    <Deploy Solution="Debug|*" />
-  </Project>
+  <Project Path="Csocsesz/Csocsesz.csproj" />
 </Solution>
