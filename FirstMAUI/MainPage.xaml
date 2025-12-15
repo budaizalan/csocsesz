@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FirstMAUI.MainPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="Black">
+
+    <Grid RowDefinitions="120, *, 120" ColumnDefinitions="*, *, *, *" Margin="10">
+        <Label
+            Text="CSOCSESZ"
+            Style="{StaticResource Title}"
+            VerticalOptions="Center"
+            HorizontalTextAlignment="Center"
+            Grid.Row="0"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
+            />
+        <VerticalStackLayout VerticalOptions="Center" Spacing="20" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2">
+            <Button
+            x:Name="LiveGameBtn"
+            Text="LIVE GAME"
+            Clicked="LiveGameButtonClicked"
+            Style="{StaticResource RegularButtonStyle}"
+            Grid.Row="1"
+            />
+            <Button
+            x:Name="NewRecordBtn"
+            Text="NEW RECORD"
+            Style="{StaticResource RegularButtonStyle}"
+            Grid.Row="1"
+            />
+        </VerticalStackLayout>
+        <Frame
+            Grid.Row="2"
+            Grid.Column="0"
+            Grid.ColumnSpan="4"
+            CornerRadius="20"
+            Padding="10"
+            BackgroundColor="{StaticResource DarkGray}">
+            <Grid ColumnDefinitions="*,*,*,*">
+                <ImageButton
+                x:Name="PlayTabBtn"
+                Source="play_icon.svg"
+                Style="{StaticResource NavBarButtonStyle}"
+                BackgroundColor="{StaticResource Red}"
+                Grid.Column="0"
+                />
+                <ImageButton
+                x:Name="HistoryTabBtn"
+                Source="history_icon.svg"
+                Style="{StaticResource NavBarButtonStyle}"
+                BackgroundColor="{StaticResource Gray}"
+                Grid.Column="1"
+                />
+                <ImageButton
+                x:Name="StatsTabBtn"
+                Source="stats_icon.svg"
+                Style="{StaticResource NavBarButtonStyle}"
+                BackgroundColor="{StaticResource Gray}"
+                Grid.Column="2"
+                />
+                <ImageButton
+                x:Name="SettingsTabBtn"
+                Source="settings_icon.svg"
+                Style="{StaticResource NavBarButtonStyle}"
+                BackgroundColor="{StaticResource Gray}"
+                Grid.Column="3"
+                />
+            </Grid>
+        </Frame>
+    </Grid>
+
+</ContentPage>
