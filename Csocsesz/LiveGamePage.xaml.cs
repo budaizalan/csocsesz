@@ -1,10 +1,71 @@
 using Csocsesz;
 using Csocsesz.Classes;
 
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+
 namespace Csocsesz;
 
 public partial class LiveGamePage : ContentPage
 {
+    #region HTTP
+    // HTTP Kliens és API URL
+    private readonly HttpClient _httpClient = new HttpClient();
+    private const string ApiUrl = "https://csocsesz-backend-g2bsedgra6b8aydz.swedencentral-01.azurewebsites.net/api/matchresults";
+    // Feltételezem, a /api/users helyett /api/matchresults-ra kéne küldeni
+    private async Task UploadMatchResultAsync(MatchResults matchResults)
+    {
+        // 1. Objektum sorosítása JSON stringgé
+        string jsonContent = JsonSerializer.Serialize(matchResults);
+
+        // 2. JSON tartalom létrehozása
+        StringContent content = new StringContent(
+            jsonContent,
+            Encoding.UTF8,
+            "application/json" // Megmondjuk a szervernek, hogy JSON-t küldünk
+        );
+
+        try
+        {
+            // 3. POST kérés küldése
+            HttpResponseMessage response = await _httpClient.PostAsync(ApiUrl, content);
+
+            // 4. Válasz ellenõrzése
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Sikeres feltöltés!");
+                // Itt megjeleníthetsz egy üzenetet a felhasználónak
+            }
+            else
+            {
+                // Hibakezelés (pl. ha a szerver 400 Bad Request-et küld)
+                string errorBody = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Hiba a feltöltésnél. Státuszkód: {response.StatusCode}. Válasz: {errorBody}");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Hálózati hiba (pl. nincs internet, rossz URL)
+            Console.WriteLine($"Hiba a hálózati kérés során: {ex.Message}");
+        }
+    }
+    private void SaveGame()
+    {
+        if (!gameWon) return;
+        Player winner = (GetPlayerBySide(Side.red).inGame.goals > GetPlayerBySide(Side.blue).inGame.goals) ? GetPlayerBySide(Side.red) : GetPlayerBySide(Side.blue);
+        Player loser = (winner == GetPlayerBySide(Side.red)) ? GetPlayerBySide(Side.blue) : GetPlayerBySide(Side.red);
+
+        // Létrehozzuk a MatchResults objektumot a szervernek:
+        MatchResults results = new MatchResults(winnerId: winner.id, loserId: loser.id, loserGoals: loser.inGame.goals);
+        // feltételezve, hogy a gyõztes góljai fixen 10-ek
+
+        // Elindítjuk a feltöltést egy háttérszálon (Task.Run), 
+        // hogy ne fagyjon le a felhasználói felület, amíg várunk a szerverre.
+        Task.Run(() => UploadMatchResultAsync(results));
+    }
+    #endregion
+
     bool gameWon = false;
     List<Side> scores = new List<Side>();
 
@@ -14,6 +75,7 @@ public partial class LiveGamePage : ContentPage
     {
         InitializeComponent();
     }
+
     private void UpdateCounterButtons()
     {
         BlueButton.Text = $"{GetPlayerBySide(Side.blue).inGame.goals}";
@@ -82,6 +144,7 @@ public partial class LiveGamePage : ContentPage
     //----------------------------------------------------------------------------------------------------
     private async void ExitButtonClicked(object sender, EventArgs e)
     {
+        SaveGame();
         await Navigation.PushAsync(new MainPage(), false);
     }
     private void BackButtonClicked(object sender, EventArgs e)
@@ -123,4 +186,3 @@ public partial class LiveGamePage : ContentPage
         gameWon = false;
     }
 }
-//a
