@@ -46,6 +46,30 @@
         <Setter Property="WidthRequest" Value="325" />
     </Style>
 
+    <!-- COUNTERBUTTON -->
+
+    <Style TargetType="Frame" x:Key="CBframeStyle">
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="HeightRequest" Value="325" />
+        <Setter Property="WidthRequest" Value="325" />
+    </Style>
+    <Style TargetType="Label" x:Key="CBgoalLabelStyle">
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="FontSize" Value="100" />
+        <Setter Property="Rotation" Value="0" />
+        <Setter Property="FontFamily" Value="CenturyGothicBold" />
+    </Style>
+    <Style TargetType="Image" x:Key="CBimageStyle">
+        <Setter Property="HeightRequest" Value="70" />
+        <Setter Property="Rotation" Value="0" />
+    </Style>
+    <Style TargetType="Label" x:Key="CBmatchLabelStyle">
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="FontSize" Value="40" />
+        <Setter Property="Rotation" Value="0" />
+        <Setter Property="FontFamily" Value="CenturyGothicBold" />
+    </Style>
+
     <!-- DEFAULT STYLES --> <!-- DEFAULT STYLES --> <!-- DEFAULT STYLES --> <!-- DEFAULT STYLES --> <!-- DEFAULT STYLES -->
     <!-- DEFAULT STYLES --> <!-- DEFAULT STYLES --> <!-- DEFAULT STYLES --> <!-- DEFAULT STYLES --> <!-- DEFAULT STYLES -->
     <!-- DEFAULT STYLES --> <!-- DEFAULT STYLES --> <!-- DEFAULT STYLES --> <!-- DEFAULT STYLES --> <!-- DEFAULT STYLES -->

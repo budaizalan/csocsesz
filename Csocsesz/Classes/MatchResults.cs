@@ -6,11 +6,11 @@ namespace Csocsesz.Classes
 {
     internal class MatchResults
     {
-        public int winnerId { get; set; }
-        public int loserId { get; set; }
+        public string winnerId { get; set; }
+        public string loserId { get; set; }
         public int loserGoals { get; set; }
 
-        public MatchResults(int winnerId, int loserId, int loserGoals)
+        public MatchResults(string winnerId, string loserId, int loserGoals)
         {
             this.winnerId = winnerId;
             this.loserId = loserId;

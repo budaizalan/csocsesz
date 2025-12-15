@@ -12,7 +12,7 @@ public partial class LiveGamePage : ContentPage
     #region HTTP
     // HTTP Kliens és API URL
     private readonly HttpClient _httpClient = new HttpClient();
-    private const string ApiUrl = "https://csocsesz-backend-g2bsedgra6b8aydz.swedencentral-01.azurewebsites.net/api/matchresults";
+    private const string ApiUrl = "https://csocsesz-backend-g2bsedgra6b8aydz.swedencentral-01.azurewebsites.net/api/matches";
     // Feltételezem, a /api/users helyett /api/matchresults-ra kéne küldeni
     private async Task UploadMatchResultAsync(MatchResults matchResults)
     {
@@ -69,8 +69,8 @@ public partial class LiveGamePage : ContentPage
     bool gameWon = false;
     List<Side> scores = new List<Side>();
 
-    Player player1 = new Player(0, "Hugo", 0, 0, 0, 0, 0, Side.red);
-    Player player2 = new Player(1, "Zalan", 0, 0, 0, 0, 0, Side.blue);
+    Player player1 = new Player("6940641da85c35114c9ca6f9", "Hugo", 0, 0, 0, 0, 0, 0, Side.red);
+    Player player2 = new Player("6940642ca85c35114c9ca6fb", "Zalan", 0, 0, 0, 0, 0, 0, Side.blue);
     public LiveGamePage()
     {
         InitializeComponent();
@@ -78,8 +78,8 @@ public partial class LiveGamePage : ContentPage
 
     private void UpdateCounterButtons()
     {
-        BlueButton.Text = $"{GetPlayerBySide(Side.blue).inGame.goals}";
-        RedButton.Text = $"{GetPlayerBySide(Side.red).inGame.goals}";
+        BCBgoalLabel.Text = $"{GetPlayerBySide(Side.blue).inGame.goals}";
+        RCBgoalLabel.Text = $"{GetPlayerBySide(Side.red).inGame.goals}";
     }
     private void GameWon(Side side)
     {
@@ -90,13 +90,13 @@ public partial class LiveGamePage : ContentPage
             RedButton.BackgroundColor = Color.FromHex("#FF0000");
             if (Grid.GetRow(BlueButton) == 0)
             {
-                BlueButton.Text = "RED";
-                RedButton.Text = "WON";
+                BCBgoalLabel.Text = "RED";
+                RCBgoalLabel.Text = "WON";
             }
             else
             {
-                RedButton.Text = "RED";
-                BlueButton.Text = "WON";
+                RCBgoalLabel.Text = "RED";
+                BCBgoalLabel.Text = "WON";
             }
         }
         else
@@ -105,13 +105,13 @@ public partial class LiveGamePage : ContentPage
             RedButton.BackgroundColor = Color.FromHex("#2121E3");
             if (Grid.GetRow(BlueButton) == 0)
             {
-                BlueButton.Text = "BLUE";
-                RedButton.Text = "WON";
+                BCBgoalLabel.Text = "BLUE";
+                RCBgoalLabel.Text = "WON";
             }
             else
             {
-                RedButton.Text = "BLUE";
-                BlueButton.Text = "WON";
+                RCBgoalLabel.Text = "BLUE";
+                BCBgoalLabel.Text = "WON";
             }
         }
     }
@@ -130,8 +130,8 @@ public partial class LiveGamePage : ContentPage
             scores.Add(Side.blue);
         }
         UpdateCounterButtons();
-        if (RedButton.Text == "10") GameWon(Side.red);
-        else if (BlueButton.Text == "10") GameWon(Side.blue);
+        if (RCBgoalLabel.Text == "10") GameWon(Side.red);
+        else if (BCBgoalLabel.Text == "10") GameWon(Side.blue);
     }
     private Player GetPlayerBySide(Side side)
     {

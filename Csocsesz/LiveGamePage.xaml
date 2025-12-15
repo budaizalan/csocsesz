@@ -6,14 +6,37 @@
              Title="LiveGamePage"
              BackgroundColor="Black">
     <Grid RowDefinitions="*, 100, *" Margin="10">
-        <Button
+        <Frame 
             x:Name="BlueButton"
-            Text="0"
-            Clicked="CounterButtonClicked"
             BackgroundColor="{StaticResource Blue}"
-            Style="{StaticResource CounterButtonStyle}"
-            Grid.Row="0"
-            />
+            Style="{StaticResource CBframeStyle}"
+            Grid.Row="0">
+            <Grid RowDefinitions="35*,65*" ColumnDefinitions="55*,45*"
+                  Rotation="90">
+                <Label
+                    x:Name="BCBgoalLabel"
+                    Text="0"
+                    Style="{StaticResource CBgoalLabelStyle}"
+                    HorizontalOptions="Center" VerticalOptions="Start"
+                    HorizontalTextAlignment="Center" VerticalTextAlignment="Start"
+                    Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
+                <Image
+                    Source="zalan_icon.png"
+                    Style="{StaticResource CBimageStyle}"
+                    HorizontalOptions="End" VerticalOptions="End"
+                    Grid.Row="0" Grid.Column="0"/>
+                <Label
+                    x:Name="BCBmatchLabel"
+                    Text="0"
+                    Style="{StaticResource CBmatchLabelStyle}"
+                    HorizontalOptions="Start" VerticalOptions="End"
+                    HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                    Grid.Row="0" Grid.Column="1"/>
+            </Grid>
+            <Frame.GestureRecognizers>
+                <TapGestureRecognizer Tapped="CounterButtonClicked"/>
+            </Frame.GestureRecognizers>
+        </Frame>
         <Frame
             Grid.Row="1"
             CornerRadius="20"
@@ -22,7 +45,6 @@
             <Grid ColumnDefinitions="*,*,*,*">
 
                 <ImageButton
-                x:Name="SettingsTabBtn"
                 Source="reset_icon.svg"
                 Style="{StaticResource NavBarButtonStyle}"
                 BackgroundColor="{StaticResource Gray}"
@@ -31,7 +53,6 @@
                 Grid.Column="0"
                 />
                 <ImageButton
-                x:Name="StatsTabBtn"
                 Source="swap_icon.svg"
                 Style="{StaticResource NavBarButtonStyle}"
                 BackgroundColor="{StaticResource Gray}"
@@ -40,7 +61,6 @@
                 Grid.Column="1"
                 />
                 <ImageButton
-                x:Name="HistoryTabBtn"
                 Source="back_icon.svg"
                 Style="{StaticResource NavBarButtonStyle}"
                 BackgroundColor="{StaticResource Gray}"
@@ -49,24 +69,46 @@
                 Grid.Column="2"
                 />
                 <ImageButton
-                x:Name="PlayTabBtn"
                 Source="exit_icon.svg"
                 Style="{StaticResource NavBarButtonStyle}"
                 BackgroundColor="{StaticResource Gray}"
                 Clicked="ExitButtonClicked"
-                Rotation="90"
+                Rotation="-90"
                 Grid.Column="3"
                 />
 
             </Grid>
         </Frame>
-        <Button
+        <Frame 
             x:Name="RedButton"
-            Text="0"
             BackgroundColor="{StaticResource Red}"
-            Clicked="CounterButtonClicked"
-            Style="{StaticResource CounterButtonStyle}"
-            Grid.Row="2"
-            />
+            Style="{StaticResource CBframeStyle}"
+            Grid.Row="2">
+                    <Grid RowDefinitions="35*,65*" ColumnDefinitions="55*,45*"
+                  Rotation="90">
+                        <Label
+                    x:Name="RCBgoalLabel"
+                    Text="0"
+                    Style="{StaticResource CBgoalLabelStyle}"
+                    HorizontalOptions="Center" VerticalOptions="Start"
+                    HorizontalTextAlignment="Center" VerticalTextAlignment="Start"
+                    Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
+                        <Image
+                    Source="hugo_icon.png"
+                    Style="{StaticResource CBimageStyle}"
+                    HorizontalOptions="End" VerticalOptions="End"
+                    Grid.Row="0" Grid.Column="0"/>
+                        <Label
+                    x:Name="RCBmatchLabel"
+                    Text="0"
+                    Style="{StaticResource CBmatchLabelStyle}"
+                    HorizontalOptions="Start" VerticalOptions="End"
+                    HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                    Grid.Row="0" Grid.Column="1"/>
+                    </Grid>
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="CounterButtonClicked"/>
+                </Frame.GestureRecognizers>
+        </Frame>
     </Grid>
 </ContentPage>
