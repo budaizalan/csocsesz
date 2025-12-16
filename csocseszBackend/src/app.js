@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const http = require('http');
 const UserRouter = require('./routes/userRouter');
 const mongoose = require('mongoose');
 const UserController = require('./controllers/userController');
@@ -30,6 +29,7 @@ const matchRouter = new MatchRouter(MatchController);
 
 app.setMaxListeners(15);
 
+app.use('/api/reset', (req, res) => {UserController.resetUsersStats(req, res); MatchController.deleteMatches(req, res);});
 app.use('/api/users', userRouter.getRouter());
 app.use('/api/matches', matchRouter.getRouter());
 
