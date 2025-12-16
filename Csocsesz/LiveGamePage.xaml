@@ -11,7 +11,7 @@
             BackgroundColor="{StaticResource Blue}"
             Style="{StaticResource CBframeStyle}"
             Grid.Row="0">
-            <Grid RowDefinitions="35*,65*" ColumnDefinitions="52.5*,47.5*"
+            <Grid RowDefinitions="425*,575*" ColumnDefinitions="575*,425*"
                   Rotation="90">
                 <Label
                     x:Name="BCBgoalLabel"
@@ -21,6 +21,7 @@
                     HorizontalTextAlignment="Center" VerticalTextAlignment="Start"
                     Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
                 <Image
+                    x:Name="zalanImage"
                     Source="zalan_icon.png"
                     Style="{StaticResource CBimageStyle}"
                     HorizontalOptions="End" VerticalOptions="End"
@@ -92,7 +93,7 @@
             BackgroundColor="{StaticResource Red}"
             Style="{StaticResource CBframeStyle}"
             Grid.Row="2">
-            <Grid RowDefinitions="35*,65*" ColumnDefinitions="52.5*,47.5*"
+            <Grid RowDefinitions="425*,575*" ColumnDefinitions="575*,425*"
                   Rotation="90">
                   <Label
                     x:Name="RCBgoalLabel"
@@ -102,6 +103,7 @@
                     HorizontalTextAlignment="Center" VerticalTextAlignment="Start"
                     Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
                   <Image
+                    x:Name="hugoImage"
                     Source="hugo_icon.png"
                     Style="{StaticResource CBimageStyle}"
                     HorizontalOptions="End" VerticalOptions="End"

@@ -122,37 +122,13 @@ public partial class LiveGamePage : ContentPage
                 BCBgoalLabel.Text = "WON";
             }
         }
+        if (GetPlayerBySide(side).name == "Zalan") hugoImage.Source = ImageSource.FromFile("hugosad_icon.png");
+        else zalanImage.Source = ImageSource.FromFile("zalansad_icon.png");
 
         TimeSpan duration = TimeSpan.FromMilliseconds(1001);
         Vibration.Default.Vibrate(duration);
 
         StopTimer();
-    }
-    private async void CounterButtonClicked(object sender, EventArgs e)
-    {
-        if (gameWon || !started) return;
-
-        var button = sender as Button;
-        if (sender == RedButton)
-        {
-            GetPlayerBySide(Side.red).inGame.goals++;
-            scores.Add(Side.red);
-        }
-        else
-        {
-            GetPlayerBySide(Side.blue).inGame.goals++;
-            scores.Add(Side.blue);
-        }
-        UpdateCounterButtons();
-        if (RCBgoalLabel.Text == "10") GameWon(Side.red);
-        else if (BCBgoalLabel.Text == "10") GameWon(Side.blue);
-
-        var clickedElement = sender as Frame;
-        if (clickedElement != null)
-        {
-            await clickedElement.ScaleTo(0.95, 50, Easing.CubicOut);
-            await clickedElement.ScaleTo(1.0, 150, Easing.CubicIn);
-        }
     }
     private Player GetPlayerBySide(Side side)
     {
@@ -216,6 +192,32 @@ public partial class LiveGamePage : ContentPage
     #endregion
 
     #region Buttons
+    private async void CounterButtonClicked(object sender, EventArgs e)
+    {
+        if (gameWon || !started) return;
+
+        var button = sender as Button;
+        if (sender == RedButton)
+        {
+            GetPlayerBySide(Side.red).inGame.goals++;
+            scores.Add(Side.red);
+        }
+        else
+        {
+            GetPlayerBySide(Side.blue).inGame.goals++;
+            scores.Add(Side.blue);
+        }
+        UpdateCounterButtons();
+        if (RCBgoalLabel.Text == "10") GameWon(Side.red);
+        else if (BCBgoalLabel.Text == "10") GameWon(Side.blue);
+
+        var clickedElement = sender as Frame;
+        if (clickedElement != null)
+        {
+            await clickedElement.ScaleTo(0.95, 50, Easing.CubicOut);
+            await clickedElement.ScaleTo(1.0, 150, Easing.CubicIn);
+        }
+    }
     private async void ExitButtonClicked(object sender, EventArgs e)
     {
         if(gameWon) SaveGame();
@@ -235,9 +237,12 @@ public partial class LiveGamePage : ContentPage
             StartTimer();
             BlueButton.BackgroundColor = Color.FromHex("#2121E3");
             RedButton.BackgroundColor = Color.FromHex("#FF0000");
+            ExitButton.BackgroundColor = Color.FromHex("#7f7f7f");
             NewGameButton.IsVisible = false;
             SwapButton.IsVisible = false;
             gameWon = false;
+            hugoImage.Source = ImageSource.FromFile("hugo_icon.png");
+            zalanImage.Source = ImageSource.FromFile("zalan_icon.png");
         }
     }
     private void SwapButtonClicked(object sender, EventArgs e)
@@ -287,6 +292,9 @@ public partial class LiveGamePage : ContentPage
         RedButton.BackgroundColor = Color.FromHex("#FF0000");
         gameWon = false;
         scores.Clear();
+
+        hugoImage.Source = ImageSource.FromFile("hugo_icon.png");
+        zalanImage.Source = ImageSource.FromFile("zalan_icon.png");
     }
     #endregion
 }
