@@ -17,6 +17,10 @@ const statsSchema = new mongoose.Schema(
       default: 0,
       min: [0, "USER.VALIDATION.STATS_NEGATIVE_MATCH_LOST"],
     },
+    totalPushUps: {
+      type: Number,
+      default: 0,
+    }
   },
   {
     _id: false, 
@@ -25,11 +29,11 @@ const statsSchema = new mongoose.Schema(
   }
 );
 
-statsSchema.virtual("winRate").get(function () {
-  const total = this.totalMatchWon + this.totalMatchLost;
-  if (total === 0) return 0;
-  return parseFloat((this.totalMatchWon / total).toFixed(4));
-});
+// statsSchema.save(function () {
+//   const total = this.totalMatchWon + this.totalMatchLost;
+//   if (total === 0) return 0;
+//   return parseFloat((this.totalMatchWon / total).toFixed(4));
+// });
 
 const userSchema = new mongoose.Schema(
   {
@@ -48,25 +52,6 @@ const userSchema = new mongoose.Schema(
     stats: {
       type: statsSchema,
       default: () => ({}),
-    },
-
-    inGame: {
-      type: new mongoose.Schema(
-        {
-          matchWon: { type: Number, default: 0 },
-          goals: { type: Number, default: 0 },
-          side: {
-            type: String,
-            enum: {
-              values: ["red", "blue"],
-              message: "USER.VALIDATION.INVALID_SIDE",
-            },
-            required: [true, "USER.VALIDATION.SIDE_REQUIRED"],
-          },
-        },
-        { _id: false }
-      ),
-      default: null,
     }
   },
   {

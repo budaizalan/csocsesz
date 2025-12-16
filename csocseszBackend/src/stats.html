@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adatbázis Eredmények</title>
+<style>
+  /* --- DIZÁJN RÉSZ (CSS) --- */
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  h1 {
+    margin-bottom: 30px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+
+  .card-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 0 10px;
+  }
+
+  .data-card {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.19);
+    text-align: center;
+    transition: transform 0.2s;
+  }
+  
+  .data-card:hover {
+    transform: translateY(-2px);
+    border-color: #555;
+  }
+
+  .player-info {
+    font-size: 1.8em;
+    color: #fff;
+    font-weight: 800;
+    margin-bottom: 15px;
+    font-family: monospace;
+    text-transform: uppercase;
+  }
+
+  .main-score {
+    font-size: 3em;
+    font-weight: bold;
+    margin: 10px 0;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+
+  .details {
+    font-size: 1.1em;
+    color: #ccc;
+    line-height: 1.6;
+  }
+
+  .stat-highlight {
+    color: #4da6ff;
+    font-weight: 500;
+  }
+
+  /* --- ÚJ GOMB STÍLUS --- */
+  .reset-btn {
+    margin-top: 20px;
+    margin-bottom: 40px; /* Hely az alján */
+    padding: 12px 30px;
+    background-color: #b71c1c; /* Sötétvörös */
+    color: #ffebee;
+    border: 1px solid #d32f2f;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 1px;
+  }
+
+  .reset-btn:hover {
+    background-color: #d32f2f; /* Világosabb vörös hoverkor */
+    box-shadow: 0 0 10px rgba(211, 47, 47, 0.4);
+    transform: scale(1.02);
+  }
+  
+  .reset-btn:active {
+    transform: scale(0.98);
+  }
+
+</style>
+</head>
+<body>
+
+  <h1>Adatbázis Eredmények</h1>
+  
+  <div class="card-container" id="results-area">
+    <p style="text-align:center; color: #666;">Adatok betöltése...</p>
+  </div>
+
+  <button id="resetButton" class="reset-btn">Reset Stats</button>
+
+  <script>
+    // --- LOGIKA RÉSZ (JS) ---
+    
+    // 1. Adatok betöltése (GET)
+    function loadData() {
+        const container = document.getElementById('results-area');
+        container.innerHTML = '<p style="text-align:center; color: #666;">Adatok frissítése...</p>';
+
+        fetch('https://csocsesz-backend-g2bsedgra6b8aydz.swedencentral-01.azurewebsites.net/api/users')
+        .then(response => response.json())
+        .then(data => {
+            setTimeout(() => {
+              renderData(data);
+          }, 500);
+        })
+        .catch(error => {
+            console.error('Hiba:', error);
+            container.innerHTML = '<p style="color:#d32f2f; text-align:center;">Hiba az adatok lekérésekor.</p>';
+        });
+    }
+
+    // Első betöltés
+    loadData();
+
+    // 2. Renderelés
+    function renderData(data) {
+      const container = document.getElementById('results-area');
+      container.innerHTML = '';
+
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'data-card';
+        
+        const totalMatches = item.stats.totalMatchWon + item.stats.totalMatchLost;
+        const winrate = totalMatches === 0 ? 0 : (item.stats.totalMatchWon / totalMatches).toFixed(2);
+
+        card.innerHTML = `
+          <div class="player-info">${item.name} <br> <span style="font-size:0.8em; color:#555;">${item._id}</span></div>
+          <div class="main-score" title="Total Push Ups">${item.stats.totalPushUps}</div>
+          <div class="details">
+            Win: <span class="stat-highlight">${item.stats.totalMatchWon}</span> - 
+            Lose: <span class="stat-highlight">${item.stats.totalMatchLost}</span><br>
+            Winrate: ${winrate}
+          </div>
+        `;
+        
+        container.appendChild(card);
+      });
+    }
+
+    // 3. Reset gomb logika (POST)
+    const resetBtn = document.getElementById('resetButton');
+    
+    resetBtn.addEventListener('click', () => {
+        // Biztonsági kérdés
+        if (!confirm("Biztosan nullázni akarod a statisztikákat (csak pushup)?")) return;
+
+        resetBtn.textContent = "Törlés...";
+        resetBtn.disabled = true;
+
+        fetch('http://localhost:5000/api/users/reset-stats?pushupOnly=1', {
+            method: 'POST'
+        })
+        .then(response => {
+            if (response.ok) {
+                // Ha sikeres, újratöltjük az adatokat, hogy lássuk az eredményt
+                loadData(); 
+            } else {
+                alert("Hiba történt a törlés során!");
+            }
+        })
+        .catch(error => {
+            console.error('Reset hiba:', error);
+            alert("Nem sikerült elérni a szervert (localhost).");
+        })
+        .finally(() => {
+            // Gomb visszaállítása
+            resetBtn.textContent = "Reset Stats";
+            resetBtn.disabled = false;
+        });
+    });
+  </script>
+
+</body>
+</html>

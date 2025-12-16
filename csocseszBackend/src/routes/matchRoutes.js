@@ -12,6 +12,7 @@ class MatchRouter {
     initializeRoutes() {
         this.router.get('/', this.matchController.getAllMatches.bind(this.matchController));
         this.router.post('/', this.matchController.postMatch.bind(this.matchController));
+        this.router.delete('/', this.matchController.deleteMatches.bind(this.matchController));
     }
     getRouter() {
         return this.router;
