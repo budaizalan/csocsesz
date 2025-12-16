@@ -22,6 +22,23 @@ class UserController{
         }
     }
 
+    async decreaseUserPushups(req, res){
+        try {
+            const User = mongoose.model('User');
+            const userId = req.params.id;
+            const decreaseBy = parseInt(req.body.decreaseBy, 10);
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            user.stats.totalPushUps = Math.max(0, user.stats.totalPushUps - decreaseBy);
+            await user.save();
+            res.status(200).json({ message: 'User push-up count decreased successfully', totalPushUps: user.stats.totalPushUps });
+        } catch (error) {
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }
+
     async resetUsersStats(req, res){
         try {
             const User = await mongoose.model('User');

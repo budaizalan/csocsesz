@@ -12,6 +12,7 @@ class UserRouter {
     initializeRoutes() {
         this.router.get('/', this.userController.getAllUsers.bind(this.userController));
         this.router.get('/:id', this.userController.getUserById.bind(this.userController));
+        this.router.post('/:id/decrease-pushups', this.userController.decreaseUserPushups.bind(this.userController));
         this.router.post('/reset-stats', this.userController.resetUsersStats.bind(this.userController));
         this.router.post('/', this.userController.createUser.bind(this.userController));
         this.router.delete('/:id', this.userController.deleteUser.bind(this.userController));

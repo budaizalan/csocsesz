@@ -2,5 +2,7 @@
     "appService.zipIgnorePattern": [
         "node_modules{,/**}",
         ".vscode{,/**}"
-    ]
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/408cd33e-ac8c-46d2-878f-5fa4bbd27b03/resourceGroups/CsocsoApp-RG/providers/Microsoft.Web/sites/csocsesz-backend",
+    "appService.deploySubpath": "csocseszBackend"
 }

@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Adatbázis Eredmények</title>
 <style>
-  /* --- DIZÁJN RÉSZ (CSS) --- */
   body {
     background-color: #121212;
     color: #e0e0e0;
@@ -76,12 +75,16 @@
     font-weight: 500;
   }
 
-  /* --- ÚJ GOMB STÍLUS --- */
+  .stat-highlightL {
+    color: #bd0e0e;
+    font-weight: 500;
+  }
+
   .reset-btn {
     margin-top: 20px;
-    margin-bottom: 40px; /* Hely az alján */
+    margin-bottom: 40px;
     padding: 12px 30px;
-    background-color: #b71c1c; /* Sötétvörös */
+    background-color: #b71c1c;
     color: #ffebee;
     border: 1px solid #d32f2f;
     border-radius: 6px;
@@ -94,7 +97,7 @@
   }
 
   .reset-btn:hover {
-    background-color: #d32f2f; /* Világosabb vörös hoverkor */
+    background-color: #d32f2f;
     box-shadow: 0 0 10px rgba(211, 47, 47, 0.4);
     transform: scale(1.02);
   }
@@ -103,43 +106,62 @@
     transform: scale(0.98);
   }
 
+  .clock-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(30, 30, 30, 0.85);
+    border: 1px solid #444;
+    padding: 10px 20px;
+    font-family: monospace;
+    font-size: 1.5rem;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+  }
 </style>
 </head>
 <body>
 
   <h1>Adatbázis Eredmények</h1>
   
-  <div class="card-container" id="results-area">
-    <p style="text-align:center; color: #666;">Adatok betöltése...</p>
-  </div>
+  <div class="card-container" id="results-area"></div>
 
   <button id="resetButton" class="reset-btn">Reset Stats</button>
 
+  <div id="clockDisplay" class="clock-widget">--:--:--</div>
   <script>
-    // --- LOGIKA RÉSZ (JS) ---
-    
-    // 1. Adatok betöltése (GET)
-    function loadData() {
+
+    function updateClock() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('hu-HU');
+        document.getElementById('clockDisplay').textContent = timeString;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+
+    function loadData(isFirstLoad = false) {
         const container = document.getElementById('results-area');
-        container.innerHTML = '<p style="text-align:center; color: #666;">Adatok frissítése...</p>';
+        
+        if (isFirstLoad) {
+            container.innerHTML = '<p style="text-align:center; color: #666;">Adatok betöltése...</p>';
+        }
 
         fetch('https://csocsesz-backend-g2bsedgra6b8aydz.swedencentral-01.azurewebsites.net/api/users')
         .then(response => response.json())
         .then(data => {
-            setTimeout(() => {
-              renderData(data);
-          }, 500);
+            renderData(data);
         })
         .catch(error => {
-            console.error('Hiba:', error);
-            container.innerHTML = '<p style="color:#d32f2f; text-align:center;">Hiba az adatok lekérésekor.</p>';
+            console.error(error);
+            if (isFirstLoad) {
+                container.innerHTML = '<p style="color:#d32f2f; text-align:center;">Hiba az adatok lekérésekor.</p>';
+            }
         });
     }
 
-    // Első betöltés
-    loadData();
-
-    // 2. Renderelés
     function renderData(data) {
       const container = document.getElementById('results-area');
       container.innerHTML = '';
@@ -156,7 +178,7 @@
           <div class="main-score" title="Total Push Ups">${item.stats.totalPushUps}</div>
           <div class="details">
             Win: <span class="stat-highlight">${item.stats.totalMatchWon}</span> - 
-            Lose: <span class="stat-highlight">${item.stats.totalMatchLost}</span><br>
+            Lose: <span class="stat-highlightL">${item.stats.totalMatchLost}</span><br>
             Winrate: ${winrate}
           </div>
         `;
@@ -165,37 +187,40 @@
       });
     }
 
-    // 3. Reset gomb logika (POST)
     const resetBtn = document.getElementById('resetButton');
     
     resetBtn.addEventListener('click', () => {
-        // Biztonsági kérdés
         if (!confirm("Biztosan nullázni akarod a statisztikákat (csak pushup)?")) return;
 
         resetBtn.textContent = "Törlés...";
         resetBtn.disabled = true;
 
-        fetch('http://localhost:5000/api/users/reset-stats?pushupOnly=1', {
+        fetch('https://csocsesz-backend-g2bsedgra6b8aydz.swedencentral-01.azurewebsites.net/api/users/reset-stats?pushupOnly=1', {
             method: 'POST'
         })
         .then(response => {
             if (response.ok) {
-                // Ha sikeres, újratöltjük az adatokat, hogy lássuk az eredményt
-                loadData(); 
+                loadData(false); 
             } else {
-                alert("Hiba történt a törlés során!");
+                alert("Hiba!");
             }
         })
         .catch(error => {
-            console.error('Reset hiba:', error);
-            alert("Nem sikerült elérni a szervert (localhost).");
+            console.error(error);
+            alert("Nem sikerült elérni a szervert.");
         })
         .finally(() => {
-            // Gomb visszaállítása
             resetBtn.textContent = "Reset Stats";
             resetBtn.disabled = false;
         });
     });
+
+    loadData(true);
+
+    setInterval(() => {
+        loadData(false);
+    }, 10000);
+
   </script>
 
 </body>
