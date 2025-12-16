@@ -207,6 +207,7 @@ public partial class LiveGamePage : ContentPage
             GetPlayerBySide(Side.blue).inGame.goals++;
             scores.Add(Side.blue);
         }
+
         UpdateCounterButtons();
         if (RCBgoalLabel.Text == "10") GameWon(Side.red);
         else if (BCBgoalLabel.Text == "10") GameWon(Side.blue);
@@ -217,6 +218,9 @@ public partial class LiveGamePage : ContentPage
             await clickedElement.ScaleTo(0.95, 50, Easing.CubicOut);
             await clickedElement.ScaleTo(1.0, 150, Easing.CubicIn);
         }
+        #region unimportant
+        _ = ShakeButtonsIfCriticalScore();
+        #endregion
     }
     private async void ExitButtonClicked(object sender, EventArgs e)
     {
@@ -295,6 +299,47 @@ public partial class LiveGamePage : ContentPage
 
         hugoImage.Source = ImageSource.FromFile("hugo_icon.png");
         zalanImage.Source = ImageSource.FromFile("zalan_icon.png");
+    }
+    #endregion
+
+    #region unimportant
+    private async Task ShakeButtonsIfCriticalScore()
+    {
+        // Lekérdezzük a gólokat
+        int redGoals = GetPlayerBySide(Side.red).inGame.goals;
+        int blueGoals = GetPlayerBySide(Side.blue).inGame.goals;
+
+        // Meghatározzuk, ki van felül (0. sor) és ki alul (2. sor)
+        // A te kódod alapján a gombok a 0. és a 2. sorban cserélõdnek
+        bool isBlueTop = Grid.GetRow(BlueButton) == 0;
+
+        // A feltétel: 
+        // (Kék van felül ÉS kék=6, piros=7) VAGY (Piros van felül ÉS piros=6, kék=7)
+        while ((isBlueTop && blueGoals == 6 && redGoals == 7) ||
+               (!isBlueTop && redGoals == 6 && blueGoals == 7))
+        {
+            if (gameWon || !started) break;
+
+            // Gyors oda-vissza mozgás (10 pixel)
+            var t1 = RedButton.TranslateTo(-20, 0, 125, Easing.Linear);
+            var t2 = BlueButton.TranslateTo(20, 0, 125, Easing.Linear);
+            await Task.WhenAll(t1, t2);
+
+            var t3 = RedButton.TranslateTo(20, 0, 125, Easing.Linear);
+            var t4 = BlueButton.TranslateTo(-20, 0, 125, Easing.Linear);
+            await Task.WhenAll(t3, t4);
+
+            // Frissítjük az adatokat a ciklus következõ köréhez
+            redGoals = GetPlayerBySide(Side.red).inGame.goals;
+            blueGoals = GetPlayerBySide(Side.blue).inGame.goals;
+            isBlueTop = Grid.GetRow(BlueButton) == 0;
+        }
+
+        // Alaphelyzetbe állítás, ha már nem teljesül a feltétel
+        await Task.WhenAll(
+            RedButton.TranslateTo(0, 0, 125),
+            BlueButton.TranslateTo(0, 0, 125)
+        );
     }
     #endregion
 }
