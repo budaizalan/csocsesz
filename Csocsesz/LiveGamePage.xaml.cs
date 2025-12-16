@@ -128,9 +128,10 @@ public partial class LiveGamePage : ContentPage
 
         StopTimer();
     }
-    private void CounterButtonClicked(object sender, EventArgs e)
+    private async void CounterButtonClicked(object sender, EventArgs e)
     {
         if (gameWon || !started) return;
+
         var button = sender as Button;
         if (sender == RedButton)
         {
@@ -145,6 +146,13 @@ public partial class LiveGamePage : ContentPage
         UpdateCounterButtons();
         if (RCBgoalLabel.Text == "10") GameWon(Side.red);
         else if (BCBgoalLabel.Text == "10") GameWon(Side.blue);
+
+        var clickedElement = sender as Frame;
+        if (clickedElement != null)
+        {
+            await clickedElement.ScaleTo(0.95, 50, Easing.CubicOut);
+            await clickedElement.ScaleTo(1.0, 150, Easing.CubicIn);
+        }
     }
     private Player GetPlayerBySide(Side side)
     {
@@ -157,6 +165,7 @@ public partial class LiveGamePage : ContentPage
     private int secondsElapsed = 0; // Eltelt idõ másodpercben (a számláló)
     private void StartTimer()
     {
+        TimerLabel.FontSize = 30;
         // Megakadályozzuk, hogy újra elinduljon, ha már fut
         if (gameTimer != null && gameTimer.IsRunning)
         {
@@ -177,6 +186,7 @@ public partial class LiveGamePage : ContentPage
     }
     private void StopTimer()
     {
+        TimerLabel.FontSize = 15;
         if (gameTimer != null && gameTimer.IsRunning)
         {
             gameTimer.Stop();
@@ -208,7 +218,7 @@ public partial class LiveGamePage : ContentPage
     #region Buttons
     private async void ExitButtonClicked(object sender, EventArgs e)
     {
-        if(!gameWon || !started) SaveGame();
+        if(gameWon) SaveGame();
         await Navigation.PushAsync(new MainPage(), false);
     }
     private void BackButtonClicked(object sender, EventArgs e)
@@ -225,6 +235,8 @@ public partial class LiveGamePage : ContentPage
             StartTimer();
             BlueButton.BackgroundColor = Color.FromHex("#2121E3");
             RedButton.BackgroundColor = Color.FromHex("#FF0000");
+            NewGameButton.IsVisible = false;
+            SwapButton.IsVisible = false;
             gameWon = false;
         }
     }

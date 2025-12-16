@@ -6,15 +6,20 @@
              BackgroundColor="Black">
 
     <Grid RowDefinitions="120, *, 120" ColumnDefinitions="*, *, *, *" Margin="10">
-        <Label
-            Text="CSOCSESZ"
-            Style="{StaticResource Title}"
-            VerticalOptions="Center"
-            HorizontalTextAlignment="Center"
+        <VerticalStackLayout 
+            HorizontalOptions="Center" VerticalOptions="Center"
+            Spacing="10"
             Grid.Row="0"
             Grid.Column="0"
-            Grid.ColumnSpan="4"
-            />
+            Grid.ColumnSpan="4">
+            <Image x:Name="AppIconImage" Source="app_icon.svg" HeightRequest="80"/>
+            <Label
+                Text="CSOCSESZ"
+                Style="{StaticResource Title}"
+                VerticalOptions="Center"
+                HorizontalTextAlignment="Center"
+                />
+        </VerticalStackLayout>
         <VerticalStackLayout VerticalOptions="Center" Spacing="20" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2">
             <Button
             x:Name="LiveGameBtn"
