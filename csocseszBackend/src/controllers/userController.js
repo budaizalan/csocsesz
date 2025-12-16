@@ -25,8 +25,8 @@ class UserController{
     async decreaseUserPushups(req, res){
         try {
             const User = mongoose.model('User');
-            const userId = req.params.id;
-            const decreaseBy = parseInt(req.body.decreaseBy, 10);
+            const userId = req.body.userId;
+            const decreaseBy = parseInt(req.body.amount, 10);
             const user = await User.findById(userId);
             if (!user) {
                 return res.status(404).json({ error: 'User not found' });

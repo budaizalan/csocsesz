@@ -15,6 +15,7 @@
     justify-content: center;
     min-height: 100vh;
     margin: 0;
+    user-select: none;
   }
 
   h1 {
@@ -39,18 +40,42 @@
     margin-bottom: 20px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.19);
     text-align: center;
-    transition: transform 0.2s;
+    transition: transform 0.1s, border-color 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
   }
   
   .data-card:hover {
-    transform: translateY(-2px);
     border-color: #555;
+  }
+
+  .data-card:active {
+    transform: scale(0.98);
+    background-color: #252525;
+  }
+
+  .data-card::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease-out, height 0.3s ease-out;
+  }
+  .data-card:active::after {
+    width: 300px;
+    height: 300px;
   }
 
   .player-info {
     font-size: 1.8em;
-    color: #fff;
     font-weight: 800;
+    color: #fff;
     margin-bottom: 15px;
     font-family: monospace;
     text-transform: uppercase;
@@ -62,6 +87,11 @@
     margin: 10px 0;
     color: #fff;
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    transition: color 0.2s;
+  }
+  
+  .pending-change {
+    color: #ffca28;
   }
 
   .details {
@@ -76,7 +106,7 @@
   }
 
   .stat-highlightL {
-    color: #bd0e0e;
+    color: #a40c0c;
     font-weight: 500;
   }
 
@@ -96,29 +126,15 @@
     letter-spacing: 1px;
   }
 
-  .reset-btn:hover {
-    background-color: #d32f2f;
-    box-shadow: 0 0 10px rgba(211, 47, 47, 0.4);
-    transform: scale(1.02);
-  }
-  
-  .reset-btn:active {
-    transform: scale(0.98);
-  }
+  .reset-btn:hover { background-color: #d32f2f; transform: scale(1.02); }
+  .reset-btn:active { transform: scale(0.98); }
 
   .clock-widget {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
+    position: fixed; bottom: 20px; right: 20px;
     background-color: rgba(30, 30, 30, 0.85);
-    border: 1px solid #444;
-    padding: 10px 20px;
-    font-family: monospace;
-    font-size: 1.5rem;
-    color: #fff;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    z-index: 1000;
-    backdrop-filter: blur(5px);
+    border: 1px solid #444; padding: 10px 20px; border-radius: 8px;
+    font-family: monospace; font-size: 1.5rem; color: #fff;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5); z-index: 1000; backdrop-filter: blur(5px);
   }
 </style>
 </head>
@@ -129,99 +145,134 @@
   <div class="card-container" id="results-area"></div>
 
   <button id="resetButton" class="reset-btn">Reset Stats</button>
-
   <div id="clockDisplay" class="clock-widget">--:--:--</div>
+
   <script>
+    const API_BASE_URL = 'https://csocsesz-backend-g2bsedgra6b8aydz.swedencentral-01.azurewebsites.net';
+
+    let pushupBuffer = {}; 
+    let lastServerData = [];
 
     function updateClock() {
         const now = new Date();
-        const timeString = now.toLocaleTimeString('hu-HU');
-        document.getElementById('clockDisplay').textContent = timeString;
+        document.getElementById('clockDisplay').textContent = now.toLocaleTimeString('hu-HU');
     }
-    updateClock();
     setInterval(updateClock, 1000);
-
+    updateClock();
 
     function loadData(isFirstLoad = false) {
         const container = document.getElementById('results-area');
-        
-        if (isFirstLoad) {
-            container.innerHTML = '<p style="text-align:center; color: #666;">Adatok betöltése...</p>';
-        }
+        if (isFirstLoad) container.innerHTML = '<p style="text-align:center; color: #666;">Adatok betöltése...</p>';
 
-        fetch('https://csocsesz-backend-g2bsedgra6b8aydz.swedencentral-01.azurewebsites.net/api/users')
+        fetch(`${API_BASE_URL}/api/users`)
         .then(response => response.json())
         .then(data => {
-            renderData(data);
+            lastServerData = data;
+            renderData();
         })
         .catch(error => {
             console.error(error);
-            if (isFirstLoad) {
-                container.innerHTML = '<p style="color:#d32f2f; text-align:center;">Hiba az adatok lekérésekor.</p>';
-            }
+            if (isFirstLoad) container.innerHTML = '<p style="color:#d32f2f; text-align:center;">Hiba az adatok lekérésekor.</p>';
         });
     }
 
-    function renderData(data) {
+    function renderData() {
       const container = document.getElementById('results-area');
-      container.innerHTML = '';
+      container.innerHTML = ''; 
 
-      data.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'data-card';
+      lastServerData.forEach(item => {
+        const userId = item._id; 
         
+        const pendingDeduction = pushupBuffer[userId] || 0;
+        let displayPushups = item.stats.totalPushUps - pendingDeduction;
+        if (displayPushups < 0) displayPushups = 0; 
+
         const totalMatches = item.stats.totalMatchWon + item.stats.totalMatchLost;
         const winrate = totalMatches === 0 ? 0 : (item.stats.totalMatchWon / totalMatches).toFixed(2);
+        
+        const scoreClass = pendingDeduction > 0 ? 'main-score pending-change' : 'main-score';
+
+        const card = document.createElement('div');
+        card.className = 'data-card';
+        card.onclick = () => handleCardClick(userId);
 
         card.innerHTML = `
           <div class="player-info">${item.name} <br> <span style="font-size:0.8em; color:#555;">${item._id}</span></div>
-          <div class="main-score" title="Total Push Ups">${item.stats.totalPushUps}</div>
+          <div class="${scoreClass}" title="Total Push Ups">${displayPushups}</div>
           <div class="details">
             Win: <span class="stat-highlight">${item.stats.totalMatchWon}</span> - 
             Lose: <span class="stat-highlightL">${item.stats.totalMatchLost}</span><br>
             Winrate: ${winrate}
           </div>
         `;
-        
         container.appendChild(card);
       });
     }
 
+    function handleCardClick(userId) {
+        if (!pushupBuffer[userId]) {
+            pushupBuffer[userId] = 0;
+        }
+        pushupBuffer[userId]++;
+        renderData();
+    }
+
+    function sendBufferedUpdates() {
+        const userIds = Object.keys(pushupBuffer);
+
+        if (userIds.length === 0) return; 
+
+        userIds.forEach(id => {
+            const amountToRemove = pushupBuffer[id];
+            if (amountToRemove === 0) return;
+
+            fetch(`${API_BASE_URL}/api/users/decrease-pushups`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    userId: id, 
+                    amount: amountToRemove 
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    pushupBuffer[id] -= amountToRemove;
+                    if (pushupBuffer[id] <= 0) delete pushupBuffer[id];
+                    renderData();
+                } else {
+                    console.error('Hiba a mentésnél');
+                }
+            })
+            .catch(err => console.error('Hálózati hiba', err));
+        });
+    }
+
     const resetBtn = document.getElementById('resetButton');
-    
     resetBtn.addEventListener('click', () => {
         if (!confirm("Biztosan nullázni akarod a statisztikákat (csak pushup)?")) return;
-
-        resetBtn.textContent = "Törlés...";
         resetBtn.disabled = true;
-
-        fetch('https://csocsesz-backend-g2bsedgra6b8aydz.swedencentral-01.azurewebsites.net/api/users/reset-stats?pushupOnly=1', {
-            method: 'POST'
-        })
-        .then(response => {
-            if (response.ok) {
+        
+        fetch(`${API_BASE_URL}/api/users/reset-stats?pushupOnly=1`, { method: 'POST' })
+        .then(res => { 
+            if(res.ok) {
                 loadData(false); 
-            } else {
-                alert("Hiba!");
+                pushupBuffer = {}; 
+                renderData();
             }
         })
-        .catch(error => {
-            console.error(error);
-            alert("Nem sikerült elérni a szervert.");
-        })
-        .finally(() => {
-            resetBtn.textContent = "Reset Stats";
-            resetBtn.disabled = false;
-        });
+        .finally(() => resetBtn.disabled = false);
     });
-
+    
     loadData(true);
 
     setInterval(() => {
         loadData(false);
     }, 10000);
 
-  </script>
+    setInterval(() => {
+        sendBufferedUpdates();
+    }, 20000);
 
+  </script>
 </body>
 </html>
