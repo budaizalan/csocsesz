@@ -74,8 +74,8 @@
 
   .player-info {
     font-size: 1.8em;
-    font-weight: 800;
     color: #fff;
+    font-weight: 800;
     margin-bottom: 15px;
     font-family: monospace;
     text-transform: uppercase;
@@ -106,7 +106,7 @@
   }
 
   .stat-highlightL {
-    color: #a40c0c;
+    color: #b90e0e;
     font-weight: 500;
   }
 
@@ -188,7 +188,7 @@
         if (displayPushups < 0) displayPushups = 0; 
 
         const totalMatches = item.stats.totalMatchWon + item.stats.totalMatchLost;
-        const winrate = totalMatches === 0 ? 0 : (item.stats.totalMatchWon / totalMatches).toFixed(2);
+        const winrate = totalMatches === 0 ? 0 : Math.round((item.stats.totalMatchWon / totalMatches) * 100);
         
         const scoreClass = pendingDeduction > 0 ? 'main-score pending-change' : 'main-score';
 
@@ -202,7 +202,7 @@
           <div class="details">
             Win: <span class="stat-highlight">${item.stats.totalMatchWon}</span> - 
             Lose: <span class="stat-highlightL">${item.stats.totalMatchLost}</span><br>
-            Winrate: ${winrate}
+            Winrate: ${winrate}%
           </div>
         `;
         container.appendChild(card);
@@ -236,8 +236,15 @@
             })
             .then(response => {
                 if (response.ok) {
+                    const userIndex = lastServerData.findIndex(u => u._id === id);
+                    if (userIndex !== -1) {
+                        lastServerData[userIndex].stats.totalPushUps -= amountToRemove;
+                        if (lastServerData[userIndex].stats.totalPushUps < 0) lastServerData[userIndex].stats.totalPushUps = 0;
+                    }
+
                     pushupBuffer[id] -= amountToRemove;
                     if (pushupBuffer[id] <= 0) delete pushupBuffer[id];
+                    
                     renderData();
                 } else {
                     console.error('Hiba a mentésnél');
@@ -255,9 +262,8 @@
         fetch(`${API_BASE_URL}/api/users/reset-stats?pushupOnly=1`, { method: 'POST' })
         .then(res => { 
             if(res.ok) {
-                loadData(false); 
                 pushupBuffer = {}; 
-                renderData();
+                loadData(false);
             }
         })
         .finally(() => resetBtn.disabled = false);
