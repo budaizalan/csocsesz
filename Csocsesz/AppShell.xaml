@@ -3,18 +3,24 @@
     x:Class="Csocsesz.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:Csocsesz"
+    xmlns:contentPages="clr-namespace:Csocsesz.ContentPages"
     Title="Csocsesz">
 
     <TabBar Shell.TabBarIsVisible="False">
-        <Tab Route="MainPage">
-            <ShellContent ContentTemplate="{DataTemplate local:MainPage}" />
+        <Tab Route="PlayPage">
+            <ShellContent ContentTemplate="{DataTemplate contentPages:PlayPage}" />
         </Tab>
         <Tab Route="LiveGamePage">
-            <ShellContent ContentTemplate="{DataTemplate local:LiveGamePage}" />
+            <ShellContent ContentTemplate="{DataTemplate contentPages:LiveGamePage}" />
+        </Tab>
+        <Tab Route="HistoryPage">
+            <ShellContent ContentTemplate="{DataTemplate contentPages:HistoryPage}" />
+        </Tab>
+        <Tab Route="StatsPage">
+            <ShellContent ContentTemplate="{DataTemplate contentPages:StatsPage}" />
         </Tab>
         <Tab Route="SettingsPage">
-            <ShellContent ContentTemplate="{DataTemplate local:SettingsPage}" />
+            <ShellContent ContentTemplate="{DataTemplate contentPages:SettingsPage}" />
         </Tab>
     </TabBar>
 

@@ -1,4 +1,4 @@
-namespace Csocsesz;
+namespace Csocsesz.ContentPages;
 
 public partial class SettingsPage : ContentPage
 {

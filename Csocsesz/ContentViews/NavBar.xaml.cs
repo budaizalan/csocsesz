@@ -22,17 +22,17 @@ public partial class NavBar : ContentView
     private async void PlayTabButtonClicked(object sender, EventArgs e)
     {
         DataStore.pageIdx = 0;
-        await Shell.Current.GoToAsync("///MainPage");
+        await Shell.Current.GoToAsync("///PlayPage");
     }
     private async void HistoryTabButtonClicked(object sender, EventArgs e)
     {
         DataStore.pageIdx = 1;
-        //await Navigation.PushAsync(new HistoryPage(), false);
+        await Shell.Current.GoToAsync("///HistoryPage");
     }
     private async void StatsTabButtonClicked(object sender, EventArgs e)
     {
         DataStore.pageIdx = 2;
-        //await Navigation.PushAsync(new StatsPage(), false);
+        await Shell.Current.GoToAsync("///StatsPage");
     }
     private async void SettingsTabButtonClicked(object sender, EventArgs e)
     {

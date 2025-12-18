@@ -9,7 +9,7 @@ using Microsoft.Maui.Devices;
 
 using Microsoft.Maui.Dispatching;
 
-namespace Csocsesz;
+namespace Csocsesz.ContentPages;
 
 public partial class LiveGamePage : ContentPage
 {
@@ -210,7 +210,7 @@ public partial class LiveGamePage : ContentPage
     private async void ExitButtonClicked(object sender, EventArgs e)
     {
         if(gameWon) SaveGame();
-        await Shell.Current.GoToAsync("///MainPage");
+        await Shell.Current.GoToAsync("///PlayPage");
     }
     private void BackButtonClicked(object sender, EventArgs e)
     {

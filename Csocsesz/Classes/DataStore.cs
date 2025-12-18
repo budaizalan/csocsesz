@@ -13,7 +13,7 @@ namespace Csocsesz.Classes
         public static List<MatchResults> Matches = new List<MatchResults>();
 
         public static Color red = Color.FromArgb("#FF0000");
-        public static Color blue = Color.FromArgb("##2121E3");
+        public static Color blue = Color.FromArgb("#2121E3");
         public static Color green = Color.FromArgb("#1FDB48");
         public static Color gray = Color.FromArgb("#7f7f7f");
 

@@ -1,8 +1,8 @@
-﻿namespace Csocsesz
+﻿namespace Csocsesz.ContentPages
 {
-    public partial class MainPage : ContentPage
+    public partial class PlayPage : ContentPage
     {
-        public MainPage()
+        public PlayPage()
         {
             InitializeComponent();
         }
