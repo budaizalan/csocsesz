@@ -13,11 +13,17 @@ namespace Csocsesz;
 
 public partial class LiveGamePage : ContentPage
 {
+    private bool gameWon = false;
+    private bool started = false;
+    private List<Side> scores = new List<Side>();
+
+    private Player player1 = AppSettings.player1;
+    private Player player2 = AppSettings.player2;
+
     #region HTTP
     // HTTP Kliens és API URL
     private readonly HttpClient _httpClient = new HttpClient();
-    private const string ApiUrl = "https://csocsesz-backend-g2bsedgra6b8aydz.swedencentral-01.azurewebsites.net/api/matches";
-    // Feltételezem, a /api/users helyett /api/matchresults-ra kéne küldeni
+    private const string ApiUrl = DataStore.apiMatchUrl;
     private async Task UploadMatchResultAsync(MatchResults matchResults)
     {
         // 1. Objektum sorosítása JSON stringgé
@@ -61,21 +67,16 @@ public partial class LiveGamePage : ContentPage
         Player loser = (winner == GetPlayerBySide(Side.red)) ? GetPlayerBySide(Side.blue) : GetPlayerBySide(Side.red);
 
         // Létrehozzuk a MatchResults objektumot a szervernek:
-        MatchResults results = new MatchResults(winnerId: winner.id, loserId: loser.id, loserGoals: loser.inGame.goals);
-        // feltételezve, hogy a gyõztes góljai fixen 10-ek
+        MatchResults results = new MatchResults
+            (winnerId: winner.id, loserId: loser.id, loserGoals: loser.inGame.goals, 
+            timeSpan: TimeSpan.FromSeconds(secondsElapsed), date: DateTime.Now, pushUpsMultiplier: AppSettings.pushUpsMultiplier);
+        for (int i = 0; i < scores.Count; i++) results.goals[i] = scores[i];
 
         // Elindítjuk a feltöltést egy háttérszálon (Task.Run), 
         // hogy ne fagyjon le a felhasználói felület, amíg várunk a szerverre.
         Task.Run(() => UploadMatchResultAsync(results));
     }
     #endregion
-
-    private bool gameWon = false;
-    private bool started = false;
-    private List<Side> scores = new List<Side>();
-
-    private Player player1 = new Player("694077cfe93c946a4ce8fdaf", "Hugo", 0, 0, 0, 0, 0, 0, Side.red);
-    private Player player2 = new Player("694077dbe93c946a4ce8fdb1", "Zalan", 0, 0, 0, 0, 0, 0, Side.blue);
     public LiveGamePage()
     {
         InitializeComponent();
@@ -91,39 +92,23 @@ public partial class LiveGamePage : ContentPage
         gameWon = true;
         NewGameButton.IsVisible = true;
         SwapButton.IsVisible = true;
-        ExitButton.BackgroundColor = Color.FromHex("#1FDB48");
+        ExitButton.BackgroundColor = DataStore.green;
         if (side == Side.red)
         {
-            BlueButton.BackgroundColor = Color.FromHex("#FF0000");
-            RedButton.BackgroundColor = Color.FromHex("#FF0000");
-            if (Grid.GetRow(BlueButton) == 0)
-            {
-                BCBgoalLabel.Text = "RED";
-                RCBgoalLabel.Text = "WON";
-            }
-            else
-            {
-                RCBgoalLabel.Text = "RED";
-                BCBgoalLabel.Text = "WON";
-            }
+            BlueButton.BackgroundColor = DataStore.red;
+            RedButton.BackgroundColor = DataStore.red;
+            RCBgoalLabel.Text = "W";
+            BCBgoalLabel.Text = "L";
         }
         else
         {
-            BlueButton.BackgroundColor = Color.FromHex("#2121E3");
-            RedButton.BackgroundColor = Color.FromHex("#2121E3");
-            if (Grid.GetRow(BlueButton) == 0)
-            {
-                BCBgoalLabel.Text = "BLUE";
-                RCBgoalLabel.Text = "WON";
-            }
-            else
-            {
-                RCBgoalLabel.Text = "BLUE";
-                BCBgoalLabel.Text = "WON";
-            }
+            BlueButton.BackgroundColor = DataStore.blue;
+            RedButton.BackgroundColor = DataStore.blue;
+            RCBgoalLabel.Text = "L";
+            BCBgoalLabel.Text = "W";
         }
-        if (GetPlayerBySide(side).name == "Zalan") hugoImage.Source = ImageSource.FromFile("hugosad_icon.png");
-        else zalanImage.Source = ImageSource.FromFile("zalansad_icon.png");
+        if (GetPlayerBySide(side).name == "Zalan") hugoImage.Source = DataStore.hugoSadImage;
+        else zalanImage.Source = DataStore.zalanSadImage;
 
         TimeSpan duration = TimeSpan.FromMilliseconds(1001);
         Vibration.Default.Vibrate(duration);
@@ -239,14 +224,14 @@ public partial class LiveGamePage : ContentPage
         if(gameWon)
         {
             StartTimer();
-            BlueButton.BackgroundColor = Color.FromHex("#2121E3");
-            RedButton.BackgroundColor = Color.FromHex("#FF0000");
-            ExitButton.BackgroundColor = Color.FromHex("#7f7f7f");
+            BlueButton.BackgroundColor = DataStore.blue;
+            RedButton.BackgroundColor = DataStore.red;
+            ExitButton.BackgroundColor = DataStore.gray;
             NewGameButton.IsVisible = false;
             SwapButton.IsVisible = false;
             gameWon = false;
-            hugoImage.Source = ImageSource.FromFile("hugo_icon.png");
-            zalanImage.Source = ImageSource.FromFile("zalan_icon.png");
+            hugoImage.Source = DataStore.hugoImage;
+            zalanImage.Source = DataStore.zalanImage;
         }
     }
     private void SwapButtonClicked(object sender, EventArgs e)
@@ -264,8 +249,8 @@ public partial class LiveGamePage : ContentPage
         if(gameWon)
         {
             UpdateCounterButtons();
-            BlueButton.BackgroundColor = Color.FromHex("#2121E3");
-            RedButton.BackgroundColor = Color.FromHex("#FF0000");
+            BlueButton.BackgroundColor = DataStore.blue;
+            RedButton.BackgroundColor = DataStore.red;
         }
     }
     private void NewGameButtonClicked(object sender, EventArgs e)
@@ -288,17 +273,17 @@ public partial class LiveGamePage : ContentPage
         StartTimer();
         NewGameButton.IsVisible = false;
         SwapButton.IsVisible = false;
-        ExitButton.BackgroundColor = Color.FromHex("#7f7f7f");
+        ExitButton.BackgroundColor = DataStore.gray;
         GetPlayerBySide(Side.red).inGame.goals = 0;
         GetPlayerBySide(Side.blue).inGame.goals = 0;
         UpdateCounterButtons();
-        BlueButton.BackgroundColor = Color.FromHex("#2121E3");
-        RedButton.BackgroundColor = Color.FromHex("#FF0000");
+        BlueButton.BackgroundColor = DataStore.blue;
+        RedButton.BackgroundColor = DataStore.red;
         gameWon = false;
         scores.Clear();
 
-        hugoImage.Source = ImageSource.FromFile("hugo_icon.png");
-        zalanImage.Source = ImageSource.FromFile("zalan_icon.png");
+        hugoImage.Source = DataStore.hugoImage;
+        zalanImage.Source = DataStore.zalanImage;
     }
     #endregion
 

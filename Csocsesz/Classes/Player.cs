@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Csocsesz.Classes
 {
-    class Player
+    public class Player
     {
         public string id { get; set; }
         public string name { get; set; }
@@ -19,7 +19,7 @@ namespace Csocsesz.Classes
             this.inGame = new InGame(matchWon, goals, side);
         }
     }
-    class Stats
+    public class Stats
     {
         public int streak { get; set; }
         public int totalGoals;
@@ -34,8 +34,8 @@ namespace Csocsesz.Classes
             totalMatchLost = totalMatchLostt;
         }
     }
-    enum Side { red, blue };
-    class InGame
+    public enum Side { red, blue };
+    public class InGame
     {
         public int matchWon { get; set; }
         public int goals { get; set; }
