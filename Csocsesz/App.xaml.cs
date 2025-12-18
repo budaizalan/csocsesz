@@ -19,6 +19,8 @@ namespace Csocsesz
         {
             AppSettings.player1 = AppSettings.defaultPlayer1;
             AppSettings.player2 = AppSettings.defaultPlayer2;
+            DataStore.Players.Add(AppSettings.player1);
+            DataStore.Players.Add(AppSettings.player2);
         }
     }
 }
