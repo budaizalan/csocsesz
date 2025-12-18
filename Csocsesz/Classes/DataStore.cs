@@ -21,5 +21,7 @@ namespace Csocsesz.Classes
         public static readonly ImageSource hugoSadImage = ImageSource.FromFile("hugosad_icon.png");
         public static readonly ImageSource zalanImage = ImageSource.FromFile("zalan_icon.png");
         public static readonly ImageSource zalanSadImage = ImageSource.FromFile("zalansad_icon.png");
+
+        public static int pageIdx = 0;
     }
 }

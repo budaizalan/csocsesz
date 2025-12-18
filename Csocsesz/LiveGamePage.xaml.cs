@@ -210,7 +210,7 @@ public partial class LiveGamePage : ContentPage
     private async void ExitButtonClicked(object sender, EventArgs e)
     {
         if(gameWon) SaveGame();
-        await Navigation.PushAsync(new MainPage(), false);
+        await Shell.Current.GoToAsync("///MainPage");
     }
     private void BackButtonClicked(object sender, EventArgs e)
     {

@@ -6,9 +6,16 @@
     xmlns:local="clr-namespace:Csocsesz"
     Title="Csocsesz">
 
-    <ShellContent
-        Title="Play"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar Shell.TabBarIsVisible="False">
+        <Tab Route="MainPage">
+            <ShellContent ContentTemplate="{DataTemplate local:MainPage}" />
+        </Tab>
+        <Tab Route="LiveGamePage">
+            <ShellContent ContentTemplate="{DataTemplate local:LiveGamePage}" />
+        </Tab>
+        <Tab Route="SettingsPage">
+            <ShellContent ContentTemplate="{DataTemplate local:SettingsPage}" />
+        </Tab>
+    </TabBar>
 
 </Shell>

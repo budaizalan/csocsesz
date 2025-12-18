@@ -1,36 +1,40 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Csocsesz.NavBar">
+             x:Class="Csocsesz.ContentViews.NavBar">
     <Frame
         CornerRadius="20"
         Padding="10"
         BackgroundColor="{StaticResource DarkGray}">
         <Grid ColumnDefinitions="*,*,*,*">
             <ImageButton
-                x:Name="PlayTabBtn"
+                x:Name="PlayTabButton"
                 Source="play_icon.svg"
+                Clicked="PlayTabButtonClicked"
                 Style="{StaticResource NavBarButtonStyle}"
-                BackgroundColor="{StaticResource Red}"
+                BackgroundColor="{StaticResource Gray}"
                 Grid.Column="0"
                 />
             <ImageButton
-                x:Name="HistoryTabBtn"
+                x:Name="HistoryTabButton"
                 Source="history_icon.svg"
+                Clicked="HistoryTabButtonClicked"
                 Style="{StaticResource NavBarButtonStyle}"
                 BackgroundColor="{StaticResource Gray}"
                 Grid.Column="1"
                 />
             <ImageButton
-                x:Name="StatsTabBtn"
+                x:Name="StatsTabButton"
                 Source="stats_icon.svg"
+                Clicked="StatsTabButtonClicked"
                 Style="{StaticResource NavBarButtonStyle}"
                 BackgroundColor="{StaticResource Gray}"
                 Grid.Column="2"
                 />
             <ImageButton
-                x:Name="SettingsTabBtn"
+                x:Name="SettingsTabButton"
                 Source="settings_icon.svg"
+                Clicked="SettingsTabButtonClicked"
                 Style="{StaticResource NavBarButtonStyle}"
                 BackgroundColor="{StaticResource Gray}"
                 Grid.Column="3"
