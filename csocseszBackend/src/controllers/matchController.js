@@ -1,21 +1,23 @@
 const mongoose = require("mongoose");
 let pushUpMultiplier = 3;
+// const Match = mongoose.model('Match');
+const Match = require('../models/Match');
+
 class MatchController {
     async getAllMatches(req, res) {
         try {
-            let showOnly;
+            let project;
             if (req.body && req.body.project) {
-                showOnly = req.body.project;
+                project = req.body.project;
             }
             let pushUpZ = 0, pushupH = 0, totalCount = 0;
-            const Match = mongoose.model('Match');
             let matches = await Match.find().populate('winnerId loserId').lean();
             matches = matches.map(match => {
                 totalCount++;
                 return match;
             });
-            if (showOnly && typeof showOnly === 'string') {
-                const fields = showOnly.split(' ').filter(Boolean);
+            if (project && typeof project === 'string') {
+                const fields = project.split(' ').filter(Boolean);
                 matches = matches.map(match => {
                     const projected = {};
                     fields.forEach(field => {
@@ -55,45 +57,56 @@ class MatchController {
 
     async postMatch(req, res) {
         try {
-            const Match = mongoose.model('Match');
             const User = mongoose.model('User');
-            const { winnerId, loserId, loserGoals } = req.body;
+            const { winnerId, loserId, startTime, matchDuration, winnerSide, pushUpsMultiplier, goals } = req.body;
 
             // Create new match record
-            const newMatch = new Match({ winnerId, loserId, loserGoals });
-            await newMatch.save();
-            // Update winner stats
-            const winner = await User.findById(winnerId);
-            if (!winner) {
-                return res.status(404).json({ error: 'Winner user not found' });
-            }
-            winner.stats.totalMatchWon += 1;
-            winner.stats.totalGoalsScored += 10;
-            winner.stats.streak += 1;
-            await winner.save();
-            // Update loser stats
-            const loser = await User.findById(loserId);
-            if (!loser) {
-                return res.status(404).json({ error: 'Loser user not found' });
-            }
+            const newMatch = new Match({ winnerId, loserId, startTime, matchDuration, winnerSide, pushUpsMultiplier, goals });
+            const savedMatch = await newMatch.save();
+             // Update winner stats
+             const winner = await User.findById(winnerId);
+             if (!winner) {
+                 return res.status(404).json({ error: 'Winner user not found' });
+             }
+             winner.stats.totalMatchWon += 1;
+             winner.stats.totalGoalsScored += 10;
+             winner.stats.streak += 1;
+             await winner.save();
+             // Update loser stats
+             const loser = await User.findById(loserId);
+             if (!loser) {
+                 return res.status(404).json({ error: 'Loser user not found' });
+             }
+            const computedLoserGoals = (typeof savedMatch.loserGoals === 'number') ? savedMatch.loserGoals : 0;
+            const multiplier = (typeof savedMatch.pushUpsMultiplier === 'number') ? savedMatch.pushUpsMultiplier : pushUpMultiplier;
+
             loser.stats.totalMatchLost += 1;
-            loser.stats.totalGoalsScored += loserGoals;
+            loser.stats.totalGoalsScored += computedLoserGoals;
             loser.stats.streak = 0;
-            loser.stats.totalPushUps += (10 - loserGoals) * pushUpMultiplier;
-            await loser.save();
-            res.status(201).json(newMatch);
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    }
+            loser.stats.totalPushUps += (10 - computedLoserGoals) * multiplier;
+             await loser.save();
+            res.status(201).json(savedMatch);
+         } catch (error) {
+             res.status(500).json({ error: error.message });
+         }
+     }
 
     async deleteMatches(req, res) {
         try {
-            const Match = mongoose.model('Match');
             await Match.deleteMany({});
             res.status(200).json({ message: 'All matches deleted successfully' });
         } catch (error) {
             res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }
+
+    async deleteMatchById(req, res){
+        try {
+            const id = req.params.id;
+            let doc = Match.findByIdAndDelete(id);
+            res.status(200).json({ "Delete doc": doc});
+        } catch (error) {
+            res.status(500).json({ error: 'Internal Server Error'});
         }
     }
 }
