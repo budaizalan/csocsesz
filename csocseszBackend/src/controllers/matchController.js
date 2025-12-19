@@ -57,11 +57,12 @@ class MatchController {
 
     async postMatch(req, res) {
         try {
+            console.log(JSON.stringify(req.body, null, 2));
             const User = mongoose.model('User');
             const { winnerId, loserId, startTime, matchDuration, winnerSide, pushUpsMultiplier, goals } = req.body;
-
+            let filteredGoals = goals.filter(goal => goal !== null && goal !== undefined);
             // Create new match record
-            const newMatch = new Match({ winnerId, loserId, startTime, matchDuration, winnerSide, pushUpsMultiplier, goals });
+            const newMatch = new Match({ winnerId, loserId, startTime, matchDuration, winnerSide, pushUpsMultiplier, goals: filteredGoals });
             const savedMatch = await newMatch.save();
              // Update winner stats
              const winner = await User.findById(winnerId);
