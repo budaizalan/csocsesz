@@ -12,6 +12,58 @@
             HorizontalTextAlignment="Center"
             Grid.Row="0"
             />
+        <Grid RowDefinitions="*,*,*,*, 2*" ColumnDefinitions="3*,2*" 
+              Grid.Row="1" Padding="20,0">
+            <Label 
+                Text="Player Blue"
+                Style="{StaticResource Normal}"
+                VerticalOptions="Center" HorizontalOptions="Start"
+                Grid.Row="0" Grid.Column="0"/>
+            <Picker 
+                x:Name="PlayerBluePicker"
+                Title="Select Player"
+                ItemDisplayBinding="{Binding name}"
+                TextColor="White"
+                TitleColor="Gray"
+                SelectedIndexChanged="OnPlayerBlueChanged"
+                VerticalOptions="Center" HorizontalOptions="End"
+                Grid.Row="0" Grid.Column="1"/>
+            <Label 
+                Text="Player Red"
+                Style="{StaticResource Normal}"
+                VerticalOptions="Center" HorizontalOptions="Start"
+                Grid.Row="1" Grid.Column="0"/>
+            <Picker 
+                x:Name="PlayerRedPicker"
+                Title="Select Player"
+                ItemDisplayBinding="{Binding name}"
+                TextColor="White"
+                TitleColor="Gray"
+                SelectedIndexChanged="OnPlayerRedChanged"
+                VerticalOptions="Center" HorizontalOptions="End"
+                Grid.Row="1" Grid.Column="1"/>
+            <Label 
+                Text="PushUps Multiplier"
+                Style="{StaticResource Normal}"
+                VerticalOptions="Center" HorizontalOptions="Start"
+                Grid.Row="2" Grid.Column="0"/>
+            <Entry
+                Text="3"
+                HorizontalTextAlignment="Center"
+                Style="{StaticResource Normal}"
+                Completed="OnPushUpsMultiplierChanged"
+                VerticalOptions="Center" HorizontalOptions="End"
+                Grid.Row="2" Grid.Column="1"/>
+            <Label 
+                Text="Save Test Matches (&lt;30s)"
+                Style="{StaticResource Normal}"
+                VerticalOptions="Center" HorizontalOptions="Start"
+                Grid.Row="3" Grid.Column="0"/>
+            <Switch
+                Toggled="OnSaveTestMatchesChanged"
+                VerticalOptions="Center" HorizontalOptions="End"
+                Grid.Row="3" Grid.Column="1"/>
+        </Grid>
         <nav:NavBar Grid.Row="2"/>
     </Grid>
 </ContentPage>

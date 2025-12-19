@@ -19,8 +19,7 @@
                     HorizontalTextAlignment="Center" VerticalTextAlignment="Start"
                     Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
                 <Image
-                    x:Name="zalanImage"
-                    Source="zalan_icon.png"
+                    x:Name="BCBimage"
                     Style="{StaticResource CBimageStyle}"
                     HorizontalOptions="End" VerticalOptions="End"
                     Grid.Row="0" Grid.Column="0"/>
@@ -101,8 +100,7 @@
                     HorizontalTextAlignment="Center" VerticalTextAlignment="Start"
                     Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
                   <Image
-                    x:Name="hugoImage"
-                    Source="hugo_icon.png"
+                    x:Name="RCBimage"
                     Style="{StaticResource CBimageStyle}"
                     HorizontalOptions="End" VerticalOptions="End"
                     Grid.Row="0" Grid.Column="0"/>

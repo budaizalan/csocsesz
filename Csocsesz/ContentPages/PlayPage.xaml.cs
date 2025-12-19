@@ -8,7 +8,7 @@
         }
         private async void LiveGameButtonClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("///LiveGamePage");
+            await Navigation.PushModalAsync(new LiveGamePage());
         }
     }
 }

@@ -17,10 +17,15 @@ namespace Csocsesz
 
         private void loadDataBase()
         {
-            AppSettings.player1 = AppSettings.defaultPlayer1;
-            AppSettings.player2 = AppSettings.defaultPlayer2;
-            DataStore.Players.Add(AppSettings.player1);
-            DataStore.Players.Add(AppSettings.player2);
+            AppSettings.playerRed = DataStore.defaultPlayerRed;
+            AppSettings.playerBlue = DataStore.defaultPlayerBlue;
+            AppSettings.redImage = DataStore.defaultRedImage;
+            AppSettings.redSadImage = DataStore.defaultRedSadImage;
+            AppSettings.blueImage = DataStore.defaultBlueImage;
+            AppSettings.blueSadImage = DataStore.defaultBlueSadImage;
+
+            DataStore.Players.Add(AppSettings.playerRed);
+            DataStore.Players.Add(AppSettings.playerBlue);
         }
     }
 }

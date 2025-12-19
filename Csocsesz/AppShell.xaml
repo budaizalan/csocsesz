@@ -10,9 +10,6 @@
         <Tab Route="PlayPage">
             <ShellContent ContentTemplate="{DataTemplate contentPages:PlayPage}" />
         </Tab>
-        <Tab Route="LiveGamePage">
-            <ShellContent ContentTemplate="{DataTemplate contentPages:LiveGamePage}" />
-        </Tab>
         <Tab Route="HistoryPage">
             <ShellContent ContentTemplate="{DataTemplate contentPages:HistoryPage}" />
         </Tab>

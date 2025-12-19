@@ -11,12 +11,14 @@ namespace Csocsesz.Classes
         public Stats stats { get; set; }
         public InGame? inGame { get; set; }
 
-        public Player(string id, string name, int streak, int totalGoals, int totalMatchWon, int totalMatchLost, int matchWon, int goals, Side side)
+        public Player(string id, string name, 
+            int streak, int totalGoals, int totalMatchWon, int totalMatchLost, 
+            int matchWon, int goals, ImageSource normalImage, ImageSource sadImage)
         {
             this.id = id;
             this.name = name;
             this.stats = new Stats(streak, totalGoals, totalMatchWon, totalMatchLost);
-            this.inGame = new InGame(matchWon, goals, side);
+            this.inGame = new InGame(matchWon, goals, normalImage, sadImage);
         }
     }
     public class Stats
@@ -39,14 +41,14 @@ namespace Csocsesz.Classes
     {
         public int matchWon { get; set; }
         public int goals { get; set; }
-        public Side side { get; set; }
-        public InGame(int matchWon, int goals, Side side)
+        public ImageSource normalImage{get; set; }
+        public ImageSource sadImage{get; set; }
+        public InGame(int matchWon, int goals, ImageSource normalImage, ImageSource sadImage)
         {
             this.matchWon = matchWon;
             this.goals = goals;
-            this.side = side;
+            this.normalImage = normalImage;
+            this.sadImage = sadImage;
         }
     }
-
-
 }

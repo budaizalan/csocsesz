@@ -1,24 +1,38 @@
 using Csocsesz;
 using Csocsesz.Classes;
-
+using Microsoft.Maui.Devices;
+using Microsoft.Maui.Dispatching;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-
-using Microsoft.Maui.Devices;
-
-using Microsoft.Maui.Dispatching;
 
 namespace Csocsesz.ContentPages;
 
 public partial class LiveGamePage : ContentPage
 {
+    private Player playerRed = AppSettings.playerRed;
+    private Player playerBlue = AppSettings.playerBlue;
+
     private bool gameWon = false;
     private bool started = false;
-    private List<Side> scores = new List<Side>();
 
-    private Player player1 = AppSettings.player1;
-    private Player player2 = AppSettings.player2;
+    private List<Goal> goals = new List<Goal>();
+    private DateTime startTime;
+
+    private List<MatchResults> matchBuffer = new List<MatchResults>();
+    public LiveGamePage()
+    {
+        InitializeComponent();
+
+        playerRed.inGame.goals = 0;
+        playerRed.inGame.matchWon = 0;
+        playerBlue.inGame.goals = 0;
+        playerBlue.inGame.matchWon = 0;
+        RCBimage.Source = GetImageBySide(Side.red, true);
+        BCBimage.Source = GetImageBySide(Side.blue, true);
+    }
+
+    #region Saving Match functions
 
     #region HTTP
     // HTTP Kliens és API URL
@@ -60,45 +74,70 @@ public partial class LiveGamePage : ContentPage
             Console.WriteLine($"Hiba a hálózati kérés során: {ex.Message}");
         }
     }
-    private void SaveGame()
+    #endregion
+    
+    private void SaveMatchToBuffer(Side side)
     {
-        if (!gameWon) return;
-        Player winner = (GetPlayerBySide(Side.red).inGame.goals > GetPlayerBySide(Side.blue).inGame.goals) ? GetPlayerBySide(Side.red) : GetPlayerBySide(Side.blue);
-        Player loser = (winner == GetPlayerBySide(Side.red)) ? GetPlayerBySide(Side.blue) : GetPlayerBySide(Side.red);
+        if (AppSettings.sendTestMatches && secondsElapsed < 30) return;
+        Player winner = GetPlayerBySide(side);
+        Player loser = GetPlayerBySide(side == Side.red ? Side.blue : Side.blue);
 
-        // Létrehozzuk a MatchResults objektumot a szervernek:
         MatchResults results = new MatchResults
-            (winnerId: winner.id, loserId: loser.id, loserGoals: loser.inGame.goals, 
-            timeSpan: TimeSpan.FromSeconds(secondsElapsed), date: DateTime.Now, pushUpsMultiplier: AppSettings.pushUpsMultiplier);
-        for (int i = 0; i < scores.Count; i++) results.goals[i] = scores[i];
+            (winner.id, side, loser.id, loser.inGame.goals, startTime, AppSettings.pushUpsMultiplier);
+        for (int i = 0; i < goals.Count; i++) results.goals[i] = goals[i];
 
-        // Elindítjuk a feltöltést egy háttérszálon (Task.Run), 
-        // hogy ne fagyjon le a felhasználói felület, amíg várunk a szerverre.
-        Task.Run(() => UploadMatchResultAsync(results));
+        matchBuffer.Add(results);
+    }
+    private void SaveBuffer()
+    {
+        if (matchBuffer.Count == 0) return;
+        for (int i = 0; i < matchBuffer.Count; i++)
+        {
+            Task.Run(() => UploadMatchResultAsync(matchBuffer[i]));
+        }
     }
     #endregion
-    public LiveGamePage()
-    {
-        InitializeComponent();
-    }
 
-    private void UpdateCounterButtons()
+    #region Pointer Functions
+    private Player GetPlayerBySide(Side side)
     {
-        BCBgoalLabel.Text = $"{GetPlayerBySide(Side.blue).inGame.goals}";
-        RCBgoalLabel.Text = $"{GetPlayerBySide(Side.red).inGame.goals}";
+        return side == Side.red ? playerRed : playerBlue;
+    }
+    private ImageSource GetImageBySide(Side side, bool normal)
+    {
+        if (normal) return GetPlayerBySide(side).inGame.normalImage;
+        else return GetPlayerBySide(side).inGame.sadImage;
+    }
+    #endregion
+
+    #region Subsidiary Functions
+    private void UpdateCounterButtonsLabel()
+    {
+        BCBgoalLabel.Text = $"{playerBlue.inGame.goals}";
+        RCBgoalLabel.Text = $"{playerRed.inGame.goals}";
+        BCBmatchLabel.Text = $"{playerBlue.inGame.matchWon}";
+        RCBmatchLabel.Text = $"{playerRed.inGame.matchWon}";
+    }
+    private void Vibrate()
+    {
+        TimeSpan duration = TimeSpan.FromMilliseconds(1001);
+        Vibration.Default.Vibrate(duration);
     }
     private void GameWon(Side side)
     {
         gameWon = true;
+
         NewGameButton.IsVisible = true;
         SwapButton.IsVisible = true;
         ExitButton.BackgroundColor = DataStore.green;
+
         if (side == Side.red)
         {
             BlueButton.BackgroundColor = DataStore.red;
             RedButton.BackgroundColor = DataStore.red;
             RCBgoalLabel.Text = "W";
             BCBgoalLabel.Text = "L";
+            BCBimage.Source = GetImageBySide(Side.blue, false);
         }
         else
         {
@@ -106,19 +145,11 @@ public partial class LiveGamePage : ContentPage
             RedButton.BackgroundColor = DataStore.blue;
             RCBgoalLabel.Text = "L";
             BCBgoalLabel.Text = "W";
+            RCBimage.Source = GetImageBySide(Side.red, false);
         }
-        if (GetPlayerBySide(side).name == "Zalan") hugoImage.Source = DataStore.hugoSadImage;
-        else zalanImage.Source = DataStore.zalanSadImage;
 
-        TimeSpan duration = TimeSpan.FromMilliseconds(1001);
-        Vibration.Default.Vibrate(duration);
-
+        Vibrate();
         StopTimer();
-    }
-    private Player GetPlayerBySide(Side side)
-    {
-        if ((side == Side.red && player1.inGame.side == Side.red) || (side == Side.blue && player1.inGame.side == Side.blue)) return player1;
-        else return player2;
     }
 
     #region Timer
@@ -175,6 +206,7 @@ public partial class LiveGamePage : ContentPage
         TimerLabel.Text = "00:00";
     }
     #endregion
+    #endregion
 
     #region Buttons
     private async void CounterButtonClicked(object sender, EventArgs e)
@@ -185,15 +217,16 @@ public partial class LiveGamePage : ContentPage
         if (sender == RedButton)
         {
             GetPlayerBySide(Side.red).inGame.goals++;
-            scores.Add(Side.red);
+            goals.Add(new Goal(Side.red, DateTime.Now));
         }
         else
         {
             GetPlayerBySide(Side.blue).inGame.goals++;
-            scores.Add(Side.blue);
+            goals.Add(new Goal(Side.blue, DateTime.Now));
         }
 
-        UpdateCounterButtons();
+        UpdateCounterButtonsLabel();
+
         if (RCBgoalLabel.Text == "10") GameWon(Side.red);
         else if (BCBgoalLabel.Text == "10") GameWon(Side.blue);
 
@@ -204,34 +237,39 @@ public partial class LiveGamePage : ContentPage
             await clickedElement.ScaleTo(1.0, 150, Easing.CubicIn);
         }
         #region unimportant
-        _ = ShakeButtonsIfCriticalScore();
+        _ = ShakeButtonsIf67Score();
         #endregion
     }
     private async void ExitButtonClicked(object sender, EventArgs e)
     {
-        if(gameWon) SaveGame();
-        await Shell.Current.GoToAsync("///PlayPage");
+        SaveBuffer();
+        await Navigation.PopModalAsync();
     }
     private void BackButtonClicked(object sender, EventArgs e)
     {
         if (!started) return;
-        if (scores.Count == 0) return;
-        if (scores[scores.Count() - 1] == Side.red) GetPlayerBySide(Side.red).inGame.goals--;
-        else GetPlayerBySide(Side.blue).inGame.goals--;
-        scores.RemoveAt(scores.Count() - 1);
+        if (goals.Count == 0) return;
 
-        UpdateCounterButtons();
+        if (goals[goals.Count() - 1].side == Side.red) GetPlayerBySide(Side.red).inGame.goals--;
+        else GetPlayerBySide(Side.blue).inGame.goals--;
+        goals.RemoveAt(goals.Count() - 1);
+
+        UpdateCounterButtonsLabel();
+
         if(gameWon)
         {
             StartTimer();
+
             BlueButton.BackgroundColor = DataStore.blue;
             RedButton.BackgroundColor = DataStore.red;
             ExitButton.BackgroundColor = DataStore.gray;
             NewGameButton.IsVisible = false;
             SwapButton.IsVisible = false;
+
+            RCBimage.Source = GetImageBySide(Side.red, true);
+            BCBimage.Source = GetImageBySide(Side.blue, true);
+
             gameWon = false;
-            hugoImage.Source = DataStore.hugoImage;
-            zalanImage.Source = DataStore.zalanImage;
         }
     }
     private void SwapButtonClicked(object sender, EventArgs e)
@@ -248,47 +286,59 @@ public partial class LiveGamePage : ContentPage
         }
         if(gameWon)
         {
-            UpdateCounterButtons();
+            UpdateCounterButtonsLabel();
             BlueButton.BackgroundColor = DataStore.blue;
             RedButton.BackgroundColor = DataStore.red;
         }
     }
     private void NewGameButtonClicked(object sender, EventArgs e)
     {
-        if (!started) started = true;
-        if(gameWon) SaveGame();
-
-        if (player1.inGame.goals == 10)
+        if(playerRed.inGame.goals == 10)
         {
-            if (player1.inGame.side == Side.red) RCBmatchLabel.Text = $"{++player1.inGame.matchWon}";
-            else BCBmatchLabel.Text = $"{++player1.inGame.matchWon}";
+            RCBmatchLabel.Text = $"{++playerRed.inGame.matchWon}";
+            SaveMatchToBuffer(Side.red);
         }
-        else if (player2.inGame.goals == 10)
+        else if (playerBlue.inGame.goals == 10)
         {
-            if (player2.inGame.side == Side.red) RCBmatchLabel.Text = $"{++player2.inGame.matchWon}";
-            else BCBmatchLabel.Text = $"{++player2.inGame.matchWon}";
+            BCBmatchLabel.Text = $"{++playerBlue.inGame.matchWon}";
+            SaveMatchToBuffer(Side.blue);
         }
 
         ResetTimer();
         StartTimer();
+        startTime = DateTime.Now;
+
         NewGameButton.IsVisible = false;
         SwapButton.IsVisible = false;
         ExitButton.BackgroundColor = DataStore.gray;
-        GetPlayerBySide(Side.red).inGame.goals = 0;
-        GetPlayerBySide(Side.blue).inGame.goals = 0;
-        UpdateCounterButtons();
         BlueButton.BackgroundColor = DataStore.blue;
         RedButton.BackgroundColor = DataStore.red;
-        gameWon = false;
-        scores.Clear();
+        RCBimage.Source = GetImageBySide(Side.red, true);
+        BCBimage.Source = GetImageBySide(Side.blue, true);
 
-        hugoImage.Source = DataStore.hugoImage;
-        zalanImage.Source = DataStore.zalanImage;
+        GetPlayerBySide(Side.red).inGame.goals = 0;
+        GetPlayerBySide(Side.blue).inGame.goals = 0;
+        UpdateCounterButtonsLabel();
+
+        gameWon = false;
+        goals.Clear();
+
+        if(AppSettings.changingSide && started)
+        {
+            Player tempP = playerRed;
+            playerRed = playerBlue;
+            playerBlue = tempP;
+
+            RCBimage.Source = GetImageBySide(Side.red, true);
+            BCBimage.Source = GetImageBySide(Side.blue, true);
+            UpdateCounterButtonsLabel();
+        }
+        started = true;
     }
     #endregion
 
     #region unimportant
-    private async Task ShakeButtonsIfCriticalScore()
+    private async Task ShakeButtonsIf67Score()
     {
         // Lekérdezzük a gólokat
         int redGoals = GetPlayerBySide(Side.red).inGame.goals;

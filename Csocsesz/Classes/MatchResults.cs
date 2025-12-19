@@ -4,24 +4,33 @@ using System.Text;
 
 namespace Csocsesz.Classes
 {
+    public class Goal
+    {
+        public Side side { get; set; }
+        public DateTime time { get; set; }
+        public Goal(Side side, DateTime time)
+        {
+            this.side = side;
+            this.time = time;
+        }
+    }
     public class MatchResults
     {
         public string winnerId { get; set; }
+        public Side winnerSide { get; set; }
         public string loserId { get; set; }
         public int loserGoals { get; set; }
-        public TimeSpan timeSpan { get; set; }
-        public DateTime date { get; set; }
-        public Side[] goals { get; set; }
+        public DateTime startTime { get; set; }
+        public Goal[] goals { get; set; }
         public int pushUpsMultiplier { get; set; }
 
-        public MatchResults(string winnerId, string loserId, int loserGoals, TimeSpan timeSpan, DateTime date, int pushUpsMultiplier)
+        public MatchResults(string winnerId, Side winnerSide, string loserId, int loserGoals, DateTime startTime, int pushUpsMultiplier)
         {
             this.winnerId = winnerId;
             this.loserId = loserId;
             this.loserGoals = loserGoals;
-            this.timeSpan = timeSpan;
-            this.date = date;
-            this.goals = new Side[20];
+            this.startTime = startTime;
+            this.goals = new Goal[20];
             this.pushUpsMultiplier = pushUpsMultiplier;
         }
     }
