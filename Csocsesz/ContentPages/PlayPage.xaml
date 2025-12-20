@@ -5,7 +5,7 @@
              x:Class="Csocsesz.ContentPages.PlayPage"
              BackgroundColor="Black">
 
-    <Grid RowDefinitions="120, *, 120" ColumnDefinitions="*, *, *, *" Margin="10">
+    <Grid RowDefinitions="150, *, 120" Margin="10">
         <VerticalStackLayout 
             HorizontalOptions="Center" VerticalOptions="Center"
             Spacing="10"
@@ -20,21 +20,16 @@
                 HorizontalTextAlignment="Center"
                 />
         </VerticalStackLayout>
-        <VerticalStackLayout VerticalOptions="Center" Spacing="20" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2">
+        <Grid RowDefinitions="2*,*,2*" ColumnDefinitions="*,*,*,*" 
+              Grid.Row="1">
             <Button
             x:Name="LiveGameBtn"
             Text="LIVE GAME"
             Clicked="LiveGameButtonClicked"
             Style="{StaticResource RegularButtonStyle}"
-            Grid.Row="1"
-            />
-            <Button
-            x:Name="NewRecordBtn"
-            Text="NEW RECORD"
-            Style="{StaticResource RegularButtonStyle}"
-            Grid.Row="1"
-            />
-        </VerticalStackLayout>
-        <nav:NavBar Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4"/>
+            VerticalOptions="Start"
+            Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"/>
+        </Grid>
+        <nav:NavBar Grid.Row="2" Grid.Column="0"/>
     </Grid>
 </ContentPage>

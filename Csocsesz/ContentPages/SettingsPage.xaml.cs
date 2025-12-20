@@ -15,6 +15,8 @@ public partial class SettingsPage : ContentPage
         PlayerRedPicker.SelectedIndex = 0;
         PlayerBluePicker.ItemsSource = DataStore.Players;
         PlayerBluePicker.SelectedIndex = 1;
+        AutoSideSwitch.IsToggled = AppSettings.changingSide;
+        SaveTestMatchesSwitch.IsToggled = AppSettings.sendTestMatches;
     }
     void OnPlayerRedChanged(object sender, EventArgs e)
     {
@@ -31,6 +33,10 @@ public partial class SettingsPage : ContentPage
             PlayerRedPicker.SelectedItem = AppSettings.playerBlue;
         }
         AppSettings.playerBlue = (Player)PlayerBluePicker.SelectedItem;
+    }
+    void OnAutoSideSwitchChanged(object sender, ToggledEventArgs e)
+    {
+        AppSettings.changingSide = e.Value;
     }
     private void OnPushUpsMultiplierChanged(object sender, EventArgs e)
     {

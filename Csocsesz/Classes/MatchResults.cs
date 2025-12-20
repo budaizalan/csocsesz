@@ -27,11 +27,17 @@ namespace Csocsesz.Classes
         public MatchResults(string winnerId, Side winnerSide, string loserId, int loserGoals, DateTime startTime, int pushUpsMultiplier)
         {
             this.winnerId = winnerId;
+            this.winnerSide = winnerSide;
             this.loserId = loserId;
             this.loserGoals = loserGoals;
             this.startTime = startTime;
             this.goals = new Goal[20];
             this.pushUpsMultiplier = pushUpsMultiplier;
         }
+    }
+    public class MatchRootResponse
+    {
+        public int totalCount { get; set; }
+        public List<MatchResults> matches { get; set; }
     }
 }

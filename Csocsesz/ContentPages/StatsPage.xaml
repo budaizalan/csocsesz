@@ -6,12 +6,99 @@
              BackgroundColor="Black">
     <Grid RowDefinitions="120, *, 120" ColumnDefinitions="*" Margin="10">
         <Label
-            Text="STATS"
-            Style="{StaticResource Title}"
-            VerticalOptions="Center"
-            HorizontalTextAlignment="Center"
-            Grid.Row="0"
-            />
+        Text="STATS"
+        Style="{StaticResource Title}"
+        VerticalOptions="Center"
+        HorizontalTextAlignment="Center"
+        Grid.Row="0"/>
+        <Grid RowDefinitions="1*,6*" Grid.Row="1" Padding="10, 0">
+            <Frame 
+                Grid.Row="0"
+                BackgroundColor="{StaticResource DarkGray}"
+                CornerRadius="10">
+                <Grid ColumnDefinitions="3*,2*">
+                    <Label 
+                        Text="Player"
+                        Style="{StaticResource Normal}"
+                        FontFamily="CenturyGothicBold"
+                        VerticalOptions="Center" HorizontalOptions="Start"
+                        Grid.Column="0"/>
+                    <Picker 
+                        x:Name="PlayerPicker"
+                        Title="Select Player"
+                        ItemDisplayBinding="{Binding name}"
+                        TextColor="White"
+                        TitleColor="White"
+                        SelectedIndexChanged="OnPlayerChanged"
+                        VerticalOptions="Center" HorizontalOptions="End"
+                        Grid.Column="1"/>
+                </Grid>
+            </Frame>
+            
+            <Grid RowDefinitions="1.1*,*,*,*,*,*,2*" ColumnDefinitions="3*,2*" 
+                  Padding="10,0"
+                  Grid.Row="1" >
+                <Label 
+                    Text="Win Streak:"
+                    Style="{StaticResource Normal}"
+                    VerticalOptions="Center" HorizontalOptions="Start"
+                    Grid.Row="1" Grid.Column="0"/>
+                <Label
+                    x:Name="WinStreakLabel"
+                    Text="00"
+                    Style="{StaticResource Normal}"
+                    VerticalOptions="Center" HorizontalOptions="End"
+                    Grid.Row="1" Grid.Column="1"/>
+
+                <Label 
+                    Text="Total Goals:"
+                    Style="{StaticResource Normal}"
+                    VerticalOptions="Center" HorizontalOptions="Start"
+                    Grid.Row="2" Grid.Column="0"/>
+                <Label
+                    x:Name="TotalGoalsLabel"
+                    Text="00"
+                    Style="{StaticResource Normal}"
+                    VerticalOptions="Center" HorizontalOptions="End"
+                    Grid.Row="2" Grid.Column="1"/>
+
+                <Label 
+                    Text="Total Match Won:"
+                    Style="{StaticResource Normal}"
+                    VerticalOptions="Center" HorizontalOptions="Start"
+                    Grid.Row="3" Grid.Column="0"/>
+                <Label
+                    x:Name="TotalMatchWonLabel"
+                    Text="00"
+                    Style="{StaticResource Normal}"
+                    VerticalOptions="Center" HorizontalOptions="End"
+                    Grid.Row="3" Grid.Column="1"/>
+
+                <Label 
+                    Text="Total Match Lost:"
+                    Style="{StaticResource Normal}"
+                    VerticalOptions="Center" HorizontalOptions="Start"
+                    Grid.Row="4" Grid.Column="0"/>
+                <Label
+                    x:Name="TotalMatchLostLabel"
+                    Text="00"
+                    Style="{StaticResource Normal}"
+                    VerticalOptions="Center" HorizontalOptions="End"
+                    Grid.Row="4" Grid.Column="1"/>
+
+                <Label 
+                    Text="Winrate:"
+                    Style="{StaticResource Normal}"
+                    VerticalOptions="Center" HorizontalOptions="Start"
+                    Grid.Row="5" Grid.Column="0"/>
+                <Label
+                    x:Name="WinRateLabel"
+                    Text="00%"
+                    Style="{StaticResource Normal}"
+                    VerticalOptions="Center" HorizontalOptions="End"
+                    Grid.Row="5" Grid.Column="1"/>
+            </Grid>
+        </Grid>
         <nav:NavBar Grid.Row="2"/>
     </Grid>
 </ContentPage>

@@ -33,15 +33,19 @@ public partial class LiveGamePage : ContentPage
     }
 
     #region Saving Match functions
-
-    #region HTTP
-    // HTTP Kliens és API URL
-    private readonly HttpClient _httpClient = new HttpClient();
-    private const string ApiUrl = DataStore.apiMatchUrl;
     private async Task UploadMatchResultAsync(MatchResults matchResults)
     {
-        // 1. Objektum sorosítása JSON stringgé
-        string jsonContent = JsonSerializer.Serialize(matchResults);
+        // HTTP Kliens és API URL
+        HttpClient _httpClient = new HttpClient();
+        const string ApiUrl = DataStore.apiMatchUrl;
+         // 1. Objektum sorosítása JSON stringgé
+        var options = new JsonSerializerOptions
+        {
+            Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
+            WriteIndented = true // opcionális, olvashatóbb JSON
+        };
+
+        string jsonContent = JsonSerializer.Serialize(matchResults, options);
 
         // 2. JSON tartalom létrehozása
         StringContent content = new StringContent(
@@ -74,16 +78,14 @@ public partial class LiveGamePage : ContentPage
             Console.WriteLine($"Hiba a hálózati kérés során: {ex.Message}");
         }
     }
-    #endregion
-    
-    private void SaveMatchToBuffer(Side side)
+    private void SaveMatchToBuffer()
     {
-        if (AppSettings.sendTestMatches && secondsElapsed < 30) return;
-        Player winner = GetPlayerBySide(side);
-        Player loser = GetPlayerBySide(side == Side.red ? Side.blue : Side.blue);
-
+        if (!AppSettings.sendTestMatches && secondsElapsed < 30) return;
+        Side wSide = winnerSide();
+        Player winner = GetPlayerBySide(wSide);
+        Player loser = GetPlayerBySide(wSide == Side.red ? Side.blue : Side.red);
         MatchResults results = new MatchResults
-            (winner.id, side, loser.id, loser.inGame.goals, startTime, AppSettings.pushUpsMultiplier);
+            (winner.id, wSide, loser.id, loser.inGame.goals, startTime, AppSettings.pushUpsMultiplier);
         for (int i = 0; i < goals.Count; i++) results.goals[i] = goals[i];
 
         matchBuffer.Add(results);
@@ -91,10 +93,26 @@ public partial class LiveGamePage : ContentPage
     private void SaveBuffer()
     {
         if (matchBuffer.Count == 0) return;
+        Console.WriteLine("------------------------MATCHES------------------------");
         for (int i = 0; i < matchBuffer.Count; i++)
         {
+            Console.WriteLine
+                ($"wId:{matchBuffer[i].winnerId}\n" +
+                $"wS:{(matchBuffer[i].winnerSide == Side.red ? "Red" : "Blue")}\n" +
+                $"lId:{matchBuffer[i].loserId}\n" +
+                $"lGoals:{matchBuffer[i].loserGoals}\n" +
+                $"startTime:{matchBuffer[i].startTime}\n" +
+                $"multiplier:{matchBuffer[i].pushUpsMultiplier}\n");
+            Console.WriteLine("Goals:");
+            for (int j = 0; j < 20; j++)
+            {
+                if (matchBuffer[i].goals[j] == null) break;
+                Console.Write($"{(matchBuffer[i].goals[j].side == Side.red ? "Red" : "Blue")}");
+                Console.WriteLine($" - {matchBuffer[i].goals[j].time}");
+            }
             Task.Run(() => UploadMatchResultAsync(matchBuffer[i]));
         }
+        Console.WriteLine("-------------------------------------------------------");
     }
     #endregion
 
@@ -107,6 +125,10 @@ public partial class LiveGamePage : ContentPage
     {
         if (normal) return GetPlayerBySide(side).inGame.normalImage;
         else return GetPlayerBySide(side).inGame.sadImage;
+    }
+    private Side winnerSide()
+    {
+        return goals[goals.Count - 1].side;
     }
     #endregion
 
@@ -151,7 +173,7 @@ public partial class LiveGamePage : ContentPage
         Vibrate();
         StopTimer();
     }
-
+    
     #region Timer
     private IDispatcherTimer? gameTimer; // Az idõzítõ objektum
     private int secondsElapsed = 0; // Eltelt idõ másodpercben (a számláló)
@@ -227,8 +249,8 @@ public partial class LiveGamePage : ContentPage
 
         UpdateCounterButtonsLabel();
 
-        if (RCBgoalLabel.Text == "10") GameWon(Side.red);
-        else if (BCBgoalLabel.Text == "10") GameWon(Side.blue);
+        if (playerRed.inGame.goals == 10) GameWon(Side.red);
+        else if (playerBlue.inGame.goals == 10) GameWon(Side.blue);
 
         var clickedElement = sender as Frame;
         if (clickedElement != null)
@@ -242,16 +264,17 @@ public partial class LiveGamePage : ContentPage
     }
     private async void ExitButtonClicked(object sender, EventArgs e)
     {
+        if (gameWon) SaveMatchToBuffer();
         SaveBuffer();
+        ((App)App.Current).LoadDataBases();
         await Navigation.PopModalAsync();
     }
     private void BackButtonClicked(object sender, EventArgs e)
     {
-        if (!started) return;
-        if (goals.Count == 0) return;
+        if (!started || goals.Count == 0) return;
 
-        if (goals[goals.Count() - 1].side == Side.red) GetPlayerBySide(Side.red).inGame.goals--;
-        else GetPlayerBySide(Side.blue).inGame.goals--;
+        if (goals[goals.Count() - 1].side == Side.red) playerRed.inGame.goals--;
+        else playerBlue.inGame.goals--;
         goals.RemoveAt(goals.Count() - 1);
 
         UpdateCounterButtonsLabel();
@@ -293,15 +316,15 @@ public partial class LiveGamePage : ContentPage
     }
     private void NewGameButtonClicked(object sender, EventArgs e)
     {
-        if(playerRed.inGame.goals == 10)
-        {
-            RCBmatchLabel.Text = $"{++playerRed.inGame.matchWon}";
-            SaveMatchToBuffer(Side.red);
-        }
-        else if (playerBlue.inGame.goals == 10)
+        if (started && gameWon && winnerSide() == Side.blue)
         {
             BCBmatchLabel.Text = $"{++playerBlue.inGame.matchWon}";
-            SaveMatchToBuffer(Side.blue);
+            SaveMatchToBuffer();
+        }
+        else if (started && gameWon && winnerSide() == Side.red)
+        {
+            RCBmatchLabel.Text = $"{++playerRed.inGame.matchWon}";
+            SaveMatchToBuffer();
         }
 
         ResetTimer();
@@ -337,7 +360,7 @@ public partial class LiveGamePage : ContentPage
     }
     #endregion
 
-    #region unimportant
+    #region Unimportant
     private async Task ShakeButtonsIf67Score()
     {
         // Lekérdezzük a gólokat

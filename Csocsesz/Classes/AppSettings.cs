@@ -17,6 +17,6 @@ namespace Csocsesz.Classes
 
         public static int pushUpsMultiplier = 3;
 
-        public static bool sendTestMatches = false;
+        public static bool sendTestMatches = true;
     }
 }
