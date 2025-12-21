@@ -12,10 +12,11 @@
         HorizontalTextAlignment="Center"
         Grid.Row="0"/>
         <Grid RowDefinitions="1*,6*" Grid.Row="1" Padding="10, 0">
-            <Frame 
+            <Border
+                StrokeThickness="0"
                 Grid.Row="0"
                 BackgroundColor="{StaticResource DarkGray}"
-                CornerRadius="10">
+                Padding="10">
                 <Grid ColumnDefinitions="3*,2*">
                     <Label 
                         Text="Player"
@@ -33,7 +34,10 @@
                         VerticalOptions="Center" HorizontalOptions="End"
                         Grid.Column="1"/>
                 </Grid>
-            </Frame>
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="10"/>
+            </Border.StrokeShape>
+        </Border>
             
             <Grid RowDefinitions="1.1*,*,*,*,*,*,2*" ColumnDefinitions="3*,2*" 
                   Padding="10,0"

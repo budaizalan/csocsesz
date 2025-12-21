@@ -7,9 +7,13 @@ public partial class SettingsPage : ContentPage
 	public SettingsPage()
 	{
 		InitializeComponent();
-        OnStart();
     }
-    private void OnStart()
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        Start();
+    }
+    private void Start()
     {
         PlayerRedPicker.ItemsSource = DataStore.Players;
         PlayerRedPicker.SelectedIndex = 0;

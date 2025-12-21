@@ -12,6 +12,110 @@
             HorizontalTextAlignment="Center"
             Grid.Row="0"
             />
+        <Border
+            StrokeThickness="0"
+            BackgroundColor="{StaticResource DarkGray}"
+            Margin="0,20" Padding="20"
+            Grid.Row="1">
+            <CollectionView
+                x:Name="MatchesCollectionView"
+                IsGrouped="True">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="20"
+                                       SnapPointsType="None"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.GroupHeaderTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Date}" 
+                            Style="{StaticResource BigNormal}"
+                            TextColor="{StaticResource Gray}"
+                            FontSize="16"
+                            HorizontalTextAlignment="Center"
+                            FontAttributes="Bold" />
+                    </DataTemplate>
+                </CollectionView.GroupHeaderTemplate>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        
+                        <Border
+                            StrokeThickness="0" BackgroundColor="{StaticResource Gray}"
+                            VerticalOptions="Fill" HorizontalOptions="Fill"
+                            HeightRequest="150" Padding="5">
+
+                            <Grid RowDefinitions="*,*,*" ColumnDefinitions="*,*,*">
+                                <Grid ColumnDefinitions="*,3*,*"
+                                      Grid.Row="0" Grid.Column="1">
+                                    <Border StrokeThickness="0"
+                                            Grid.Column="1">
+                                        <Label
+                                            Text="{Binding DateText}"
+                                            Style="{StaticResource BigNormal}"
+                                            BackgroundColor="{StaticResource DarkGray}"
+                                            FontSize="16"
+                                            HorizontalTextAlignment="Center"
+                                            VerticalTextAlignment="Start"
+                                            Grid.Row="0" Grid.Column="1"/>
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="10" />
+                                        </Border.StrokeShape>
+                                    </Border>
+                                </Grid>
+                                <Image
+                                    Style="{StaticResource HistoryImageStyle}"
+                                    Source="{Binding Winner.inGame.normalImage}"
+                                    HorizontalOptions="Center" VerticalOptions="Center"
+                                    Grid.Row="1" Grid.Column="0"/>
+                                <Label
+                                    Text="{Binding ResultText}" 
+                                    Style="{StaticResource BigNormal}"
+                                    FontSize="40"
+                                    HorizontalTextAlignment="Center"
+                                    VerticalTextAlignment="Center"
+                                    Grid.Row="1" Grid.Column="1">
+                                </Label>
+                                <Image
+                                    Style="{StaticResource HistoryImageStyle}"
+                                    Source="{Binding Loser.inGame.sadImage}"
+                                    HorizontalOptions="Center" VerticalOptions="Center"
+                                    Grid.Row="1" Grid.Column="2"/>
+                                
+                                <Label
+                                    Text="{Binding Winner.name}" 
+                                    Style="{StaticResource BigNormal}"
+                                    FontSize="16"
+                                    HorizontalTextAlignment="Center"
+                                    VerticalTextAlignment="Center"
+                                    Grid.Row="2" Grid.Column="0"/>
+                                <Label
+                                    Text="{Binding Loser.name}" 
+                                    Style="{StaticResource BigNormal}"
+                                    FontSize="16"
+                                    HorizontalTextAlignment="Center"
+                                    VerticalTextAlignment="Center"
+                                    Grid.Row="2" Grid.Column="2"/>
+                            </Grid>
+                            
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="{Binding WinnerColor}" Offset="0.5" />
+                                    <GradientStop Color="{Binding LoserColor}" Offset="0.5" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnMatchTapped" />
+                            </Border.GestureRecognizers>
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10" />
+                            </Border.StrokeShape>
+                        </Border>
+                        
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+        </Border>
         <nav:NavBar Grid.Row="2"/>
     </Grid>
 </ContentPage>

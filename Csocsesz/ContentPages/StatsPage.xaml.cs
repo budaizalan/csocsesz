@@ -7,6 +7,10 @@ public partial class StatsPage : ContentPage
 	public StatsPage()
 	{
 		InitializeComponent();
+    }
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
         Start();
     }
     private void Start()

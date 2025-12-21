@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Csocsesz.ContentPages;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -28,5 +29,7 @@ namespace Csocsesz.Classes
         public static Color gray = Color.FromArgb("#7f7f7f");
 
         public static int pageIdx = 0;
+
+        public static MatchResults selectedMatch;
     }
 }

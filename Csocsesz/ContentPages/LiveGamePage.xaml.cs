@@ -23,7 +23,14 @@ public partial class LiveGamePage : ContentPage
     public LiveGamePage()
     {
         InitializeComponent();
-
+    }
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        Start();
+    }
+    private void Start()
+    {
         playerRed.inGame.goals = 0;
         playerRed.inGame.matchWon = 0;
         playerBlue.inGame.goals = 0;

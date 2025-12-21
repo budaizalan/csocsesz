@@ -4,8 +4,9 @@
              x:Class="Csocsesz.ContentPages.LiveGamePage"
              BackgroundColor="Black">
     <Grid RowDefinitions="*, 100, *" Margin="10">
-        <Frame 
+        <Border 
             x:Name="BlueButton"
+            StrokeThickness="0"
             BackgroundColor="{StaticResource Blue}"
             Style="{StaticResource CBframeStyle}"
             Grid.Row="0">
@@ -31,13 +32,16 @@
                     HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
                     Grid.Row="0" Grid.Column="1"/>
             </Grid>
-            <Frame.GestureRecognizers>
+            <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="CounterButtonClicked"/>
-            </Frame.GestureRecognizers>
-        </Frame>
-        <Frame
+            </Border.GestureRecognizers>
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+        </Border>
+        <Border
+            StrokeThickness="0"
             Grid.Row="1"
-            CornerRadius="20"
             Padding="0"
             BackgroundColor="{StaticResource DarkGray}">
             <Grid ColumnDefinitions="*,*,*,*">
@@ -84,9 +88,13 @@
                     Grid.ColumnSpan="2"/>
 
             </Grid>
-        </Frame>
-        <Frame 
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+        </Border>
+        <Border 
             x:Name="RedButton"
+            StrokeThickness="0"
             BackgroundColor="{StaticResource Red}"
             Style="{StaticResource CBframeStyle}"
             Grid.Row="2">
@@ -112,9 +120,12 @@
                     HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
                     Grid.Row="0" Grid.Column="1"/>
            </Grid>
-                <Frame.GestureRecognizers>
+                <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="CounterButtonClicked"/>
-                </Frame.GestureRecognizers>
-        </Frame>
+                </Border.GestureRecognizers>
+           <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+           </Border.StrokeShape>
+        </Border>
     </Grid>
 </ContentPage>
