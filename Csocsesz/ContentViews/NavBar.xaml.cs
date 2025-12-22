@@ -6,9 +6,8 @@ public partial class NavBar : ContentView
 	public NavBar()
 	{
 		InitializeComponent();
-		setButtonColor();
 	}
-	private void setButtonColor() 
+	public void setButtonColor()
 	{
 		if (DataStore.pageIdx == 0) PlayTabButton.BackgroundColor = DataStore.red;
 		else PlayTabButton.BackgroundColor = DataStore.gray;

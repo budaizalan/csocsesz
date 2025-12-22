@@ -8,16 +8,28 @@ public partial class StatsPage : ContentPage
 	{
 		InitializeComponent();
     }
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        Start();
+
+        await Task.Yield();
+
+        try
+        {
+            await Start();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Error", ex.Message, "OK");
+        }
     }
-    private void Start()
+    private async Task Start()
     {
         PlayerPicker.ItemsSource = DataStore.Players;
         PlayerPicker.SelectedIndex = 0;
         UpdateLabels();
+
+        Navbar.setButtonColor();
     }
     void OnPlayerChanged(object sender, EventArgs e)
     {

@@ -121,6 +121,6 @@
                 <RoundRectangle CornerRadius="20"/>
             </Border.StrokeShape>
         </Border>
-        <nav:NavBar Grid.Row="2"/>
+        <nav:NavBar x:Name="Navbar" Grid.Row="2"/>
     </Grid>
 </ContentPage>

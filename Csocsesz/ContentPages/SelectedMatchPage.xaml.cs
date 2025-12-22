@@ -32,12 +32,22 @@ public partial class SelectedMatchPage : ContentPage
 	{
 		InitializeComponent();
 	}
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        Start();
+
+        await Task.Yield();
+
+        try
+        {
+            await Start();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Error", ex.Message, "OK");
+        }
     }
-    private void Start()
+    private async Task Start()
     {
         var currentMatch = DataStore.selectedMatch;
         if (currentMatch == null || currentMatch.goals == null) return;

@@ -32,7 +32,6 @@
                 <Image
                     x:Name="MatchWinnerImage"
                     Style="{StaticResource HistoryImageStyle}"
-                    Source=""
                     HorizontalOptions="Center" VerticalOptions="Center"
                     Grid.Row="1" Grid.Column="0"/>
                 <Label
@@ -47,7 +46,6 @@
                 <Image
                     x:Name="MatchLoserImage"
                     Style="{StaticResource HistoryImageStyle}"
-                    Source=""
                     HorizontalOptions="Center" VerticalOptions="Center"
                     Grid.Row="1" Grid.Column="2"/>
 
@@ -75,9 +73,6 @@
                     <GradientStop x:Name="LoserColor" Color="{StaticResource Blue}" Offset="0.5" />
                 </LinearGradientBrush>
             </Border.Background>
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnMatchTapped" />
-            </Border.GestureRecognizers>
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="10" />
             </Border.StrokeShape>

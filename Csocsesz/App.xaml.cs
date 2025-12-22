@@ -18,12 +18,14 @@ namespace Csocsesz
         }
         public void LoadDataBases()
         {
-            LoadPlayerDataBase();
-            LoadMatchDataBase();
+            //LoadPlayerDataBase();
+            LoadFakePlayerDatabase();
+            //LoadMatchDataBase();
             LoadFakeMatchDataBase();
         }
         public async void LoadMatchDataBase()
         {
+            /*
             using HttpClient _httpClient = new HttpClient();
             // HTTP Kliens (érdemes osztályszinten tartani, de itt a példa kedvéért)
             const string MatchApiUrl = DataStore.apiMatchUrl;
@@ -68,6 +70,7 @@ namespace Csocsesz
             {
                 Console.WriteLine($"Hálózati hiba a letöltés során: {ex.Message}");
             }
+            */
         }
         public async void LoadPlayerDataBase()
         {
@@ -124,13 +127,22 @@ namespace Csocsesz
                 }
             }
         }
+        private void LoadFakePlayerDatabase()
+        {
+            DataStore.Players.Add
+                (new Player("694077cfe93c946a4ce8fdaf", "Hugo", 0, 0, 0, 0, 0, 0,"hugo_icon.png", "hugosad_icon.png"));
+            DataStore.Players.Add
+                (new Player("694077dbe93c946a4ce8fdb1", "Zazzzzuska", 0, 0, 0, 0, 0, 0, "zalan_icon.png", "zalansad_icon.png"));
+            AppSettings.playerRed = DataStore.Players[DataStore.defaultPlayerRedIdx];
+            AppSettings.playerBlue = DataStore.Players[DataStore.defaultPlayerBlueIdx];
+        }
         private void LoadFakeMatchDataBase()
         {
             for (int i = 0; i < 5; i++)
             {
                 MatchResults match = RandomMatch();
                 DataStore.Matches.Add(match);
-                PrintMatchToConsole(match);
+                //PrintMatchToConsole(match);
             }
         }
         private MatchResults RandomMatch()

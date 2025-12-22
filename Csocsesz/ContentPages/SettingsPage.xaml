@@ -76,6 +76,6 @@
                 VerticalOptions="Center" HorizontalOptions="End"
                 Grid.Row="4" Grid.Column="1"/>
         </Grid>
-        <nav:NavBar Grid.Row="2"/>
+        <nav:NavBar x:Name="Navbar" Grid.Row="2"/>
     </Grid>
 </ContentPage>

@@ -35,9 +35,4 @@ namespace Csocsesz.Classes
             this.pushUpsMultiplier = pushUpsMultiplier;
         }
     }
-    public class MatchRootResponse
-    {
-        public int totalCount { get; set; }
-        public List<MatchResults> matches { get; set; }
-    }
 }

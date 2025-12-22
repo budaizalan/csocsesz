@@ -8,10 +8,6 @@ namespace Csocsesz.Classes
     {
         public static Player playerRed;
         public static Player playerBlue;
-        public static ImageSource redImage;
-        public static ImageSource redSadImage;
-        public static ImageSource blueImage;
-        public static ImageSource blueSadImage;
 
         public static bool changingSide = true;
 

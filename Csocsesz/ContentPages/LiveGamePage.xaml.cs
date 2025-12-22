@@ -24,12 +24,22 @@ public partial class LiveGamePage : ContentPage
     {
         InitializeComponent();
     }
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        Start();
+
+        await Task.Yield();
+
+        try
+        {
+            await Start();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Error", ex.Message, "OK");
+        }
     }
-    private void Start()
+    private async Task Start()
     {
         playerRed.inGame.goals = 0;
         playerRed.inGame.matchWon = 0;
@@ -261,11 +271,11 @@ public partial class LiveGamePage : ContentPage
         if (playerRed.inGame.goals == 10) GameWon(Side.red);
         else if (playerBlue.inGame.goals == 10) GameWon(Side.blue);
 
-        var clickedElement = sender as Frame;
+        var clickedElement = sender as Border;
         if (clickedElement != null)
         {
-            await clickedElement.ScaleTo(0.95, 50, Easing.CubicOut);
-            await clickedElement.ScaleTo(1.0, 150, Easing.CubicIn);
+            await clickedElement.ScaleToAsync(0.95, 50, Easing.CubicOut);
+            await clickedElement.ScaleToAsync(1.0, 150, Easing.CubicIn);
         }
         #region unimportant
         _ = ShakeButtonsIf67Score();
@@ -390,12 +400,12 @@ public partial class LiveGamePage : ContentPage
             if (gameWon || !started) break;
 
             // Gyors oda-vissza mozgás (10 pixel)
-            var t1 = RedButton.TranslateTo(-20, 0, 125, Easing.Linear);
-            var t2 = BlueButton.TranslateTo(20, 0, 125, Easing.Linear);
+            var t1 = RedButton.TranslateToAsync(-20, 0, 125, Easing.Linear);
+            var t2 = BlueButton.TranslateToAsync(20, 0, 125, Easing.Linear);
             await Task.WhenAll(t1, t2);
 
-            var t3 = RedButton.TranslateTo(20, 0, 125, Easing.Linear);
-            var t4 = BlueButton.TranslateTo(-20, 0, 125, Easing.Linear);
+            var t3 = RedButton.TranslateToAsync(20, 0, 125, Easing.Linear);
+            var t4 = BlueButton.TranslateToAsync(-20, 0, 125, Easing.Linear);
             await Task.WhenAll(t3, t4);
 
             // Frissítjük az adatokat a ciklus következõ köréhez
@@ -406,8 +416,8 @@ public partial class LiveGamePage : ContentPage
 
         // Alaphelyzetbe állítás, ha már nem teljesül a feltétel
         await Task.WhenAll(
-            RedButton.TranslateTo(0, 0, 125),
-            BlueButton.TranslateTo(0, 0, 125)
+            RedButton.TranslateToAsync(0, 0, 125),
+            BlueButton.TranslateToAsync(0, 0, 125)
         );
     }
     #endregion

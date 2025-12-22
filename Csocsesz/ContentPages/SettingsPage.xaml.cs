@@ -8,12 +8,22 @@ public partial class SettingsPage : ContentPage
 	{
 		InitializeComponent();
     }
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        Start();
+
+        await Task.Yield();
+
+        try
+        {
+            await Start();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Error", ex.Message, "OK");
+        }
     }
-    private void Start()
+    private async Task Start()
     {
         PlayerRedPicker.ItemsSource = DataStore.Players;
         PlayerRedPicker.SelectedIndex = 0;
@@ -21,6 +31,8 @@ public partial class SettingsPage : ContentPage
         PlayerBluePicker.SelectedIndex = 1;
         AutoSideSwitch.IsToggled = AppSettings.changingSide;
         SaveTestMatchesSwitch.IsToggled = AppSettings.sendTestMatches;
+
+        Navbar.setButtonColor();
     }
     void OnPlayerRedChanged(object sender, EventArgs e)
     {

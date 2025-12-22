@@ -36,12 +36,22 @@ public partial class HistoryPage : ContentPage
             Date = date;
         }
     }
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        Start();
+
+        await Task.Yield();
+
+        try
+        {
+            await Start();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Error", ex.Message, "OK");
+        }
     }
-    private void Start()
+    private async Task Start()
 	{
         var displayList = new List<MatchDisplay>();
 
@@ -63,6 +73,8 @@ public partial class HistoryPage : ContentPage
             .ToList();
 
         MatchesCollectionView.ItemsSource = grouped;
+
+        Navbar.setButtonColor();
     }
     private async void OnMatchTapped(object sender, EventArgs e)
     {

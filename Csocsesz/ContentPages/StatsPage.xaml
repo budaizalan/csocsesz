@@ -103,6 +103,6 @@
                     Grid.Row="5" Grid.Column="1"/>
             </Grid>
         </Grid>
-        <nav:NavBar Grid.Row="2"/>
+        <nav:NavBar x:Name="Navbar" Grid.Row="2"/>
     </Grid>
 </ContentPage>
