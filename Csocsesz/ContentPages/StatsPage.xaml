@@ -11,13 +11,13 @@
         VerticalOptions="Center"
         HorizontalTextAlignment="Center"
         Grid.Row="0"/>
-        <Grid RowDefinitions="1*,6*" Grid.Row="1" Padding="10, 0">
+        <Grid RowDefinitions="1*,6*" Grid.Row="1" Padding="5, 0">
             <Border
                 StrokeThickness="0"
                 Grid.Row="0"
                 BackgroundColor="{StaticResource DarkGray}"
                 Padding="10">
-                <Grid ColumnDefinitions="3*,2*">
+                <Grid ColumnDefinitions="3*,2*" Padding="5">
                     <Label 
                         Text="Player"
                         Style="{StaticResource Normal}"
@@ -40,7 +40,7 @@
         </Border>
             
             <Grid RowDefinitions="1.1*,*,*,*,*,*,2*" ColumnDefinitions="3*,2*" 
-                  Padding="10,0"
+                  Padding="15,0"
                   Grid.Row="1" >
                 <Label 
                     Text="Win Streak:"

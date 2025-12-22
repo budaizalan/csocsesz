@@ -1,10 +1,148 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:goaldisplay="clr-namespace:Csocsesz.ContentPages"
              x:Class="Csocsesz.ContentPages.SelectedMatchPage"
              Title="SelectedMatchPage"
              BackgroundColor="Black">
-    <Grid RowDefinitions="120, *, 120" ColumnDefinitions="*" Margin="10">
+    <Grid RowDefinitions="150, *, 120" ColumnDefinitions="*" Margin="10">
+        <Border
+            StrokeThickness="0" BackgroundColor="{StaticResource Gray}"
+            HeightRequest="150" Padding="5"
+            Grid.Row="0">
+            <Grid RowDefinitions="*,*,*" ColumnDefinitions="*,*,*">
+                <Grid ColumnDefinitions="*,3*,*"
+                      Grid.Row="0" Grid.Column="1">
+                    <Border StrokeThickness="0"
+                            Grid.Column="1">
+                        <Label
+                            x:Name="MatchDateLabel"
+                            Text="00.00\n00:00"
+                            Style="{StaticResource BigNormal}"
+                            BackgroundColor="{StaticResource DarkGray}"
+                            FontSize="16"
+                            HorizontalTextAlignment="Center"
+                            VerticalTextAlignment="Start"
+                            Grid.Row="0" Grid.Column="1"/>
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="10" />
+                        </Border.StrokeShape>
+                    </Border>
+                </Grid>
+                <Image
+                    x:Name="MatchWinnerImage"
+                    Style="{StaticResource HistoryImageStyle}"
+                    Source=""
+                    HorizontalOptions="Center" VerticalOptions="Center"
+                    Grid.Row="1" Grid.Column="0"/>
+                <Label
+                    x:Name="MatchResultLabel"
+                    Text="0 - 0" 
+                    Style="{StaticResource BigNormal}"
+                    FontSize="40"
+                    HorizontalTextAlignment="Center"
+                    VerticalTextAlignment="Center"
+                    Grid.Row="1" Grid.Column="1">
+                </Label>
+                <Image
+                    x:Name="MatchLoserImage"
+                    Style="{StaticResource HistoryImageStyle}"
+                    Source=""
+                    HorizontalOptions="Center" VerticalOptions="Center"
+                    Grid.Row="1" Grid.Column="2"/>
+
+                <Label
+                    x:Name="MatchWinnerNameLabel"
+                    Text="player1" 
+                    Style="{StaticResource BigNormal}"
+                    FontSize="16"
+                    HorizontalTextAlignment="Center"
+                    VerticalTextAlignment="Center"
+                    Grid.Row="2" Grid.Column="0"/>
+                <Label
+                    x:Name="MatchLoserNameLabel"
+                    Text="player2"
+                    Style="{StaticResource BigNormal}"
+                    FontSize="16"
+                    HorizontalTextAlignment="Center"
+                    VerticalTextAlignment="Center"
+                    Grid.Row="2" Grid.Column="2"/>
+            </Grid>
+
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop x:Name="WinnerColor" Color="{StaticResource Red}" Offset="0.5" />
+                    <GradientStop x:Name="LoserColor" Color="{StaticResource Blue}" Offset="0.5" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnMatchTapped" />
+            </Border.GestureRecognizers>
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="10" />
+            </Border.StrokeShape>
+        </Border>
+        <Border
+            StrokeThickness="0"
+            BackgroundColor="{StaticResource DarkGray}"
+            Margin="0,20" Padding="20"
+            Grid.Row="1">
+            <CollectionView
+                x:Name="GoalsCollectionView"
+                IsGrouped="True">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="20"
+                               SnapPointsType="None"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.GroupHeaderTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Date}" 
+                            Style="{StaticResource BigNormal}"
+                            TextColor="{StaticResource Gray}"
+                            FontSize="16"
+                            HorizontalTextAlignment="Center"
+                            FontAttributes="Bold" />
+                    </DataTemplate>
+                </CollectionView.GroupHeaderTemplate>
+                <CollectionView.EmptyView>
+                    <Label Text="No goals found." 
+                       Style="{StaticResource BigNormal}" TextColor="{StaticResource Gray}"
+                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="goaldisplay:SelectedMatchPage+GoalDisplay">
+
+                        <Border
+                            StrokeThickness="0" BackgroundColor="{StaticResource Gray}"
+                            VerticalOptions="Fill" HorizontalOptions="Fill"
+                            HeightRequest="50" Padding="5">
+                            <Grid ColumnDefinitions="45*,55*" ColumnSpacing="10">
+                                <Image
+                                    Source="{Binding image}"
+                                    HeightRequest="25"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="End"
+                                    Grid.Column="0"/>
+                                <Label
+                                    Text="{Binding TimeText}"
+                                    Style="{StaticResource Normal}"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Start"
+                                    Grid.Column="1"/>
+                            </Grid>
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="10" />
+                            </Border.StrokeShape>
+                        </Border>
+                        
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+        </Border>
+        
         <Border
             StrokeThickness="0"
             Padding="20"

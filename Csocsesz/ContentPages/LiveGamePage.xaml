@@ -12,13 +12,20 @@
             Grid.Row="0">
             <Grid RowDefinitions="425*,575*" ColumnDefinitions="575*,425*"
                   Rotation="90">
-                <Label
+                <VerticalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                    <Label
                     x:Name="BCBgoalLabel"
                     Text="0"
                     Style="{StaticResource CBgoalLabelStyle}"
                     HorizontalOptions="Center" VerticalOptions="Start"
-                    HorizontalTextAlignment="Center" VerticalTextAlignment="Start"
-                    Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
+                    HorizontalTextAlignment="Center" VerticalTextAlignment="Start"/>
+                    <Label
+                    x:Name="BCBnameLabel"
+                    Text="Name"
+                    Style="{StaticResource Normal}"
+                    HorizontalOptions="Center" VerticalOptions="End"
+                    HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                </VerticalStackLayout>
                 <Image
                     x:Name="BCBimage"
                     Style="{StaticResource CBimageStyle}"
@@ -100,13 +107,20 @@
             Grid.Row="2">
             <Grid RowDefinitions="425*,575*" ColumnDefinitions="575*,425*"
                   Rotation="90">
-                  <Label
-                    x:Name="RCBgoalLabel"
-                    Text="0"
-                    Style="{StaticResource CBgoalLabelStyle}"
-                    HorizontalOptions="Center" VerticalOptions="Start"
-                    HorizontalTextAlignment="Center" VerticalTextAlignment="Start"
-                    Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
+                <VerticalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                    <Label
+                        x:Name="RCBgoalLabel"
+                        Text="0"
+                        Style="{StaticResource CBgoalLabelStyle}"
+                        HorizontalOptions="Center" VerticalOptions="Start"
+                        HorizontalTextAlignment="Center" VerticalTextAlignment="Start"/>
+                    <Label
+                        x:Name="RCBnameLabel"
+                        Text="Name"
+                        Style="{StaticResource Normal}"
+                        HorizontalOptions="Center" VerticalOptions="End"
+                        HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                </VerticalStackLayout>
                   <Image
                     x:Name="RCBimage"
                     Style="{StaticResource CBimageStyle}"

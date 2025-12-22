@@ -37,6 +37,8 @@ public partial class LiveGamePage : ContentPage
         playerBlue.inGame.matchWon = 0;
         RCBimage.Source = GetImageBySide(Side.red, true);
         BCBimage.Source = GetImageBySide(Side.blue, true);
+        RCBnameLabel.Text = playerRed.name;
+        BCBnameLabel.Text = playerBlue.name;
     }
 
     #region Saving Match functions
@@ -361,6 +363,8 @@ public partial class LiveGamePage : ContentPage
 
             RCBimage.Source = GetImageBySide(Side.red, true);
             BCBimage.Source = GetImageBySide(Side.blue, true);
+            RCBnameLabel.Text = playerRed.name;
+            BCBnameLabel.Text = playerBlue.name;
             UpdateCounterButtonsLabel();
         }
         started = true;
