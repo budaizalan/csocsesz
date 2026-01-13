@@ -26,11 +26,19 @@ public partial class SettingsPage : ContentPage
     private async Task Start()
     {
         PlayerRedPicker.ItemsSource = DataStore.Players;
-        PlayerRedPicker.SelectedIndex = 0;
+        PlayerRedPicker.SelectedIndex = DataStore.Players.IndexOf(AppSettings.playerRed);
         PlayerBluePicker.ItemsSource = DataStore.Players;
-        PlayerBluePicker.SelectedIndex = 1;
+        PlayerBluePicker.SelectedIndex = DataStore.Players.IndexOf(AppSettings.playerBlue);
         AutoSideSwitch.IsToggled = AppSettings.changingSide;
         SaveTestMatchesSwitch.IsToggled = AppSettings.sendTestMatches;
+
+        List<Player> players = await DataManager.LoadPlayerDataBase();
+        List<Match> matches = await DataManager.LoadMatchDataBase();
+        List<Match> matchesBuffer = await DataManager.LoadMatchBufferDataBase();
+
+        DataBaseStatsLabel.Text = 
+            $"DS.P: {DataStore.Players.Count}, DS.M: {DataStore.Matches.Count}, " +
+            $"JS.P: {players.Count}, JS.M: {matches.Count}, JS.MB: {matchesBuffer.Count}";
 
         Navbar.setButtonColor();
     }
@@ -57,15 +65,20 @@ public partial class SettingsPage : ContentPage
     private void OnPushUpsMultiplierChanged(object sender, EventArgs e)
     {
         var entry = (Entry)sender;
-        if (int.TryParse(entry.Text, out int result)) AppSettings.pushUpsMultiplier = result;
+        if (int.TryParse(entry.Text, out int result)) AppSettings.punishmentMultiplier = result;
         else
         {
-            AppSettings.pushUpsMultiplier = 3;
+            AppSettings.punishmentMultiplier = 3;
             entry.Text = "3";
         }
     }
     void OnSaveTestMatchesChanged(object sender, ToggledEventArgs e)
     {
         AppSettings.sendTestMatches = e.Value;
+    }
+
+    private async void RefreshDataBaseButtonClicked(object sender, EventArgs e)
+    {
+        await DataService.LoadDataBases();
     }
 }

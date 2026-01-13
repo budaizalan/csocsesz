@@ -13,7 +13,7 @@ public partial class SelectedMatchPage : ContentPage
         public ImageSource image =>
             side == Side.red ? ImageSource.FromFile("redgoal_icon.svg") : ImageSource.FromFile("bluegoal_icon.svg");
         public string TimeText => $"{(int)time.TotalMinutes:00}:{time.Seconds:00}";
-        public GoalDisplay(MatchResults match, Goal goal)
+        public GoalDisplay(Match match, Goal goal)
         {
             this.side = goal.side;
             this.time = goal.time - match.startTime;
@@ -58,8 +58,8 @@ public partial class SelectedMatchPage : ContentPage
         var loser = DataStore.Players.FirstOrDefault(p => p.id == currentMatch.loserId);
         if (winner != null && loser != null)
         {
-            MatchWinnerImage.Source = winner.inGame.normalImage;
-            MatchLoserImage.Source = loser.inGame.normalImage;
+            MatchWinnerImage.Source = winner.normalImage;
+            MatchLoserImage.Source = loser.sadImage;
             MatchWinnerNameLabel.Text = winner.name;
             MatchLoserNameLabel.Text = loser.name;
         }
@@ -83,6 +83,13 @@ public partial class SelectedMatchPage : ContentPage
     }
     private async void BackButtonClicked(object sender, EventArgs e)
     {
+        await Navigation.PopModalAsync();
+    }
+    private async void DeleteButtonClicked(object sender, EventArgs e)
+    {
+        var currentMatch = DataStore.selectedMatch;
+        await DataService.DeleteMatch(currentMatch.id);
+        await DataService.LoadDataBases();
         await Navigation.PopModalAsync();
     }
 }

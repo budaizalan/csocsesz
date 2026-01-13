@@ -3,64 +3,90 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace Csocsesz.Classes
+namespace Csocsesz.Classes;
+public class PlayerBridge
 {
-    public class Player
+    public string id { get; set; } = string.Empty;
+    public string name { get; set; } = string.Empty;
+    public string? normalImage { get; set; }
+    public string? sadImage { get; set; }
+    public int streak { get; set; }
+    public int totalMatchWon { get; set; }
+    public int totalMatchLost { get; set; }
+    public int totalGoalsScored { get; set; }
+    public int totalGoalsConceded { get; set; }
+    public int totalPunishmentAssigned { get; set; }
+    public int totalPunishmentCompleted { get; set; }
+    public PlayerBridge() { }
+}
+public class Player
+{
+    public string id { get; set; }
+    public string name { get; set; }
+    public string normalImage { get; set; } = string.Empty;
+    public string sadImage { get; set; } = string.Empty;
+    public Stats stats { get; set; }
+    public InGame? inGame { get; set; }
+    public Player() { }
+    public Player(string id, string name, string normalImage, string sadImage,
+            int streak, int totalMatchWon, int totalGoalsLost, int totalGoalsScored,
+            int totalGoalsConceded, int totalPunishmentAssigned, int totalPunishmentCompleted)
     {
-        [JsonPropertyName("_id")]
-        public string id { get; set; }
-        public string name { get; set; }
-        public Stats stats { get; set; }
-        public InGame? inGame { get; set; }
-        public Player() { }
-        public Player(string id, string name, 
-            int streak, int totalGoals, int totalMatchWon, int totalMatchLost, 
-            int matchWon, int goals, ImageSource normalImage, ImageSource sadImage)
-        {
-            this.id = id;
-            this.name = name;
-            this.stats = new Stats(streak, totalGoals, totalMatchWon, totalMatchLost);
-            this.inGame = new InGame(matchWon, goals, normalImage, sadImage);
-        }
+        this.id = id;
+        this.name = name;
+        this.normalImage = normalImage;
+        this.sadImage = sadImage;
+        this.stats = new Stats
+            (
+            streak,
+            totalMatchWon,
+            totalGoalsLost,
+            totalGoalsScored,
+            totalGoalsConceded,
+            totalPunishmentAssigned,
+            totalPunishmentCompleted
+            );
+        this.inGame = new InGame(0, 0);
     }
-    public class Stats
+}
+public class Stats
+{
+    public int streak { get; set; }
+    public int totalMatchWon { get; set; }
+    public int totalMatchLost { get; set; }
+    public int totalGoalsScored { get; set; }
+    public int totalGoalsConceded { get; set; }
+    public int totalPunishmentAssigned { get; set; }
+    public int totalPunishmentCompleted { get; set; }
+    public Stats() { }
+    public Stats
+        (
+            int streak,
+            int totalMatchWon,
+            int totalMatchLost,
+            int totalGoalsScored,
+            int totalGoalsConceded,
+            int totalPunishmentAssigned,
+            int totalPunishmentCompleted
+        )
     {
-        public int streak { get; set; }
-        public int totalGoals;
-        public int totalMatchWon { get; set; }
-        public int totalMatchLost { get; set; }
-
-        // A winRate-nél figyelj: double osztás kell, különben 0 lesz az eredmény
-        public double winRate
-        {
-            get
-            {
-                if (totalMatchWon + totalMatchLost == 0) return 0;
-                return (double)totalMatchWon / (totalMatchLost + totalMatchWon);
-            }
-        }
-        public Stats() { }
-        public Stats(int steak, int totalGoals, int totalMatchWonn, int totalMatchLostt)
-        {
-            this.streak = steak;
-            this.totalGoals = totalGoals;
-            this.totalMatchWon = totalMatchWonn;
-            this.totalMatchLost = totalMatchLostt;
-        }
+        this.streak = streak;
+        this.totalMatchWon = totalMatchWon;
+        this.totalMatchLost = totalMatchLost;
+        this.totalGoalsScored = totalGoalsScored;
+        this.totalGoalsConceded = totalGoalsConceded;
+        this.totalPunishmentAssigned = totalPunishmentAssigned;
+        this.totalPunishmentCompleted = totalPunishmentCompleted;
     }
-    public enum Side {red, blue};
-    public class InGame
+}
+public enum Side { red, blue };
+public class InGame
+{
+    public int matchWon { get; set; }
+    public int goals { get; set; }
+    public InGame(int matchWon, int goals)
     {
-        public int matchWon { get; set; }
-        public int goals { get; set; }
-        public ImageSource normalImage{get; set; }
-        public ImageSource sadImage{get; set; }
-        public InGame(int matchWon, int goals, ImageSource normalImage, ImageSource sadImage)
-        {
-            this.matchWon = matchWon;
-            this.goals = goals;
-            this.normalImage = normalImage;
-            this.sadImage = sadImage;
-        }
+        this.matchWon = matchWon;
+        this.goals = goals;
     }
 }

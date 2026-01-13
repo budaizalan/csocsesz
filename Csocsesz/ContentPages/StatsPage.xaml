@@ -20,7 +20,7 @@
                 <Grid ColumnDefinitions="3*,2*" Padding="5">
                     <Label 
                         Text="Player"
-                        Style="{StaticResource Normal}"
+                        Style="{StaticResource BiggerNormal}"
                         FontFamily="CenturyGothicBold"
                         VerticalOptions="Center" HorizontalOptions="Start"
                         Grid.Column="0"/>
@@ -37,70 +37,59 @@
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="10"/>
             </Border.StrokeShape>
-        </Border>
+            </Border>
             
-            <Grid RowDefinitions="1.1*,*,*,*,*,*,2*" ColumnDefinitions="3*,2*" 
+            <Grid RowDefinitions="0.5*,*,*,*,*,2.5*" ColumnDefinitions="2*,2*" 
                   Padding="15,0"
                   Grid.Row="1" >
+
                 <Label 
-                    Text="Win Streak:"
+                    Text="Win Streak"
                     Style="{StaticResource Normal}"
                     VerticalOptions="Center" HorizontalOptions="Start"
                     Grid.Row="1" Grid.Column="0"/>
                 <Label
                     x:Name="WinStreakLabel"
-                    Text="00"
+                    Text="No Data"
                     Style="{StaticResource Normal}"
                     VerticalOptions="Center" HorizontalOptions="End"
                     Grid.Row="1" Grid.Column="1"/>
 
                 <Label 
-                    Text="Total Goals:"
+                    Text="Winrate"
                     Style="{StaticResource Normal}"
                     VerticalOptions="Center" HorizontalOptions="Start"
                     Grid.Row="2" Grid.Column="0"/>
                 <Label
-                    x:Name="TotalGoalsLabel"
-                    Text="00"
+                    x:Name="WinRateLabel"
+                    Text="No Data"
                     Style="{StaticResource Normal}"
                     VerticalOptions="Center" HorizontalOptions="End"
                     Grid.Row="2" Grid.Column="1"/>
 
                 <Label 
-                    Text="Total Match Won:"
+                    Text="Goal Ratio&#10;(Scored/Conceded)"
                     Style="{StaticResource Normal}"
                     VerticalOptions="Center" HorizontalOptions="Start"
                     Grid.Row="3" Grid.Column="0"/>
                 <Label
-                    x:Name="TotalMatchWonLabel"
-                    Text="00"
+                    x:Name="GoalScoredConcededRatioLabel"
+                    Text="No Data"
                     Style="{StaticResource Normal}"
                     VerticalOptions="Center" HorizontalOptions="End"
                     Grid.Row="3" Grid.Column="1"/>
 
                 <Label 
-                    Text="Total Match Lost:"
+                    Text="Punishment to Do&#10;(Assigned - Completed)"
                     Style="{StaticResource Normal}"
                     VerticalOptions="Center" HorizontalOptions="Start"
                     Grid.Row="4" Grid.Column="0"/>
                 <Label
-                    x:Name="TotalMatchLostLabel"
-                    Text="00"
+                    x:Name="PunishmentToDoLabel"
+                    Text="No Data"
                     Style="{StaticResource Normal}"
                     VerticalOptions="Center" HorizontalOptions="End"
                     Grid.Row="4" Grid.Column="1"/>
-
-                <Label 
-                    Text="Winrate:"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="Start"
-                    Grid.Row="5" Grid.Column="0"/>
-                <Label
-                    x:Name="WinRateLabel"
-                    Text="00%"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="End"
-                    Grid.Row="5" Grid.Column="1"/>
             </Grid>
         </Grid>
         <nav:NavBar x:Name="Navbar" Grid.Row="2"/>

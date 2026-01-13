@@ -67,7 +67,7 @@
                                 </Grid>
                                 <Image
                                     Style="{StaticResource HistoryImageStyle}"
-                                    Source="{Binding Winner.inGame.normalImage}"
+                                    Source="{Binding Winner.normalImage}"
                                     HorizontalOptions="Center" VerticalOptions="Center"
                                     Grid.Row="1" Grid.Column="0"/>
                                 <Label
@@ -80,7 +80,7 @@
                                 </Label>
                                 <Image
                                     Style="{StaticResource HistoryImageStyle}"
-                                    Source="{Binding Loser.inGame.sadImage}"
+                                    Source="{Binding Loser.sadImage}"
                                     HorizontalOptions="Center" VerticalOptions="Center"
                                     Grid.Row="1" Grid.Column="2"/>
                                 
@@ -98,6 +98,14 @@
                                     HorizontalTextAlignment="Center"
                                     VerticalTextAlignment="Center"
                                     Grid.Row="2" Grid.Column="2"/>
+
+                                <Label
+                                    Text="{Binding source}" 
+                                    Style="{StaticResource Normal}"
+                                    FontSize="12"
+                                    HorizontalTextAlignment="Start"
+                                    VerticalTextAlignment="Start"
+                                    Grid.Row="0" Grid.Column="0"/>
                             </Grid>
                             
                             <Border.Background>

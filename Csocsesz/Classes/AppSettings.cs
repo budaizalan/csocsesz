@@ -11,7 +11,7 @@ namespace Csocsesz.Classes
 
         public static bool changingSide = true;
 
-        public static int pushUpsMultiplier = 3;
+        public static int punishmentMultiplier = 3;
 
         public static bool sendTestMatches = true;
     }

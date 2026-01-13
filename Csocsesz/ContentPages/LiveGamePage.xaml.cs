@@ -7,11 +7,10 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Csocsesz.ContentPages;
-
 public partial class LiveGamePage : ContentPage
 {
-    private Player playerRed = AppSettings.playerRed;
-    private Player playerBlue = AppSettings.playerBlue;
+    private Player playerRed;
+    private Player playerBlue;
 
     private bool gameWon = false;
     private bool started = false;
@@ -19,7 +18,7 @@ public partial class LiveGamePage : ContentPage
     private List<Goal> goals = new List<Goal>();
     private DateTime startTime;
 
-    private List<MatchResults> matchBuffer = new List<MatchResults>();
+    private List<Match> matchBuffer = new List<Match>();
     public LiveGamePage()
     {
         InitializeComponent();
@@ -41,97 +40,48 @@ public partial class LiveGamePage : ContentPage
     }
     private async Task Start()
     {
-        playerRed.inGame.goals = 0;
-        playerRed.inGame.matchWon = 0;
-        playerBlue.inGame.goals = 0;
-        playerBlue.inGame.matchWon = 0;
-        RCBimage.Source = GetImageBySide(Side.red, true);
-        BCBimage.Source = GetImageBySide(Side.blue, true);
-        RCBnameLabel.Text = playerRed.name;
-        BCBnameLabel.Text = playerBlue.name;
+        playerRed = AppSettings.playerRed ?? new Player();
+        playerBlue = AppSettings.playerBlue ?? new Player();
+
+        if(playerRed != null && playerBlue != null)
+        {
+            playerRed.inGame.goals = 0;
+            playerRed.inGame.matchWon = 0;
+            playerBlue.inGame.goals = 0;
+            playerBlue.inGame.matchWon = 0;
+            RCBimage.Source = GetImageBySide(Side.red, true);
+            BCBimage.Source = GetImageBySide(Side.blue, true);
+            RCBnameLabel.Text = playerRed.name;
+            BCBnameLabel.Text = playerBlue.name;
+        }
     }
 
     #region Saving Match functions
-    private async Task UploadMatchResultAsync(MatchResults matchResults)
-    {
-        // HTTP Kliens és API URL
-        HttpClient _httpClient = new HttpClient();
-        const string ApiUrl = DataStore.apiMatchUrl;
-         // 1. Objektum sorosítása JSON stringgé
-        var options = new JsonSerializerOptions
-        {
-            Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
-            WriteIndented = true // opcionális, olvashatóbb JSON
-        };
-
-        string jsonContent = JsonSerializer.Serialize(matchResults, options);
-
-        // 2. JSON tartalom létrehozása
-        StringContent content = new StringContent(
-            jsonContent,
-            Encoding.UTF8,
-            "application/json" // Megmondjuk a szervernek, hogy JSON-t küldünk
-        );
-
-        try
-        {
-            // 3. POST kérés küldése
-            HttpResponseMessage response = await _httpClient.PostAsync(ApiUrl, content);
-
-            // 4. Válasz ellenõrzése
-            if (response.IsSuccessStatusCode)
-            {
-                Console.WriteLine("Sikeres feltöltés!");
-                // Itt megjeleníthetsz egy üzenetet a felhasználónak
-            }
-            else
-            {
-                // Hibakezelés (pl. ha a szerver 400 Bad Request-et küld)
-                string errorBody = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Hiba a feltöltésnél. Státuszkód: {response.StatusCode}. Válasz: {errorBody}");
-            }
-        }
-        catch (Exception ex)
-        {
-            // Hálózati hiba (pl. nincs internet, rossz URL)
-            Console.WriteLine($"Hiba a hálózati kérés során: {ex.Message}");
-        }
-    }
     private void SaveMatchToBuffer()
     {
         if (!AppSettings.sendTestMatches && secondsElapsed < 30) return;
         Side wSide = winnerSide();
         Player winner = GetPlayerBySide(wSide);
         Player loser = GetPlayerBySide(wSide == Side.red ? Side.blue : Side.red);
-        MatchResults results = new MatchResults
-            (winner.id, wSide, loser.id, loser.inGame.goals, startTime, AppSettings.pushUpsMultiplier);
+        Match results = new Match
+            (0, winner.id, wSide, loser.id, loser.inGame.goals, startTime, goals[goals.Count - 1].time, goals, AppSettings.punishmentMultiplier);
         for (int i = 0; i < goals.Count; i++) results.goals[i] = goals[i];
-
         matchBuffer.Add(results);
     }
-    private void SaveBuffer()
+    private async void SaveBuffer()
     {
-        if (matchBuffer.Count == 0) return;
-        Console.WriteLine("------------------------MATCHES------------------------");
-        for (int i = 0; i < matchBuffer.Count; i++)
+        bool success = true;
+        foreach (var item in matchBuffer)
         {
-            Console.WriteLine
-                ($"wId:{matchBuffer[i].winnerId}\n" +
-                $"wS:{(matchBuffer[i].winnerSide == Side.red ? "Red" : "Blue")}\n" +
-                $"lId:{matchBuffer[i].loserId}\n" +
-                $"lGoals:{matchBuffer[i].loserGoals}\n" +
-                $"startTime:{matchBuffer[i].startTime}\n" +
-                $"multiplier:{matchBuffer[i].pushUpsMultiplier}\n");
-            Console.WriteLine("Goals:");
-            for (int j = 0; j < 20; j++)
-            {
-                if (matchBuffer[i].goals[j] == null) break;
-                Console.Write($"{(matchBuffer[i].goals[j].side == Side.red ? "Red" : "Blue")}");
-                Console.WriteLine($" - {matchBuffer[i].goals[j].time}");
-            }
-            Task.Run(() => UploadMatchResultAsync(matchBuffer[i]));
+            if (!await DataService.PostMatch(item)) success = false;
         }
-        Console.WriteLine("-------------------------------------------------------");
+        List<Match> offlineMatchBuffer = await DataManager.LoadMatchBufferDataBase();
+        foreach (var item in offlineMatchBuffer)
+        {
+            if (!await DataService.PostMatch(item)) success = false;
+        }
+        if (!success) await DataManager.AppendMatchBufferDataBase(matchBuffer);
+        matchBuffer.Clear();
     }
     #endregion
 
@@ -140,10 +90,10 @@ public partial class LiveGamePage : ContentPage
     {
         return side == Side.red ? playerRed : playerBlue;
     }
-    private ImageSource GetImageBySide(Side side, bool normal)
+    private string GetImageBySide(Side side, bool normal)
     {
-        if (normal) return GetPlayerBySide(side).inGame.normalImage;
-        else return GetPlayerBySide(side).inGame.sadImage;
+        if (normal) return GetPlayerBySide(side).normalImage;
+        else return GetPlayerBySide(side).sadImage;
     }
     private Side winnerSide()
     {
@@ -285,7 +235,7 @@ public partial class LiveGamePage : ContentPage
     {
         if (gameWon) SaveMatchToBuffer();
         SaveBuffer();
-        ((App)App.Current).LoadDataBases();
+        await DataService.LoadDataBases();
         await Navigation.PopModalAsync();
     }
     private void BackButtonClicked(object sender, EventArgs e)
@@ -380,7 +330,10 @@ public partial class LiveGamePage : ContentPage
         started = true;
     }
     #endregion
-
+    protected override bool OnBackButtonPressed()
+    {
+        return true;
+    }
     #region Unimportant
     private async Task ShakeButtonsIf67Score()
     {

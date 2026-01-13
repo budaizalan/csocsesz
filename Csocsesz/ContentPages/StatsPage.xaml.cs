@@ -26,7 +26,7 @@ public partial class StatsPage : ContentPage
     private async Task Start()
     {
         PlayerPicker.ItemsSource = DataStore.Players;
-        PlayerPicker.SelectedIndex = 0;
+        PlayerPicker.SelectedIndex = DataStore.Players.IndexOf(AppSettings.playerRed);
         UpdateLabels();
 
         Navbar.setButtonColor();
@@ -38,10 +38,19 @@ public partial class StatsPage : ContentPage
     private void UpdateLabels()
     {
         Player player = (Player)PlayerPicker.SelectedItem;
+
         WinStreakLabel.Text = $"{player.stats.streak}";
-        TotalGoalsLabel.Text = $"{player.stats.totalGoals}";
-        TotalMatchWonLabel.Text = $"{player.stats.totalMatchWon}";
-        TotalMatchLostLabel.Text = $"{player.stats.totalMatchLost}";
-        WinRateLabel.Text = $"{Math.Round(player.stats.winRate*100, 0)}%";
+
+        double winRate = (double)player.stats.totalMatchWon / (player.stats.totalMatchWon + player.stats.totalMatchLost);
+        WinRateLabel.Text = 
+            $"(W:{player.stats.totalMatchWon}, L:{player.stats.totalMatchLost}) - {Math.Round(winRate * 100, 1)}%";
+
+        double ratio= (double)player.stats.totalGoalsScored / player.stats.totalGoalsConceded;
+        GoalScoredConcededRatioLabel.Text = 
+            $"(S:{player.stats.totalGoalsScored}, C:{player.stats.totalGoalsConceded}) - {Math.Round(ratio, 1)}";
+
+        double todo = player.stats.totalPunishmentAssigned - player.stats.totalPunishmentCompleted;
+        PunishmentToDoLabel.Text =
+            $"(C:{player.stats.totalPunishmentCompleted}, A:{player.stats.totalPunishmentAssigned}) - {todo}";
     }
 }

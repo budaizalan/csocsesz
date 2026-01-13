@@ -7,14 +7,13 @@ namespace Csocsesz.Classes
 {
     public static class DataStore
     {
-        public const string apiPlayerUrl = "https://csocsesz-backend-g2bsedgra6b8aydz.swedencentral-01.azurewebsites.net/api/users";
-        public const string apiMatchUrl = "https://csocsesz-backend-g2bsedgra6b8aydz.swedencentral-01.azurewebsites.net/api/matches";
+        public static string BaseUrl = "https://csocsesz-api-c4hucqcgg7gmbrhm.germanywestcentral-01.azurewebsites.net/api/";
 
         public static List<Player> Players = new List<Player>();
-        public static List<MatchResults> Matches = new List<MatchResults>();
+        public static List<Match> Matches = new List<Match>();
 
-        public static int defaultPlayerRedIdx = 0;
-        public static int defaultPlayerBlueIdx = 1;
+        public static string defaultPlayerRedId = "hugo0001";
+        public static string defaultPlayerBlueId = "zazzzzuska0001";
 
         public static readonly ImageSource hugoNormalImage = ImageSource.FromFile("hugo_icon.png");
         public static readonly ImageSource hugoSadImage = ImageSource.FromFile("hugosad_icon.png");
@@ -30,6 +29,6 @@ namespace Csocsesz.Classes
 
         public static int pageIdx = 0;
 
-        public static MatchResults selectedMatch;
+        public static Match selectedMatch;
     }
 }

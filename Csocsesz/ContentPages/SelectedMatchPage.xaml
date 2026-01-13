@@ -19,7 +19,7 @@
                             x:Name="MatchDateLabel"
                             Text="00.00\n00:00"
                             Style="{StaticResource BigNormal}"
-                            BackgroundColor="{StaticResource DarkGray}"
+                            BackgroundColor="{StaticResource Black}"
                             FontSize="16"
                             HorizontalTextAlignment="Center"
                             VerticalTextAlignment="Start"
@@ -74,7 +74,7 @@
                 </LinearGradientBrush>
             </Border.Background>
             <Border.StrokeShape>
-                <RoundRectangle CornerRadius="10" />
+                <RoundRectangle CornerRadius="20" />
             </Border.StrokeShape>
         </Border>
         <Border
@@ -143,12 +143,22 @@
             Padding="20"
             BackgroundColor="{StaticResource DarkGray}"
             Grid.Row="2">
-            <Button
-                Text="BACK"
-                Style="{StaticResource BigNormal}"
-                BackgroundColor="Gray"
-                Clicked="BackButtonClicked"
-                CornerRadius="10"/>
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="20">
+                <Button
+                    Text="DELETE"
+                    Style="{StaticResource BigNormal}"
+                    BackgroundColor="{StaticResource Red}"
+                    Clicked="DeleteButtonClicked"
+                    CornerRadius="10"
+                    Grid.Column="0"/>
+                <Button
+                    Text="BACK"
+                    Style="{StaticResource BigNormal}"
+                    BackgroundColor="Gray"
+                    Clicked="BackButtonClicked"
+                    CornerRadius="10"
+                    Grid.Column="1"/>
+            </Grid>
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="20"/>
             </Border.StrokeShape>
