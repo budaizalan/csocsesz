@@ -70,7 +70,7 @@ class MatchController {
                 return res.status(404).json({ error: 'Winner user not found' });
             }
             winner.stats.totalMatchWon += 1;
-            winner.stats.totalGoals += 10;
+            winner.stats.totalGoalsScored += 10;
             winner.stats.streak += 1;
             await winner.save();
             // Update loser stats
@@ -82,7 +82,7 @@ class MatchController {
             const multiplier = (typeof savedMatch.pushUpsMultiplier === 'number') ? savedMatch.pushUpsMultiplier : pushUpMultiplier;
 
             loser.stats.totalMatchLost += 1;
-            loser.stats.totalGoals += computedLoserGoals;
+            loser.stats.totalGoalsScored += computedLoserGoals;
             loser.stats.streak = 0;
             loser.stats.totalPushUps += (10 - computedLoserGoals) * multiplier;
             await loser.save();
