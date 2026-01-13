@@ -109,14 +109,14 @@ class MatchController {
             let Loser = await mongoose.model('User').findById(doc.loserId);
             if (Winner) {
                 Winner.stats.totalMatchWon = Math.max(0, Winner.stats.totalMatchWon - 1);
-                Winner.stats.totalGoals = Math.max(0, Winner.stats.totalGoals - 10);
+                Winner.stats.totalGoalsScored = Math.max(0, Winner.stats.totalGoalsScored - 10);
                 Winner.stats.streak = Math.max(0, Winner.stats.streak - 1);
                 await Winner.save();
             }
             if (Loser) {
                 Loser.stats.totalMatchLost = Math.max(0, Loser.stats.totalMatchLost - 1);
                 const computedLoserGoals = (typeof doc.loserGoals === 'number') ? doc.loserGoals : 0;
-                Loser.stats.totalGoals = Math.max(0, Loser.stats.totalGoals - computedLoserGoals);
+                Loser.stats.totalGoalsScored = Math.max(0, Loser.stats.totalGoalsScored - computedLoserGoals);
                 Loser.stats.totalPushUps = Math.max(0, Loser.stats.totalPushUps - (10 - computedLoserGoals) * ((typeof doc.pushUpsMultiplier === 'number') ? doc.pushUpsMultiplier : pushUpMultiplier));
                 await Loser.save();
             }
