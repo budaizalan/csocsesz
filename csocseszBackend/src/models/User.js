@@ -7,7 +7,7 @@ const statsSchema = new mongoose.Schema(
       default: 0,
       min: [0, "USER.VALIDATION.STATS_NEGATIVE_STREAK"],
     },
-    totalGoalsScored: {
+    totalGoals: {
       type: Number,
       default: 0,
       min: [0, "USER.VALIDATION.STATS_NEGATIVE_GOALS"],

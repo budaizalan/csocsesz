@@ -70,7 +70,7 @@ class MatchController {
                 return res.status(404).json({ error: 'Winner user not found' });
             }
             winner.stats.totalMatchWon += 1;
-            winner.stats.totalGoalsScored += 10;
+            winner.stats.totalGoals += 10;
             winner.stats.streak += 1;
             await winner.save();
             // Update loser stats
@@ -82,7 +82,7 @@ class MatchController {
             const multiplier = (typeof savedMatch.pushUpsMultiplier === 'number') ? savedMatch.pushUpsMultiplier : pushUpMultiplier;
 
             loser.stats.totalMatchLost += 1;
-            loser.stats.totalGoalsScored += computedLoserGoals;
+            loser.stats.totalGoals += computedLoserGoals;
             loser.stats.streak = 0;
             loser.stats.totalPushUps += (10 - computedLoserGoals) * multiplier;
             await loser.save();
@@ -109,14 +109,14 @@ class MatchController {
             let Loser = await mongoose.model('User').findById(doc.loserId);
             if (Winner) {
                 Winner.stats.totalMatchWon = Math.max(0, Winner.stats.totalMatchWon - 1);
-                Winner.stats.totalGoalsScored = Math.max(0, Winner.stats.totalGoalsScored - 10);
+                Winner.stats.totalGoals = Math.max(0, Winner.stats.totalGoals - 10);
                 Winner.stats.streak = Math.max(0, Winner.stats.streak - 1);
                 await Winner.save();
             }
             if (Loser) {
                 Loser.stats.totalMatchLost = Math.max(0, Loser.stats.totalMatchLost - 1);
                 const computedLoserGoals = (typeof doc.loserGoals === 'number') ? doc.loserGoals : 0;
-                Loser.stats.totalGoalsScored = Math.max(0, Loser.stats.totalGoalsScored - computedLoserGoals);
+                Loser.stats.totalGoals = Math.max(0, Loser.stats.totalGoals - computedLoserGoals);
                 Loser.stats.totalPushUps = Math.max(0, Loser.stats.totalPushUps - (10 - computedLoserGoals) * ((typeof doc.pushUpsMultiplier === 'number') ? doc.pushUpsMultiplier : pushUpMultiplier));
                 await Loser.save();
             }
