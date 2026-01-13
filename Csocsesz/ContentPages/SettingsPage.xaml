@@ -12,7 +12,7 @@
             HorizontalTextAlignment="Center"
             Grid.Row="0"
             />
-        <Grid RowDefinitions="*,*,*,*,*, 2*" ColumnDefinitions="3*,2*" 
+        <Grid RowDefinitions="*,*,*,*,*, *,*,*,*,*, *" ColumnDefinitions="3*,2*" 
               Grid.Row="1" Padding="20,0">
             <Label 
                 Text="Player Blue"
@@ -75,6 +75,72 @@
                 Toggled="OnSaveTestMatchesChanged"
                 VerticalOptions="Center" HorizontalOptions="End"
                 Grid.Row="4" Grid.Column="1"/>
+
+            <Label 
+                x:Name="DSplayersLabel"
+                Text="DS Players (0)"
+                Style="{StaticResource Normal}"
+                VerticalOptions="Center" HorizontalOptions="Start"
+                Grid.Row="5" Grid.Column="0"/>
+            <Button
+                x:Name="DSplayersButton"
+                Text="Delete"
+                Style="{StaticResource HistoryButtonStyle}"
+                Clicked="DSplayersButtonClicked"
+                VerticalOptions="Center" HorizontalOptions="End"
+                Grid.Row="5" Grid.Column="1"/>
+            <Label
+                x:Name="DSmatchesLabel"
+                Text="DS Matches (0)"
+                Style="{StaticResource Normal}"
+                VerticalOptions="Center" HorizontalOptions="Start"
+                Grid.Row="6" Grid.Column="0"/>
+            <Button
+                x:Name="DSmatchesButton"
+                Text="Delete"
+                Style="{StaticResource HistoryButtonStyle}"
+                Clicked="DSmatchesButtonClicked"
+                VerticalOptions="Center" HorizontalOptions="End"
+                Grid.Row="6" Grid.Column="1"/>
+            <Label
+                x:Name="JSplayersLabel"
+                Text="JS Players"
+                Style="{StaticResource Normal}"
+                VerticalOptions="Center" HorizontalOptions="Start"
+                Grid.Row="7" Grid.Column="0"/>
+            <Button
+                x:Name="JSplayersButton"
+                Text="Delete"
+                Style="{StaticResource HistoryButtonStyle}"
+                Clicked="JSplayersButtonClicked"
+                VerticalOptions="Center" HorizontalOptions="End"
+                Grid.Row="7" Grid.Column="1"/>
+            <Label
+                x:Name="JSmatchesLabel"
+                Text="JS Matches (0)"
+                Style="{StaticResource Normal}"
+                VerticalOptions="Center" HorizontalOptions="Start"
+                Grid.Row="8" Grid.Column="0"/>
+            <Button
+                x:Name="JSmatchesButton"
+                Text="Delete"
+                Style="{StaticResource HistoryButtonStyle}"
+                Clicked="JSmatchesButtonClicked"
+                VerticalOptions="Center" HorizontalOptions="End"
+                Grid.Row="8" Grid.Column="1"/>
+            <Label 
+                x:Name="JSmatchesBufferLabel"
+                Text="JS MatchesBuffer (0)"
+                Style="{StaticResource Normal}"
+                VerticalOptions="Center" HorizontalOptions="Start"
+                Grid.Row="9" Grid.Column="0"/>
+            <Button
+                x:Name="JSmatchesBufferButton"
+                Text="Delete"
+                Style="{StaticResource HistoryButtonStyle}"
+                Clicked="JSmatchesBufferButtonClicked"
+                VerticalOptions="Center" HorizontalOptions="End"
+                Grid.Row="9" Grid.Column="1"/>
         </Grid>
         <nav:NavBar x:Name="Navbar" Grid.Row="2"/>
     </Grid>

@@ -59,7 +59,7 @@ public partial class SelectedMatchPage : ContentPage
         if (winner != null && loser != null)
         {
             MatchWinnerImage.Source = winner.inGame.normalImage;
-            MatchLoserImage.Source = loser.inGame.normalImage;
+            MatchLoserImage.Source = loser.inGame.sadImage;
             MatchWinnerNameLabel.Text = winner.name;
             MatchLoserNameLabel.Text = loser.name;
         }

@@ -13,6 +13,7 @@ public partial class HistoryPage : ContentPage
         public MatchResults Match { get; set; }
         public Player Winner { get; set; }
         public Player Loser { get; set; }
+        public string source {  get; set; }
         public Color WinnerColor => 
             Match.winnerSide == Side.red ? DataStore.red : DataStore.blue;
         public Color LoserColor =>
@@ -20,11 +21,12 @@ public partial class HistoryPage : ContentPage
         public string ResultText => $"10 - {Match.loserGoals}";
         public string DateText => Match.startTime.ToString("MM.dd\nHH:mm");
 
-        public MatchDisplay(MatchResults match, Player winner, Player loser)
+        public MatchDisplay(MatchResults match, Player winner, Player loser, string source)
         {
             this.Match = match;
             this.Winner = winner;
             this.Loser = loser;
+            this.source = source;
         }
     }
     public class MatchGroup : List<MatchDisplay>
@@ -62,7 +64,18 @@ public partial class HistoryPage : ContentPage
 
             if (winner != null && loser != null)
             {
-                displayList.Add(new MatchDisplay(match, winner, loser));
+                displayList.Add(new MatchDisplay(match, winner, loser, "DataStore"));
+            }
+        }
+        List<MatchResults> matchbuffer = DataManager.LoadMatchBufferDataBase();
+        foreach (var match in matchbuffer)
+        {
+            var winner = DataStore.Players.FirstOrDefault(p => p.id == match.winnerId);
+            var loser = DataStore.Players.FirstOrDefault(p => p.id == match.loserId);
+
+            if (winner != null && loser != null)
+            {
+                displayList.Add(new MatchDisplay(match, winner, loser, "Buffer"));
             }
         }
 

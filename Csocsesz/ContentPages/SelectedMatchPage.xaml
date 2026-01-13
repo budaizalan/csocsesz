@@ -19,7 +19,7 @@
                             x:Name="MatchDateLabel"
                             Text="00.00\n00:00"
                             Style="{StaticResource BigNormal}"
-                            BackgroundColor="{StaticResource DarkGray}"
+                            BackgroundColor="{StaticResource Black}"
                             FontSize="16"
                             HorizontalTextAlignment="Center"
                             VerticalTextAlignment="Start"
@@ -74,7 +74,7 @@
                 </LinearGradientBrush>
             </Border.Background>
             <Border.StrokeShape>
-                <RoundRectangle CornerRadius="10" />
+                <RoundRectangle CornerRadius="20" />
             </Border.StrokeShape>
         </Border>
         <Border

@@ -32,6 +32,15 @@ public partial class SettingsPage : ContentPage
         AutoSideSwitch.IsToggled = AppSettings.changingSide;
         SaveTestMatchesSwitch.IsToggled = AppSettings.sendTestMatches;
 
+        DSplayersLabel.Text = $"DS Player ({DataStore.Players.Count})";
+        DSmatchesLabel.Text = $"DS Matches ({DataStore.Matches.Count})";
+        List<Player> players = DataManager.LoadPlayerDataBase();
+        JSplayersLabel.Text = $"JS Player ({players.Count})";
+        List<MatchResults> matches = DataManager.LoadMatchDataBase();
+        JSmatchesLabel.Text = $"JS Matches ({matches.Count})";
+        List<MatchResults> matchesBuffer = DataManager.LoadMatchBufferDataBase();
+        JSmatchesBufferLabel.Text = $"JS MatchesBuffer ({matchesBuffer.Count})";
+
         Navbar.setButtonColor();
     }
     void OnPlayerRedChanged(object sender, EventArgs e)
@@ -67,5 +76,26 @@ public partial class SettingsPage : ContentPage
     void OnSaveTestMatchesChanged(object sender, ToggledEventArgs e)
     {
         AppSettings.sendTestMatches = e.Value;
+    }
+
+    private async void DSplayersButtonClicked(object sender, EventArgs e)
+    {
+        DataStore.Players.Clear();
+    }
+    private async void DSmatchesButtonClicked(object sender, EventArgs e)
+    {
+        DataStore.Matches.Clear();
+    }
+    private async void JSplayersButtonClicked(object sender, EventArgs e)
+    {
+        DataManager.DeletePlayerDataBase();
+    }
+    private async void JSmatchesButtonClicked(object sender, EventArgs e)
+    {
+        DataManager.DeleteMatchDataBase();
+    }
+    private async void JSmatchesBufferButtonClicked(object sender, EventArgs e)
+    {
+        DataManager.DeleteMatchBufferDataBase();
     }
 }

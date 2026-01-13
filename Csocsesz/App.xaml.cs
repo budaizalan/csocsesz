@@ -16,66 +16,95 @@ namespace Csocsesz
         {
             return new Window(new AppShell());
         }
-        public void LoadDataBases()
+        protected override async void OnStart()
         {
-            //LoadPlayerDataBase();
-            LoadFakePlayerDatabase();
-            //LoadMatchDataBase();
-            LoadFakeMatchDataBase();
-        }
-        public async void LoadMatchDataBase()
-        {
-            /*
-            using HttpClient _httpClient = new HttpClient();
-            // HTTP Kliens (érdemes osztályszinten tartani, de itt a példa kedvéért)
-            const string MatchApiUrl = DataStore.apiMatchUrl;
             try
             {
-                // 1. GET kérés küldése
+                LoadDataBases();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Hiba az indításkor: {ex.Message}");
+            }
+        }
+        public void LoadDataBases()
+        {
+            LoadPlayerDataBase();
+            LoadMatchDataBase();
+        }
+        public async Task LoadMatchDataBase() // void helyett Task, hogy lehessen await-elni!
+        {
+            using HttpClient _httpClient = new HttpClient();
+            const string MatchApiUrl = DataStore.apiMatchUrl;
+            bool success = true;
+
+            try
+            {
                 HttpResponseMessage response = await _httpClient.GetAsync(MatchApiUrl);
-                // 2. Válasz ellenőrzése
+
                 if (response.IsSuccessStatusCode)
                 {
-                    // 3. A tartalom beolvasása stringként
                     string jsonResponse = await response.Content.ReadAsStringAsync();
 
-                    // 4. Deszerializáció (JSON -> Lista)
                     var options = new JsonSerializerOptions
                     {
-                        // Ez fontos, ha az Enumok stringként jönnek a szerverről
                         Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
-                        PropertyNameCaseInsensitive = true // Segít, ha a JSON-ben kisbetű/nagybetű eltérés van
+                        PropertyNameCaseInsensitive = true,
+                        // Ez segít, ha mégis maradna némi típuseltérés a számoknál
+                        NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
                     };
+                    var result = JsonSerializer.Deserialize<List<MatchResults>>(jsonResponse, options);
 
-                    // Itt a változás: MatchRootResponse-t deszerializálunk!
-                    var result = JsonSerializer.Deserialize<MatchRootResponse>(jsonResponse, options);
-
-                    if (result?.matches != null)
+                    if (result != null)
                     {
                         DataStore.Matches.Clear();
-                        foreach (var match in result.matches)
+                        foreach (var match in result)
                         {
                             DataStore.Matches.Add(match);
                         }
-                        Console.WriteLine($"Sikeres letöltés! {result.matches.Count} meccs betöltve.");
+                        Console.WriteLine("=====================================================");
+                        Console.WriteLine($"Sikeres letöltés! {result.Count} Match ONLINE betöltve.");
+                        Console.WriteLine("=====================================================");
+                        DataManager.DeleteMatchDataBase();
+                        await DataManager.SaveMatchDataBase(result);
+                    }
+                    else
+                    {
+                        string errorBody = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine("=====================================================");
+                        Console.WriteLine($"Hiba a Match letöltésnél. Státuszkód: {response.StatusCode}. Válasz: {errorBody}");
+                        Console.WriteLine("=====================================================");
+                        success = false;
                     }
                 }
                 else
                 {
                     string errorBody = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Hiba a letöltésnél. Státuszkód: {response.StatusCode}. Válasz: {errorBody}");
+                    Console.WriteLine("=====================================================");
+                    Console.WriteLine($"Hiba a Match letöltésnél. Státuszkód: {response.StatusCode}. Válasz: {errorBody}");
+                    Console.WriteLine("=====================================================");
+                    success = false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Hálózati hiba a letöltés során: {ex.Message}");
+                Console.WriteLine("=====================================================");
+                Console.WriteLine($"Hálózati hiba a Match letöltés során: {ex.Message}");
+                Console.WriteLine("=====================================================");
+                success = false;
             }
-            */
+
+            if (!success)
+            {
+                // Ha nem sikerült az online, jöhet a mentett offline verzió
+                LoadOfflineMatchDataBase();
+            }
         }
         public async void LoadPlayerDataBase()
         {
             using HttpClient _httpClient = new HttpClient();
             const string PlayerApiUrl = DataStore.apiPlayerUrl;
+            bool success = true;
             try
             {
                 HttpResponseMessage response = await _httpClient.GetAsync(PlayerApiUrl);
@@ -93,40 +122,92 @@ namespace Csocsesz
                     {
                         DataStore.Players.Clear();
                         foreach (var player in players) DataStore.Players.Add(player);
-                        Console.WriteLine($"Sikeres letöltés! {players.Count} player betöltve.");
+                        Console.WriteLine("=====================================================");
+                        Console.WriteLine($"Sikeres letöltés! {players.Count} player ONLINE betöltve.");
+                        Console.WriteLine("=====================================================");
+                        if (players.Count >= 2)
+                        {
+                            AppSettings.playerRed = DataStore.Players[DataStore.defaultPlayerRedIdx];
+                            AppSettings.playerBlue = DataStore.Players[DataStore.defaultPlayerBlueIdx];
+                        }
+                        foreach (var player in DataStore.Players)
+                        {
+                            if (player.id == "694077cfe93c946a4ce8fdaf")
+                            {
+                                player.inGame =
+                                    new InGame(0, 0, "hugo_icon.svg", "hugosad_icon.svg");
+                            }
+                            else if (player.id == "694077dbe93c946a4ce8fdb1")
+                            {
+                                player.inGame =
+                                    new InGame(0, 0, "zalan_icon.svg", "zalansad_icon.svg");
+                            }
+                            else
+                            {
+                                player.inGame =
+                                    new InGame(0, 0, "normalface_icon.svg", "sadface_icon.svg");
+                            }
+                        }
+                        DataManager.DeletePlayerDataBase();
+                        await DataManager.SavePlayerDataBase(players);
                     }
                 }
                 else
                 {
                     string errorBody = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Hiba a letöltésnél. Státuszkód: {response.StatusCode}. Válasz: {errorBody}");
+                    Console.WriteLine("=====================================================");
+                    Console.WriteLine($"Hiba a Player letöltésnél. Státuszkód: {response.StatusCode}. Válasz: {errorBody}");
+                    Console.WriteLine("=====================================================");
+                    success = false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Hálózati hiba a letöltés során: {ex.Message}");
+                Console.WriteLine("=====================================================");
+                Console.WriteLine($"Hálózati hiba a Player letöltés során: {ex.Message}");
+                Console.WriteLine("=====================================================");
+                success = false;
             }
-            AppSettings.playerRed = DataStore.Players[DataStore.defaultPlayerRedIdx];
-            AppSettings.playerBlue = DataStore.Players[DataStore.defaultPlayerBlueIdx];
+            if(!success) LoadOfflinePlayerDataBase();
+        }
+        public void LoadOfflinePlayerDataBase()
+        {
+            DataStore.Players = DataManager.LoadPlayerDataBase();
+            Console.WriteLine("======================================================");
+            Console.WriteLine($"{DataStore.Players.Count} db player OFFLINE betöltve!");
+            Console.WriteLine("======================================================");
+            if (DataStore.Players.Count >= 2)
+            {
+                AppSettings.playerRed = DataStore.Players[DataStore.defaultPlayerRedIdx];
+                AppSettings.playerBlue = DataStore.Players[DataStore.defaultPlayerBlueIdx];
+            }
             foreach (var player in DataStore.Players)
             {
                 if (player.id == "694077cfe93c946a4ce8fdaf")
                 {
                     player.inGame =
-                        new InGame(0, 0, DataStore.hugoNormalImage, DataStore.hugoSadImage);
+                        new InGame(0, 0, "hugo_icon.svg", "hugosad_icon.svg");
                 }
                 else if (player.id == "694077dbe93c946a4ce8fdb1")
                 {
                     player.inGame =
-                        new InGame(0, 0, DataStore.zalanNormalImage, DataStore.zalanSadImage);
+                        new InGame(0, 0, "zalan_icon.svg", "zalansad_icon.svg");
                 }
                 else
                 {
                     player.inGame =
-                        new InGame(0, 0, DataStore.defaultNormalImage, DataStore.defaultSadImage);
+                        new InGame(0, 0, "default_icon.svg", "defaultsad_icon.svg");
                 }
             }
         }
+        public void LoadOfflineMatchDataBase()
+        {
+            DataStore.Matches = DataManager.LoadMatchDataBase();
+            Console.WriteLine("=====================================================");
+            Console.WriteLine($"{DataStore.Matches.Count} db meccs OFFLINE betöltve!");
+            Console.WriteLine("=====================================================");
+        }
+        #region Test
         private void LoadFakePlayerDatabase()
         {
             DataStore.Players.Add
@@ -195,45 +276,6 @@ namespace Csocsesz
 
             return match;
         }
-        private void PrintMatchToConsole(MatchResults match)
-        {
-            if (match == null) return;
-
-            Console.WriteLine("========================================");
-            Console.WriteLine($"MECCS ÖSSZEFOGLALÓ - {match.startTime:yyyy.MM.dd HH:mm}");
-            Console.WriteLine("========================================");
-
-            // Győztes és Vesztes azonosítása
-            Console.WriteLine($"GYŐZTES: {match.winnerId} ({match.winnerSide}) - 10 gól");
-            Console.WriteLine($"VESZTES: {match.loserId} - {match.loserGoals} gól");
-            Console.WriteLine($"Push-ups Multiplier: {match.pushUpsMultiplier}x");
-            Console.WriteLine("----------------------------------------");
-            Console.WriteLine("GÓLOK LISTÁJA:");
-
-            DateTime? lastGoalTime = null;
-
-            for (int i = 0; i < match.goals.Length; i++)
-            {
-                var goal = match.goals[i];
-                if (goal == null) break; // Megállunk, ha elértük a tömb végét vagy az üres helyeket
-
-                // Kiszámoljuk a kezdéstől eltelt időt (MM:SS formátumban)
-                TimeSpan elapsed = goal.time - match.startTime;
-                string timeStr = $"[{elapsed.Minutes:D2}:{elapsed.Seconds:D2}]";
-
-                Console.WriteLine($"{i + 1}. gól | {timeStr} | Side: {goal.side.ToString().PadRight(4)}");
-
-                lastGoalTime = goal.time;
-            }
-
-            if (lastGoalTime.HasValue)
-            {
-                TimeSpan duration = lastGoalTime.Value - match.startTime;
-                Console.WriteLine("----------------------------------------");
-                Console.WriteLine($"MECCS IDŐTARTAMA: {duration.Minutes} perc {duration.Seconds} másodperc");
-            }
-
-            Console.WriteLine("========================================\n\n");
-        }
+        #endregion
     }
 }

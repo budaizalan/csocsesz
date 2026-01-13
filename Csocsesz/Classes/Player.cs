@@ -15,7 +15,7 @@ namespace Csocsesz.Classes
         public Player() { }
         public Player(string id, string name, 
             int streak, int totalGoals, int totalMatchWon, int totalMatchLost, 
-            int matchWon, int goals, ImageSource normalImage, ImageSource sadImage)
+            int matchWon, int goals, string normalImage, string sadImage)
         {
             this.id = id;
             this.name = name;
@@ -53,9 +53,9 @@ namespace Csocsesz.Classes
     {
         public int matchWon { get; set; }
         public int goals { get; set; }
-        public ImageSource normalImage{get; set; }
-        public ImageSource sadImage{get; set; }
-        public InGame(int matchWon, int goals, ImageSource normalImage, ImageSource sadImage)
+        public string normalImage{get; set; }
+        public string sadImage{get; set; }
+        public InGame(int matchWon, int goals, string normalImage, string sadImage)
         {
             this.matchWon = matchWon;
             this.goals = goals;
