@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: csocsesz-backend-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: csocsesz-backend
+  template:
+    metadata:
+      labels:
+        app: csocsesz-backend
+    spec:
+      containers:
+      - name: csocsesz-container
+        image: csocsesz-backend:v1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: csocsesz-backend-service
+spec:
+  selector:
+    app: csocsesz-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer   
+
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: csocsesz-backend-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: csocsesz-backend-deploy
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+
+## while ($true) { curl http://localhost/api/matches; start-sleep -milliseconds 10 }

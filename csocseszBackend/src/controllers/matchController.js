@@ -64,33 +64,33 @@ class MatchController {
             // Create new match record
             const newMatch = new Match({ winnerId, loserId, startTime, matchDuration, winnerSide, pushUpsMultiplier, goals: filteredGoals });
             const savedMatch = await newMatch.save();
-             // Update winner stats
-             const winner = await User.findById(winnerId);
-             if (!winner) {
-                 return res.status(404).json({ error: 'Winner user not found' });
-             }
-             winner.stats.totalMatchWon += 1;
-             winner.stats.totalGoalsScored += 10;
-             winner.stats.streak += 1;
-             await winner.save();
-             // Update loser stats
-             const loser = await User.findById(loserId);
-             if (!loser) {
-                 return res.status(404).json({ error: 'Loser user not found' });
-             }
+            // Update winner stats
+            const winner = await User.findById(winnerId);
+            if (!winner) {
+                return res.status(404).json({ error: 'Winner user not found' });
+            }
+            winner.stats.totalMatchWon += 1;
+            winner.stats.totalGoals += 10;
+            winner.stats.streak += 1;
+            await winner.save();
+            // Update loser stats
+            const loser = await User.findById(loserId);
+            if (!loser) {
+                return res.status(404).json({ error: 'Loser user not found' });
+            }
             const computedLoserGoals = (typeof savedMatch.loserGoals === 'number') ? savedMatch.loserGoals : 0;
             const multiplier = (typeof savedMatch.pushUpsMultiplier === 'number') ? savedMatch.pushUpsMultiplier : pushUpMultiplier;
 
             loser.stats.totalMatchLost += 1;
-            loser.stats.totalGoalsScored += computedLoserGoals;
+            loser.stats.totalGoals += computedLoserGoals;
             loser.stats.streak = 0;
             loser.stats.totalPushUps += (10 - computedLoserGoals) * multiplier;
-             await loser.save();
+            await loser.save();
             res.status(201).json(savedMatch);
-         } catch (error) {
-             res.status(500).json({ error: error.message });
-         }
-     }
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
 
     async deleteMatches(req, res) {
         try {
@@ -101,13 +101,29 @@ class MatchController {
         }
     }
 
-    async deleteMatchById(req, res){
+    async deleteMatchById(req, res) {
         try {
             const id = req.params.id;
-            let doc = Match.findByIdAndDelete(id);
-            res.status(200).json({ "Delete doc": doc});
+            let doc = await Match.findByIdAndDelete(id);
+            let Winner = await mongoose.model('User').findById(doc.winnerId);
+            let Loser = await mongoose.model('User').findById(doc.loserId);
+            if (Winner) {
+                Winner.stats.totalMatchWon = Math.max(0, Winner.stats.totalMatchWon - 1);
+                Winner.stats.totalGoals = Math.max(0, Winner.stats.totalGoals - 10);
+                Winner.stats.streak = Math.max(0, Winner.stats.streak - 1);
+                await Winner.save();
+            }
+            if (Loser) {
+                Loser.stats.totalMatchLost = Math.max(0, Loser.stats.totalMatchLost - 1);
+                const computedLoserGoals = (typeof doc.loserGoals === 'number') ? doc.loserGoals : 0;
+                Loser.stats.totalGoals = Math.max(0, Loser.stats.totalGoals - computedLoserGoals);
+                Loser.stats.totalPushUps = Math.max(0, Loser.stats.totalPushUps - (10 - computedLoserGoals) * ((typeof doc.pushUpsMultiplier === 'number') ? doc.pushUpsMultiplier : pushUpMultiplier));
+                await Loser.save();
+            }
+
+            res.status(200).json({ "Delete doc": doc }, { "Updated Winner": Winner }, { "Updated Loser": Loser });
         } catch (error) {
-            res.status(500).json({ error: 'Internal Server Error'});
+            res.status(500).json({ error: 'Internal Server Error' });
         }
     }
 }
