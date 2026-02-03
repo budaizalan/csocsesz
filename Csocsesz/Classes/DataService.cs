@@ -1,5 +1,6 @@
 ﻿using Csocsesz.Classes;
 using System.Net.Http.Json;
+using Xamarin.Google.Crypto.Tink.Shaded.Protobuf;
 
 namespace Csocsesz.Classes;
 public static class DataService
@@ -222,6 +223,33 @@ public static class DataService
         }
     }
     #endregion
+
+    public static async Task<bool> ChangePunishmentCompleted(string playerId, int amount)
+    {
+        try
+        {
+            HttpResponseMessage response = null;
+            if (amount > 0)
+            {
+                response = await _httpClient.PutAsync
+                ($"{DataStore.BaseUrl}player/punishmentcompleted/{playerId}-{amount}", null);
+            }
+            else if (amount < 0)
+            {
+                response = await _httpClient.PutAsync
+                ($"{DataStore.BaseUrl}player/punishmentuncompleted/{playerId}-{Math.Abs(amount)}", null);
+            }
+            else return false;
+
+                await Shell.Current.DisplayAlertAsync("Success", "Punishment(s) has been updated.", "OK");
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlertAsync("Error", ex.Message, "OK");
+            return false;
+        }
+    }
 
     #endregion
 }

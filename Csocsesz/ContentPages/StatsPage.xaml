@@ -11,7 +11,7 @@
         VerticalOptions="Center"
         HorizontalTextAlignment="Center"
         Grid.Row="0"/>
-        <Grid RowDefinitions="1*,6*" Grid.Row="1" Padding="5, 0">
+        <Grid RowDefinitions="1.5*,6*,1.5*, 0.5*" Grid.Row="1">
             <Border
                 StrokeThickness="0"
                 Grid.Row="0"
@@ -39,7 +39,7 @@
             </Border.StrokeShape>
             </Border>
             
-            <Grid RowDefinitions="0.5*,*,*,*,*,2.5*" ColumnDefinitions="2*,2*" 
+            <Grid RowDefinitions="0.5*,*,*,*,0.5*,*, *" ColumnDefinitions="2*,2*" 
                   Padding="15,0"
                   Grid.Row="1" >
 
@@ -79,18 +79,69 @@
                     VerticalOptions="Center" HorizontalOptions="End"
                     Grid.Row="3" Grid.Column="1"/>
 
+                <Label
+                    Text="Punishment(s)"
+                    Style="{StaticResource BiggerNormal}"
+                    VerticalOptions="Center" HorizontalOptions="Center"
+                    Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"/>
+
                 <Label 
-                    Text="Punishment to Do&#10;(Assigned - Completed)"
+                    Text="Punishment(s) to Do&#10;(Assigned - Completed)"
                     Style="{StaticResource Normal}"
                     VerticalOptions="Center" HorizontalOptions="Start"
-                    Grid.Row="4" Grid.Column="0"/>
+                    Grid.Row="6" Grid.Column="0"/>
                 <Label
                     x:Name="PunishmentToDoLabel"
                     Text="No Data"
-                    Style="{StaticResource Normal}"
+                    Style="{StaticResource BiggerNormal}"
                     VerticalOptions="Center" HorizontalOptions="End"
-                    Grid.Row="4" Grid.Column="1"/>
+                    Grid.Row="6" Grid.Column="1"/>
             </Grid>
+            <Border
+                StrokeThickness="0"
+                Grid.Row="2"
+                BackgroundColor="{StaticResource DarkGray}"
+                Padding="10">
+                <Grid ColumnDefinitions="*,0.25*,*,  1*  ,*,0.25*,*" Padding="5">
+                    <Button
+                        x:Name="PunishmentCompleteButton"
+                        Text="COMPLETE"
+                        Style="{StaticResource BiggerNormal}"
+                        BackgroundColor="Gray"
+                        HeightRequest="70"
+                        Clicked="PunishmentCompleteButtonClicked"
+                        VerticalOptions="Fill" HorizontalOptions="Fill"
+                        Grid.Column="0" Grid.ColumnSpan="3"/>
+                    <Label
+                        x:Name="PunishmentCounter"
+                        Text="0"
+                        Style="{StaticResource BigNormal}"
+                        FontFamily="CenturyGothicBold"
+                        VerticalOptions="Center" HorizontalOptions="Center"
+                        Grid.Column="3"/>
+                    <Button
+                        x:Name="PunishmentMinusButton"
+                        Text="-"
+                        FontSize="40" TextColor="White" FontFamily="CenturyGothicBold"
+                        BackgroundColor="Gray"
+                        HeightRequest="70" WidthRequest="70"
+                        Clicked="PunishmentMinusButtonClicked"
+                        VerticalOptions="Fill" HorizontalOptions="Fill"
+                        Grid.Column="4"/>
+                    <Button
+                        x:Name="PunishmentPlusButton"
+                        Text="+"
+                        FontSize="40" TextColor="White" FontFamily="CenturyGothicBold"
+                        BackgroundColor="Gray"
+                                                HeightRequest="70" WidthRequest="70"
+                        Clicked="PunishmentPlusButtonClicked"
+                        VerticalOptions="Fill" HorizontalOptions="Fill"
+                        Grid.Column="6"/>
+                </Grid>
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+            </Border>
         </Grid>
         <nav:NavBar x:Name="Navbar" Grid.Row="2"/>
     </Grid>

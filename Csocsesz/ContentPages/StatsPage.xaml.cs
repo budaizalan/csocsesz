@@ -4,6 +4,7 @@ namespace Csocsesz.ContentPages;
 
 public partial class StatsPage : ContentPage
 {
+    private int punishments = 0;
 	public StatsPage()
 	{
 		InitializeComponent();
@@ -35,6 +36,30 @@ public partial class StatsPage : ContentPage
     {
         UpdateLabels();
     }
+    private async void PunishmentPlusButtonClicked(object sender, EventArgs e)
+    {
+        punishments++;
+        UpdateLabels();
+    }
+    private async void PunishmentMinusButtonClicked(object sender, EventArgs e)
+    {
+        punishments--;
+        UpdateLabels();
+    }
+    private async void PunishmentCompleteButtonClicked(object sender, EventArgs e)
+    {
+        if(punishments == 0)
+        {
+            await DataService.LoadDataBases();
+            PlayerPicker.ItemsSource = DataStore.Players;
+            UpdateLabels(); return;
+        }
+        Player player = (Player)PlayerPicker.SelectedItem;
+        await DataService.ChangePunishmentCompleted(player.id, punishments);
+        punishments = 0;
+        UpdateLabels();
+    }
+
     private void UpdateLabels()
     {
         Player player = (Player)PlayerPicker.SelectedItem;
@@ -52,5 +77,9 @@ public partial class StatsPage : ContentPage
         double todo = player.stats.totalPunishmentAssigned - player.stats.totalPunishmentCompleted;
         PunishmentToDoLabel.Text =
             $"(C:{player.stats.totalPunishmentCompleted}, A:{player.stats.totalPunishmentAssigned}) - {todo}";
+
+        PunishmentCounter.Text = punishments.ToString();
+        if(punishments == 0) PunishmentCompleteButton.Text = "REFRESH";
+        else PunishmentCompleteButton.Text = "COMPLETE";
     }
 }
