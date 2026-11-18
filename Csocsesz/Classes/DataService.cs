@@ -13,7 +13,7 @@ public static class DataService
         var redId = AppSettings.playerRed?.id ?? DataStore.defaultPlayerRedId;
         var blueId = AppSettings.playerBlue?.id ?? DataStore.defaultPlayerBlueId;
 
-        data = await DataManager.Load() ?? Seed();
+        data = await DataManager.Load() ?? await Restore() ?? Seed();
         if (await SeedDefaultImages()) await DataManager.Save(data);
         Publish(redId, blueId, AppSettings.playerRed2?.id, AppSettings.playerBlue2?.id);
     }
@@ -75,6 +75,29 @@ public static class DataService
     {
         StatsCalculator.Recalculate(data.players, data.matches);
         await DataManager.Save(data);
+        await Task.Run(WriteBackup);
+    }
+
+    // The backup must never break saving, so failures are swallowed.
+    private static void WriteBackup()
+    {
+        try { Backup.Write(Export()); } catch { }
+    }
+
+    // No local data (fresh install): take the last backup, if there is one.
+    private static async Task<AppData?> Restore()
+    {
+        try
+        {
+            var json = Backup.Read();
+            if (json == null) return null;
+            var restored = DataManager.Parse(json);
+            ImageStore.WriteAll(restored.images);
+            restored.images = new();
+            await DataManager.Save(restored);
+            return restored;
+        }
+        catch { return null; }
     }
 
     public static async Task AddMatch(Match match)
@@ -134,6 +157,7 @@ public static class DataService
         imported.images = new();
         data = imported;
         await DataManager.Save(data);
+        await Task.Run(WriteBackup);
         Publish(AppSettings.playerRed?.id ?? "", AppSettings.playerBlue?.id ?? "", AppSettings.playerRed2?.id, AppSettings.playerBlue2?.id);
     }
 }
