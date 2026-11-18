@@ -203,8 +203,9 @@ public partial class LiveGamePage : ContentPage
         await OvertimeLabel.FadeToAsync(0, 700);
         while (id == overtimeToken)
         {
-            await OvertimePulse.FadeToAsync(0.5, 700, Easing.SinInOut);
-            await OvertimePulse.FadeToAsync(0, 700, Easing.SinInOut);
+            // Stays visible (never fully off) so it reads as a steady glow, not a blink.
+            await OvertimePulse.FadeToAsync(0.3, 500, Easing.SinInOut);
+            await OvertimePulse.FadeToAsync(0.15, 500, Easing.SinInOut);
         }
     }
     private async void PauseButtonClicked(object sender, EventArgs e)
