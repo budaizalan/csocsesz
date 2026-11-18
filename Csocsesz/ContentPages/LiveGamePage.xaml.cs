@@ -204,7 +204,7 @@ public partial class LiveGamePage : ContentPage
         while (id == overtimeToken)
         {
             // Stays visible (never fully off) so it reads as a steady glow, not a blink.
-            await OvertimePulse.FadeToAsync(0.15, 500, Easing.SinInOut);
+            await OvertimePulse.FadeToAsync(0.225, 500, Easing.SinInOut);
             await OvertimePulse.FadeToAsync(0.07, 500, Easing.SinInOut);
         }
     }
