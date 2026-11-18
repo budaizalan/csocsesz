@@ -56,21 +56,21 @@
             <Grid ColumnDefinitions="*,Auto,*" Padding="8,0">
                 <HorizontalStackLayout Spacing="6" HorizontalOptions="Start" VerticalOptions="Center" Grid.Column="0">
                     <ImageButton Source="back_icon.svg" Style="{StaticResource NavBarButtonStyle}"
-                        WidthRequest="54" HeightRequest="54" Padding="11" BackgroundColor="{StaticResource Gray}" Clicked="BackButtonClicked" Rotation="90"/>
+                        WidthRequest="56" HeightRequest="56" Padding="12" BackgroundColor="{StaticResource Gray}" Clicked="BackButtonClicked" Rotation="90"/>
                     <ImageButton x:Name="SwapButton" Source="swap_icon.svg" Style="{StaticResource NavBarButtonStyle}"
-                        WidthRequest="54" HeightRequest="54" Padding="11" BackgroundColor="{StaticResource Gray}" Clicked="SwapButtonClicked" Rotation="0"/>
+                        WidthRequest="56" HeightRequest="56" Padding="12" BackgroundColor="{StaticResource Gray}" Clicked="SwapButtonClicked" Rotation="0"/>
                     <ImageButton x:Name="PauseButton" Source="pause_icon.svg" Style="{StaticResource NavBarButtonStyle}"
-                        WidthRequest="54" HeightRequest="54" Padding="11" BackgroundColor="{StaticResource Gray}" Clicked="PauseButtonClicked" Rotation="90"/>
+                        WidthRequest="56" HeightRequest="56" Padding="12" BackgroundColor="{StaticResource Gray}" Clicked="PauseButtonClicked" Rotation="90"/>
                 </HorizontalStackLayout>
-                <Label x:Name="TimerLabel" Text="00:00" Rotation="90" FontSize="30" FontFamily="CenturyGothicBold"
+                <Label x:Name="TimerLabel" Text="00:00" Rotation="90" FontSize="20" FontFamily="CenturyGothicBold"
                        HorizontalOptions="Center" VerticalOptions="Center" Grid.ColumnSpan="3"/>
                 <HorizontalStackLayout Spacing="6" HorizontalOptions="End" VerticalOptions="Center" Grid.Column="2">
                     <ImageButton x:Name="NewGameButton" Source="next_icon.svg" Style="{StaticResource NavBarButtonStyle}"
-                        WidthRequest="54" HeightRequest="54" Padding="11" BackgroundColor="{StaticResource Green}" Clicked="NewGameButtonClicked" Rotation="90"/>
+                        WidthRequest="56" HeightRequest="56" Padding="12" BackgroundColor="{StaticResource Green}" Clicked="NewGameButtonClicked" Rotation="90"/>
                     <ImageButton x:Name="EndGameButton" Source="finish_icon.svg" Style="{StaticResource NavBarButtonStyle}"
-                        WidthRequest="54" HeightRequest="54" Padding="11" BackgroundColor="{StaticResource Green}" Clicked="EndGameButtonClicked" Rotation="90"/>
+                        WidthRequest="56" HeightRequest="56" Padding="12" BackgroundColor="{StaticResource Green}" Clicked="EndGameButtonClicked" Rotation="90"/>
                     <ImageButton x:Name="ExitButton" Source="exit_icon.svg" Style="{StaticResource NavBarButtonStyle}"
-                        WidthRequest="54" HeightRequest="54" Padding="11" BackgroundColor="{StaticResource Gray}" Clicked="ExitButtonClicked" Rotation="90"/>
+                        WidthRequest="56" HeightRequest="56" Padding="12" BackgroundColor="{StaticResource Gray}" Clicked="ExitButtonClicked" Rotation="90"/>
                 </HorizontalStackLayout>
             </Grid>
             <Border.StrokeShape>
