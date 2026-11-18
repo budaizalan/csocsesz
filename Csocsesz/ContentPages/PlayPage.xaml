@@ -20,16 +20,41 @@
                 HorizontalTextAlignment="Center"
                 />
         </VerticalStackLayout>
-        <Grid RowDefinitions="2*,*,2*" ColumnDefinitions="*,*,*,*" 
-              Grid.Row="1">
+        <VerticalStackLayout Grid.Row="1" Spacing="14" Padding="10,0" VerticalOptions="Center">
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button x:Name="Mode1v1Button" Text="1 v 1" Style="{StaticResource RegularButtonStyle}"
+                        Clicked="ModeButtonClicked" Grid.Column="0"/>
+                <Button x:Name="Mode2v2Button" Text="2 v 2" Style="{StaticResource RegularButtonStyle}"
+                        Clicked="ModeButtonClicked" Grid.Column="1"/>
+            </Grid>
+            <Border StrokeThickness="0" BackgroundColor="{StaticResource DarkGray}" Padding="15">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Red" Style="{StaticResource BiggerNormal}"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Picker x:Name="RedPicker" Title="Player" ItemDisplayBinding="{Binding name}" TextColor="White" TitleColor="Gray" Grid.Column="0"/>
+                        <Picker x:Name="Red2Picker" Title="Player 2" ItemDisplayBinding="{Binding name}" TextColor="White" TitleColor="Gray" Grid.Column="1"/>
+                    </Grid>
+                </VerticalStackLayout>
+                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+            </Border>
+            <ImageButton Source="swap_icon.svg" Aspect="AspectFit" HeightRequest="44" WidthRequest="44"
+                         BackgroundColor="Transparent" HorizontalOptions="Center" Clicked="SwapTeamsButtonClicked"/>
+            <Border StrokeThickness="0" BackgroundColor="{StaticResource DarkGray}" Padding="15">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Blue" Style="{StaticResource BiggerNormal}"/>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Picker x:Name="BluePicker" Title="Player" ItemDisplayBinding="{Binding name}" TextColor="White" TitleColor="Gray" Grid.Column="0"/>
+                        <Picker x:Name="Blue2Picker" Title="Player 2" ItemDisplayBinding="{Binding name}" TextColor="White" TitleColor="Gray" Grid.Column="1"/>
+                    </Grid>
+                </VerticalStackLayout>
+                <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+            </Border>
             <Button
-            x:Name="LiveGameBtn"
-            Text="LIVE GAME"
-            Clicked="LiveGameButtonClicked"
-            Style="{StaticResource RegularButtonStyle}"
-            VerticalOptions="Start"
-            Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"/>
-        </Grid>
+                x:Name="LiveGameBtn"
+                Text="START GAME"
+                Clicked="LiveGameButtonClicked"
+                Style="{StaticResource RegularButtonStyle}"/>
+        </VerticalStackLayout>
         <nav:NavBar x:Name="Navbar" Grid.Row="2" Grid.Column="0"/>
     </Grid>
 </ContentPage>

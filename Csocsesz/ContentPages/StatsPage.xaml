@@ -4,145 +4,83 @@
              xmlns:nav="clr-namespace:Csocsesz.ContentViews"
              x:Class="Csocsesz.ContentPages.StatsPage"
              BackgroundColor="Black">
-    <Grid RowDefinitions="120, *, 120" ColumnDefinitions="*" Margin="10">
+    <Grid RowDefinitions="100, *, 120" Margin="10">
         <Label
-        Text="STATS"
-        Style="{StaticResource Title}"
-        VerticalOptions="Center"
-        HorizontalTextAlignment="Center"
-        Grid.Row="0"/>
-        <Grid RowDefinitions="1.5*,6*,1.5*, 0.5*" Grid.Row="1">
-            <Border
-                StrokeThickness="0"
-                Grid.Row="0"
-                BackgroundColor="{StaticResource DarkGray}"
-                Padding="10">
-                <Grid ColumnDefinitions="3*,2*" Padding="5">
-                    <Label 
-                        Text="Player"
-                        Style="{StaticResource BiggerNormal}"
-                        FontFamily="CenturyGothicBold"
-                        VerticalOptions="Center" HorizontalOptions="Start"
-                        Grid.Column="0"/>
-                    <Picker 
-                        x:Name="PlayerPicker"
-                        Title="Select Player"
-                        ItemDisplayBinding="{Binding name}"
-                        TextColor="White"
-                        TitleColor="White"
-                        SelectedIndexChanged="OnPlayerChanged"
-                        VerticalOptions="Center" HorizontalOptions="End"
-                        Grid.Column="1"/>
+            Text="STATS"
+            Style="{StaticResource Title}"
+            VerticalOptions="Center"
+            HorizontalTextAlignment="Center"
+            Grid.Row="0"/>
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="14" Padding="10,0">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Button x:Name="Mode1v1Button" Text="1 v 1" Style="{StaticResource RegularButtonStyle}"
+                            Clicked="ModeButtonClicked" Grid.Column="0"/>
+                    <Button x:Name="Mode2v2Button" Text="2 v 2" Style="{StaticResource RegularButtonStyle}"
+                            Clicked="ModeButtonClicked" Grid.Column="1"/>
                 </Grid>
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="10"/>
-            </Border.StrokeShape>
-            </Border>
-            
-            <Grid RowDefinitions="0.5*,*,*,*,0.5*,*, *" ColumnDefinitions="2*,2*" 
-                  Padding="15,0"
-                  Grid.Row="1" >
 
-                <Label 
-                    Text="Win Streak"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="Start"
-                    Grid.Row="1" Grid.Column="0"/>
-                <Label
-                    x:Name="WinStreakLabel"
-                    Text="No Data"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="End"
-                    Grid.Row="1" Grid.Column="1"/>
+                <Border StrokeThickness="0" BackgroundColor="{StaticResource DarkGray}" Padding="15,5">
+                    <Grid ColumnDefinitions="Auto,*,*" ColumnSpacing="8">
+                        <Label x:Name="PlayerHeaderLabel" Text="Player" Style="{StaticResource BiggerNormal}"
+                               VerticalOptions="Center" Grid.Column="0"/>
+                        <Picker x:Name="PlayerPicker" Title="Player" ItemDisplayBinding="{Binding name}"
+                                TextColor="White" TitleColor="White" HorizontalTextAlignment="End"
+                                SelectedIndexChanged="OnPlayerChanged"
+                                VerticalOptions="Center" Grid.Column="1"/>
+                        <Picker x:Name="Player2Picker" Title="Player 2" ItemDisplayBinding="{Binding name}"
+                                TextColor="White" TitleColor="White" HorizontalTextAlignment="End"
+                                SelectedIndexChanged="OnPlayerChanged"
+                                VerticalOptions="Center" Grid.Column="2"/>
+                    </Grid>
+                    <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                </Border>
 
-                <Label 
-                    Text="Winrate"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="Start"
-                    Grid.Row="2" Grid.Column="0"/>
-                <Label
-                    x:Name="WinRateLabel"
-                    Text="No Data"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="End"
-                    Grid.Row="2" Grid.Column="1"/>
+                <Border StrokeThickness="0" BackgroundColor="{StaticResource DarkGray}" Padding="15">
+                    <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="16" ColumnSpacing="10">
+                        <Label Text="Win Streak" Style="{StaticResource Normal}"
+                               VerticalOptions="Center" Grid.Row="0" Grid.Column="0"/>
+                        <Label x:Name="WinStreakLabel" Text="No Data" Style="{StaticResource Normal}"
+                               VerticalOptions="Center" Grid.Row="0" Grid.Column="1"/>
 
-                <Label 
-                    Text="Goal Ratio&#10;(Scored/Conceded)"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="Start"
-                    Grid.Row="3" Grid.Column="0"/>
-                <Label
-                    x:Name="GoalScoredConcededRatioLabel"
-                    Text="No Data"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="End"
-                    Grid.Row="3" Grid.Column="1"/>
+                        <Label Text="Winrate" Style="{StaticResource Normal}"
+                               VerticalOptions="Center" Grid.Row="1" Grid.Column="0"/>
+                        <Label x:Name="WinRateLabel" Text="No Data" Style="{StaticResource Normal}"
+                               VerticalOptions="Center" Grid.Row="1" Grid.Column="1"/>
 
-                <Label
-                    Text="Punishment(s)"
-                    Style="{StaticResource BiggerNormal}"
-                    VerticalOptions="Center" HorizontalOptions="Center"
-                    Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"/>
+                        <Label Text="Goal Ratio&#10;(Scored/Conceded)" Style="{StaticResource Normal}"
+                               VerticalOptions="Center" Grid.Row="2" Grid.Column="0"/>
+                        <Label x:Name="GoalScoredConcededRatioLabel" Text="No Data" Style="{StaticResource Normal}"
+                               VerticalOptions="Center" Grid.Row="2" Grid.Column="1"/>
+                    </Grid>
+                    <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                </Border>
 
-                <Label 
-                    Text="Punishment(s) to Do&#10;(Assigned - Completed)"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="Start"
-                    Grid.Row="6" Grid.Column="0"/>
-                <Label
-                    x:Name="PunishmentToDoLabel"
-                    Text="No Data"
-                    Style="{StaticResource BiggerNormal}"
-                    VerticalOptions="Center" HorizontalOptions="End"
-                    Grid.Row="6" Grid.Column="1"/>
-            </Grid>
-            <Border
-                StrokeThickness="0"
-                Grid.Row="2"
-                BackgroundColor="{StaticResource DarkGray}"
-                Padding="10">
-                <Grid ColumnDefinitions="*,0.25*,*,  1*  ,*,0.25*,*" Padding="5">
-                    <Button
-                        x:Name="PunishmentCompleteButton"
-                        Text="COMPLETE"
-                        Style="{StaticResource BiggerNormal}"
-                        BackgroundColor="Gray"
-                        HeightRequest="70"
-                        Clicked="PunishmentCompleteButtonClicked"
-                        VerticalOptions="Fill" HorizontalOptions="Fill"
-                        Grid.Column="0" Grid.ColumnSpan="3"/>
-                    <Label
-                        x:Name="PunishmentCounter"
-                        Text="0"
-                        Style="{StaticResource BigNormal}"
-                        FontFamily="CenturyGothicBold"
-                        VerticalOptions="Center" HorizontalOptions="Center"
-                        Grid.Column="3"/>
-                    <Button
-                        x:Name="PunishmentMinusButton"
-                        Text="-"
-                        FontSize="40" TextColor="White" FontFamily="CenturyGothicBold"
-                        BackgroundColor="Gray"
-                        HeightRequest="70" WidthRequest="70"
-                        Clicked="PunishmentMinusButtonClicked"
-                        VerticalOptions="Fill" HorizontalOptions="Fill"
-                        Grid.Column="4"/>
-                    <Button
-                        x:Name="PunishmentPlusButton"
-                        Text="+"
-                        FontSize="40" TextColor="White" FontFamily="CenturyGothicBold"
-                        BackgroundColor="Gray"
-                                                HeightRequest="70" WidthRequest="70"
-                        Clicked="PunishmentPlusButtonClicked"
-                        VerticalOptions="Fill" HorizontalOptions="Fill"
-                        Grid.Column="6"/>
-                </Grid>
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="10"/>
-                </Border.StrokeShape>
-            </Border>
-        </Grid>
+                <Border x:Name="PunishmentSection" StrokeThickness="0" BackgroundColor="{StaticResource DarkGray}" Padding="15">
+                    <VerticalStackLayout Spacing="14">
+                        <Label Text="Punishment(s)" Style="{StaticResource BiggerNormal}" HorizontalOptions="Center"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="To Do&#10;(Assigned - Completed)" Style="{StaticResource Normal}"
+                                   VerticalOptions="Center" Grid.Column="0"/>
+                            <Label x:Name="PunishmentToDoLabel" Text="No Data" Style="{StaticResource BiggerNormal}"
+                                   VerticalOptions="Center" Grid.Column="1"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto,60,Auto" ColumnSpacing="10">
+                            <Button x:Name="PunishmentCompleteButton" Text="COMPLETE"
+                                    Style="{StaticResource RegularButtonStyle}"
+                                    Clicked="PunishmentCompleteButtonClicked" Grid.Column="0"/>
+                            <Button x:Name="PunishmentMinusButton" Text="-" Style="{StaticResource RegularButtonStyle}"
+                                    WidthRequest="60" Clicked="PunishmentMinusButtonClicked" Grid.Column="1"/>
+                            <Label x:Name="PunishmentCounter" Text="0" Style="{StaticResource BigNormal}"
+                                   HorizontalTextAlignment="Center" VerticalOptions="Center" Grid.Column="2"/>
+                            <Button x:Name="PunishmentPlusButton" Text="+" Style="{StaticResource RegularButtonStyle}"
+                                    WidthRequest="60" Clicked="PunishmentPlusButtonClicked" Grid.Column="3"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                    <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
         <nav:NavBar x:Name="Navbar" Grid.Row="2"/>
     </Grid>
 </ContentPage>

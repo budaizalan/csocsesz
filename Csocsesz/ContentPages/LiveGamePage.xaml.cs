@@ -11,9 +11,14 @@ public partial class LiveGamePage : ContentPage
 {
     private Player playerRed;
     private Player playerBlue;
+    private Player? playerRed2; // team mates, 2v2 only
+    private Player? playerBlue2;
 
     private bool gameWon = false;
     private bool started = false;
+    private bool paused = false;
+    private bool extended = false;  // played on past 10; only END GAME finishes it
+    private int continuedAt = -1;    // goals.Count when the 10 was passed
 
     private List<Goal> goals = new List<Goal>();
     private DateTime startTime;
@@ -42,6 +47,9 @@ public partial class LiveGamePage : ContentPage
     {
         playerRed = AppSettings.playerRed ?? new Player();
         playerBlue = AppSettings.playerBlue ?? new Player();
+        bool two = AppSettings.mode == Mode.TwoVsTwo;
+        playerRed2 = two ? AppSettings.playerRed2 : null;
+        playerBlue2 = two ? AppSettings.playerBlue2 : null;
 
         if(playerRed != null && playerBlue != null)
         {
@@ -51,9 +59,10 @@ public partial class LiveGamePage : ContentPage
             playerBlue.inGame.matchWon = 0;
             RCBimage.Source = GetImageBySide(Side.red, true);
             BCBimage.Source = GetImageBySide(Side.blue, true);
-            RCBnameLabel.Text = playerRed.name;
-            BCBnameLabel.Text = playerBlue.name;
+            RCBnameLabel.Text = TeamName(Side.red);
+            BCBnameLabel.Text = TeamName(Side.blue);
         }
+        UpdateBar();
     }
 
     #region Saving Match functions
@@ -62,25 +71,21 @@ public partial class LiveGamePage : ContentPage
         if (!AppSettings.sendTestMatches && secondsElapsed < 30) return;
         Side wSide = winnerSide();
         Player winner = GetPlayerBySide(wSide);
-        Player loser = GetPlayerBySide(wSide == Side.red ? Side.blue : Side.red);
+        Side lSide = wSide == Side.red ? Side.blue : Side.red;
+        Player loser = GetPlayerBySide(lSide);
+        // goals is cleared for the next game, so the match needs its own copy.
         Match results = new Match
-            (0, winner.id, wSide, loser.id, loser.inGame.goals, startTime, goals[goals.Count - 1].time, goals, AppSettings.punishmentMultiplier);
-        for (int i = 0; i < goals.Count; i++) results.goals[i] = goals[i];
+        {
+            mode = AppSettings.mode, winnerId2 = MateBySide(wSide)?.id, loserId2 = MateBySide(lSide)?.id,
+            winnerId = winner.id, winnerSide = wSide, loserId = loser.id, loserGoals = loser.inGame.goals,
+            winnerGoals = winner.inGame.goals, startTime = startTime, endTime = goals[goals.Count - 1].time,
+            goals = new List<Goal>(goals), punishmentMultiplier = AppSettings.punishmentMultiplier
+        };
         matchBuffer.Add(results);
     }
-    private async void SaveBuffer()
+    private async Task SaveBuffer()
     {
-        bool success = true;
-        foreach (var item in matchBuffer)
-        {
-            if (!await DataService.PostMatch(item)) success = false;
-        }
-        List<Match> offlineMatchBuffer = await DataManager.LoadMatchBufferDataBase();
-        foreach (var item in offlineMatchBuffer)
-        {
-            if (!await DataService.PostMatch(item)) success = false;
-        }
-        if (!success) await DataManager.AppendMatchBufferDataBase(matchBuffer);
+        foreach (var item in matchBuffer) await DataService.AddMatch(item);
         matchBuffer.Clear();
     }
     #endregion
@@ -90,13 +95,21 @@ public partial class LiveGamePage : ContentPage
     {
         return side == Side.red ? playerRed : playerBlue;
     }
+    private Player? MateBySide(Side side) => side == Side.red ? playerRed2 : playerBlue2;
+    private string TeamName(Side side)
+    {
+        var mate = MateBySide(side);
+        return mate == null ? GetPlayerBySide(side).name : $"{GetPlayerBySide(side).name} & {mate.name}";
+    }
     private string GetImageBySide(Side side, bool normal)
     {
-        if (normal) return GetPlayerBySide(side).normalImage;
-        else return GetPlayerBySide(side).sadImage;
+        if (normal) return GetPlayerBySide(side).normalImagePath;
+        else return GetPlayerBySide(side).sadImagePath;
     }
     private Side winnerSide()
     {
+        int red = playerRed.inGame.goals, blue = playerBlue.inGame.goals;
+        if (red != blue) return red > blue ? Side.red : Side.blue;
         return goals[goals.Count - 1].side;
     }
     #endregion
@@ -114,12 +127,10 @@ public partial class LiveGamePage : ContentPage
         TimeSpan duration = TimeSpan.FromMilliseconds(1001);
         Vibration.Default.Vibrate(duration);
     }
-    private void GameWon(Side side)
+    private void GameWon(Side side, bool vibrate = true)
     {
         gameWon = true;
 
-        NewGameButton.IsVisible = true;
-        SwapButton.IsVisible = true;
         ExitButton.BackgroundColor = DataStore.green;
 
         if (side == Side.red)
@@ -139,57 +150,90 @@ public partial class LiveGamePage : ContentPage
             RCBimage.Source = GetImageBySide(Side.red, false);
         }
 
-        Vibrate();
+        if (vibrate) Vibrate();
         StopTimer();
+        UpdateBar();
+    }
+    private void RestorePlayView()
+    {
+        BlueButton.BackgroundColor = DataStore.blue;
+        RedButton.BackgroundColor = DataStore.red;
+        ExitButton.BackgroundColor = DataStore.gray;
+        RCBimage.Source = GetImageBySide(Side.red, true);
+        BCBimage.Source = GetImageBySide(Side.blue, true);
+        gameWon = false;
+        UpdateBar();
+    }
+    // Which bottom bar buttons make sense right now.
+    private void UpdateBar()
+    {
+        NewGameButton.IsVisible = (!started || gameWon) && !paused;
+        EndGameButton.IsVisible = started && extended && !gameWon && !paused;
+        PauseButton.IsVisible = started && !gameWon;
+        PauseButton.Source = paused ? "resume_icon.svg" : "pause_icon.svg";
+    }
+    private async void PauseButtonClicked(object sender, EventArgs e)
+    {
+        if (!started || gameWon) return;
+        paused = !paused;
+        if (paused) StopTimer(); else StartTimer();
+        UpdateBar();
+    }
+    private async void EndGameButtonClicked(object sender, EventArgs e)
+    {
+        if (playerRed.inGame.goals == playerBlue.inGame.goals)
+        {
+            await DisplayAlertAsync("Tied", "Someone has to be ahead to end the game.", "OK");
+            return;
+        }
+        GameWon(winnerSide());
     }
     
     #region Timer
-    private IDispatcherTimer? gameTimer; // Az idõzítõ objektum
-    private int secondsElapsed = 0; // Eltelt idõ másodpercben (a számláló)
+    private IDispatcherTimer? gameTimer; // Az idï¿½zï¿½tï¿½ objektum
+    private int secondsElapsed = 0; // Eltelt idï¿½ mï¿½sodpercben (a szï¿½mlï¿½lï¿½)
     private void StartTimer()
     {
-        TimerLabel.FontSize = 30;
-        // Megakadályozzuk, hogy újra elinduljon, ha már fut
+        // Megakadï¿½lyozzuk, hogy ï¿½jra elinduljon, ha mï¿½r fut
         if (gameTimer != null && gameTimer.IsRunning)
         {
             return;
         }
 
-        // 1. Az idõzítõ létrehozása
+        // 1. Az idï¿½zï¿½tï¿½ lï¿½trehozï¿½sa
         gameTimer = Dispatcher.CreateTimer();
 
-        // 2. Intervallum beállítása 1 másodpercre
+        // 2. Intervallum beï¿½llï¿½tï¿½sa 1 mï¿½sodpercre
         gameTimer.Interval = TimeSpan.FromSeconds(1);
 
-        // 3. Eseménykezelõ beállítása (ez hívódik meg minden másodpercben)
+        // 3. Esemï¿½nykezelï¿½ beï¿½llï¿½tï¿½sa (ez hï¿½vï¿½dik meg minden mï¿½sodpercben)
         gameTimer.Tick += OnGameTimerTick;
 
-        // 4. Az idõzítõ elindítása
+        // 4. Az idï¿½zï¿½tï¿½ elindï¿½tï¿½sa
         gameTimer.Start();
     }
     private void StopTimer()
     {
-        TimerLabel.FontSize = 15;
         if (gameTimer != null && gameTimer.IsRunning)
         {
             gameTimer.Stop();
 
-            // Opcionális: Szabadítsd fel az erõforrásokat
+            // Opcionï¿½lis: Szabadï¿½tsd fel az erï¿½forrï¿½sokat
             gameTimer.Tick -= OnGameTimerTick;
             gameTimer = null;
         }
     }
     private void OnGameTimerTick(object? sender, EventArgs e)
     {
-        secondsElapsed++; // Növeljük a másodperceket
+        secondsElapsed++; // Nï¿½veljï¿½k a mï¿½sodperceket
 
-        // Átalakítjuk a másodperceket MM:SS formátumra
+        // ï¿½talakï¿½tjuk a mï¿½sodperceket MM:SS formï¿½tumra
         TimeSpan time = TimeSpan.FromSeconds(secondsElapsed);
 
-        // Frissítjük a Label-t (feltételezve, hogy TimerLabel a neve a Label-ödnek)
+        // Frissï¿½tjï¿½k a Label-t (feltï¿½telezve, hogy TimerLabel a neve a Label-ï¿½dnek)
         TimerLabel.Text = time.ToString(@"mm\:ss");
 
-        // Opcionális: itt teheted meg a GameWon ellenõrzéseket idõalapú meccsek esetén
+        // Opcionï¿½lis: itt teheted meg a GameWon ellenï¿½rzï¿½seket idï¿½alapï¿½ meccsek esetï¿½n
     }
     private void ResetTimer()
     {
@@ -202,7 +246,16 @@ public partial class LiveGamePage : ContentPage
     #region Buttons
     private async void CounterButtonClicked(object sender, EventArgs e)
     {
-        if (gameWon || !started) return;
+        if (!started || paused) return;
+        if (gameWon)
+        {
+            if (extended) return; // finished with END GAME
+            // Pressing on after reaching 10 keeps the game going.
+            extended = true;
+            continuedAt = goals.Count;
+            RestorePlayView();
+            StartTimer();
+        }
 
         var button = sender as Button;
         if (sender == RedButton)
@@ -218,8 +271,14 @@ public partial class LiveGamePage : ContentPage
 
         UpdateCounterButtonsLabel();
 
-        if (playerRed.inGame.goals == 10) GameWon(Side.red);
-        else if (playerBlue.inGame.goals == 10) GameWon(Side.blue);
+        if (!extended)
+        {
+            int red = playerRed.inGame.goals, blue = playerBlue.inGame.goals;
+            // Overtime: first to 10 only wins with a 2 goal lead, otherwise play on.
+            int lead = AppSettings.overtime ? 2 : 1;
+            if (red >= 10 && red - blue >= lead) GameWon(Side.red);
+            else if (blue >= 10 && blue - red >= lead) GameWon(Side.blue);
+        }
 
         var clickedElement = sender as Border;
         if (clickedElement != null)
@@ -234,34 +293,32 @@ public partial class LiveGamePage : ContentPage
     private async void ExitButtonClicked(object sender, EventArgs e)
     {
         if (gameWon) SaveMatchToBuffer();
-        SaveBuffer();
+        await SaveBuffer();
         await DataService.LoadDataBases();
         await Navigation.PopModalAsync();
     }
     private void BackButtonClicked(object sender, EventArgs e)
     {
-        if (!started || goals.Count == 0) return;
+        if (!started || paused || goals.Count == 0) return;
 
+        bool wasWon = gameWon;
         if (goals[goals.Count() - 1].side == Side.red) playerRed.inGame.goals--;
         else playerBlue.inGame.goals--;
         goals.RemoveAt(goals.Count() - 1);
 
         UpdateCounterButtonsLabel();
 
-        if(gameWon)
+        if (extended && goals.Count == continuedAt)
+        {
+            // Undid the goal that went past 10: back to the plain win view.
+            extended = false;
+            continuedAt = -1;
+            GameWon(winnerSide(), vibrate: false);
+        }
+        else if (wasWon)
         {
             StartTimer();
-
-            BlueButton.BackgroundColor = DataStore.blue;
-            RedButton.BackgroundColor = DataStore.red;
-            ExitButton.BackgroundColor = DataStore.gray;
-            NewGameButton.IsVisible = false;
-            SwapButton.IsVisible = false;
-
-            RCBimage.Source = GetImageBySide(Side.red, true);
-            BCBimage.Source = GetImageBySide(Side.blue, true);
-
-            gameWon = false;
+            RestorePlayView();
         }
     }
     private void SwapButtonClicked(object sender, EventArgs e)
@@ -300,8 +357,6 @@ public partial class LiveGamePage : ContentPage
         StartTimer();
         startTime = DateTime.Now;
 
-        NewGameButton.IsVisible = false;
-        SwapButton.IsVisible = false;
         ExitButton.BackgroundColor = DataStore.gray;
         BlueButton.BackgroundColor = DataStore.blue;
         RedButton.BackgroundColor = DataStore.red;
@@ -313,21 +368,24 @@ public partial class LiveGamePage : ContentPage
         UpdateCounterButtonsLabel();
 
         gameWon = false;
+        extended = false;
+        continuedAt = -1;
+        paused = false;
         goals.Clear();
 
         if(AppSettings.changingSide && started)
         {
-            Player tempP = playerRed;
-            playerRed = playerBlue;
-            playerBlue = tempP;
+            (playerRed, playerBlue) = (playerBlue, playerRed);
+            (playerRed2, playerBlue2) = (playerBlue2, playerRed2);
 
             RCBimage.Source = GetImageBySide(Side.red, true);
             BCBimage.Source = GetImageBySide(Side.blue, true);
-            RCBnameLabel.Text = playerRed.name;
-            BCBnameLabel.Text = playerBlue.name;
+            RCBnameLabel.Text = TeamName(Side.red);
+            BCBnameLabel.Text = TeamName(Side.blue);
             UpdateCounterButtonsLabel();
         }
         started = true;
+        UpdateBar();
     }
     #endregion
     protected override bool OnBackButtonPressed()
@@ -337,22 +395,22 @@ public partial class LiveGamePage : ContentPage
     #region Unimportant
     private async Task ShakeButtonsIf67Score()
     {
-        // Lekérdezzük a gólokat
+        // Lekï¿½rdezzï¿½k a gï¿½lokat
         int redGoals = GetPlayerBySide(Side.red).inGame.goals;
         int blueGoals = GetPlayerBySide(Side.blue).inGame.goals;
 
-        // Meghatározzuk, ki van felül (0. sor) és ki alul (2. sor)
-        // A te kódod alapján a gombok a 0. és a 2. sorban cserélõdnek
+        // Meghatï¿½rozzuk, ki van felï¿½l (0. sor) ï¿½s ki alul (2. sor)
+        // A te kï¿½dod alapjï¿½n a gombok a 0. ï¿½s a 2. sorban cserï¿½lï¿½dnek
         bool isBlueTop = Grid.GetRow(BlueButton) == 0;
 
-        // A feltétel: 
-        // (Kék van felül ÉS kék=6, piros=7) VAGY (Piros van felül ÉS piros=6, kék=7)
+        // A feltï¿½tel: 
+        // (Kï¿½k van felï¿½l ï¿½S kï¿½k=6, piros=7) VAGY (Piros van felï¿½l ï¿½S piros=6, kï¿½k=7)
         while ((isBlueTop && blueGoals == 6 && redGoals == 7) ||
                (!isBlueTop && redGoals == 6 && blueGoals == 7))
         {
-            if (gameWon || !started) break;
+            if (gameWon || !started || paused) break;
 
-            // Gyors oda-vissza mozgás (10 pixel)
+            // Gyors oda-vissza mozgï¿½s (10 pixel)
             var t1 = RedButton.TranslateToAsync(-20, 0, 125, Easing.Linear);
             var t2 = BlueButton.TranslateToAsync(20, 0, 125, Easing.Linear);
             await Task.WhenAll(t1, t2);
@@ -361,13 +419,13 @@ public partial class LiveGamePage : ContentPage
             var t4 = BlueButton.TranslateToAsync(-20, 0, 125, Easing.Linear);
             await Task.WhenAll(t3, t4);
 
-            // Frissítjük az adatokat a ciklus következõ köréhez
+            // Frissï¿½tjï¿½k az adatokat a ciklus kï¿½vetkezï¿½ kï¿½rï¿½hez
             redGoals = GetPlayerBySide(Side.red).inGame.goals;
             blueGoals = GetPlayerBySide(Side.blue).inGame.goals;
             isBlueTop = Grid.GetRow(BlueButton) == 0;
         }
 
-        // Alaphelyzetbe állítás, ha már nem teljesül a feltétel
+        // Alaphelyzetbe ï¿½llï¿½tï¿½s, ha mï¿½r nem teljesï¿½l a feltï¿½tel
         await Task.WhenAll(
             RedButton.TranslateToAsync(0, 0, 125),
             BlueButton.TranslateToAsync(0, 0, 125)

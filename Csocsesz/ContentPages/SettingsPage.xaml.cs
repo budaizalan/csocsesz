@@ -25,38 +25,59 @@ public partial class SettingsPage : ContentPage
     }
     private async Task Start()
     {
-        PlayerRedPicker.ItemsSource = DataStore.Players;
-        PlayerRedPicker.SelectedIndex = DataStore.Players.IndexOf(AppSettings.playerRed);
-        PlayerBluePicker.ItemsSource = DataStore.Players;
-        PlayerBluePicker.SelectedIndex = DataStore.Players.IndexOf(AppSettings.playerBlue);
+        string? keep = (ImagePlayerPicker.SelectedItem as Player)?.id;
+        ImagePlayerPicker.ItemsSource = DataStore.Players.ToList();
+        ImagePlayerPicker.SelectedItem = ((List<Player>)ImagePlayerPicker.ItemsSource).FirstOrDefault(p => p.id == keep)
+            ?? ((List<Player>)ImagePlayerPicker.ItemsSource).FirstOrDefault();
         AutoSideSwitch.IsToggled = AppSettings.changingSide;
         SaveTestMatchesSwitch.IsToggled = AppSettings.sendTestMatches;
+        OvertimeSwitch.IsToggled = AppSettings.overtime;
 
-        List<Player> players = await DataManager.LoadPlayerDataBase();
-        List<Match> matches = await DataManager.LoadMatchDataBase();
-        List<Match> matchesBuffer = await DataManager.LoadMatchBufferDataBase();
+        DataBaseStatsLabel.Text = $"Players: {DataStore.Players.Count}, Matches: {DataStore.Matches.Count}";
 
-        DataBaseStatsLabel.Text = 
-            $"DS.P: {DataStore.Players.Count}, DS.M: {DataStore.Matches.Count}, " +
-            $"JS.P: {players.Count}, JS.M: {matches.Count}, JS.MB: {matchesBuffer.Count}";
+        OnImagePlayerChanged(null, EventArgs.Empty);
 
         Navbar.setButtonColor();
     }
-    void OnPlayerRedChanged(object sender, EventArgs e)
+    private void OnImagePlayerChanged(object? sender, EventArgs e)
     {
-        if (DataStore.Players[PlayerRedPicker.SelectedIndex] == AppSettings.playerBlue)
-        {
-            PlayerBluePicker.SelectedItem = AppSettings.playerRed;
-        }
-        AppSettings.playerRed = (Player)PlayerRedPicker.SelectedItem;
+        var p = ImagePlayerPicker.SelectedItem as Player;
+        NormalPreview.Source = p?.normalImagePath;
+        SadPreview.Source = p?.sadImagePath;
     }
-    void OnPlayerBlueChanged(object sender, EventArgs e)
+    private async void ChangeImageButtonClicked(object sender, EventArgs e)
     {
-        if (DataStore.Players[PlayerBluePicker.SelectedIndex] == AppSettings.playerRed)
+        if (ImagePlayerPicker.SelectedItem is not Player p) return;
+        try
         {
-            PlayerRedPicker.SelectedItem = AppSettings.playerBlue;
+            var file = await FilePicker.Default.PickAsync(new PickOptions
+            {
+                PickerTitle = "Select an image",
+                FileTypes = FilePickerFileType.Images
+            });
+            if (file == null) return;
+            using var stream = await file.OpenReadAsync();
+            await DataService.SetPlayerImage(p.id, stream, ((Button)sender).Text == "SAD");
+            OnImagePlayerChanged(null, EventArgs.Empty);
         }
-        AppSettings.playerBlue = (Player)PlayerBluePicker.SelectedItem;
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Image failed", ex.Message, "OK");
+        }
+    }
+    private async void AddPlayerButtonClicked(object sender, EventArgs e)
+    {
+        string? name = await DisplayPromptAsync("New Player", "Name:", "ADD", "Cancel", maxLength: 20);
+        if (string.IsNullOrWhiteSpace(name)) return;
+        try
+        {
+            await DataService.AddPlayer(name);
+            await Start();
+        }
+        catch (ArgumentException ex)
+        {
+            await DisplayAlertAsync("Player", ex.Message, "OK");
+        }
     }
     void OnAutoSideSwitchChanged(object sender, ToggledEventArgs e)
     {
@@ -72,13 +93,57 @@ public partial class SettingsPage : ContentPage
             entry.Text = "3";
         }
     }
+    void OnOvertimeChanged(object sender, ToggledEventArgs e)
+    {
+        AppSettings.overtime = e.Value;
+    }
     void OnSaveTestMatchesChanged(object sender, ToggledEventArgs e)
     {
         AppSettings.sendTestMatches = e.Value;
     }
 
-    private async void RefreshDataBaseButtonClicked(object sender, EventArgs e)
+    private async void ExportButtonClicked(object sender, EventArgs e)
     {
-        await DataService.LoadDataBases();
+        try
+        {
+            string name = $"csocsesz-{DateTime.Now:yyyyMMdd-HHmm}.json";
+            // Share needs package identity, which the unpackaged Windows build lacks: save to Documents there.
+            if (DeviceInfo.Platform == DevicePlatform.WinUI)
+            {
+                string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Csocsesz");
+                Directory.CreateDirectory(dir);
+                string path = Path.Combine(dir, name);
+                await File.WriteAllTextAsync(path, DataService.Export());
+                await DisplayAlertAsync("Exported", path, "OK");
+            }
+            else
+            {
+                string path = Path.Combine(FileSystem.CacheDirectory, name);
+                await File.WriteAllTextAsync(path, DataService.Export());
+                await Share.Default.RequestAsync(new ShareFileRequest("Csocsesz export", new ShareFile(path)));
+            }
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Error", ex.Message, "OK");
+        }
+    }
+    private async void ImportButtonClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            var file = await FilePicker.Default.PickAsync(new PickOptions { PickerTitle = "Select a Csocsesz export (.json)" });
+            if (file == null) return;
+            if (!await DisplayAlertAsync("Import", "This replaces ALL current players and matches. Continue?", "Replace", "Cancel")) return;
+
+            using var stream = await file.OpenReadAsync();
+            using var reader = new StreamReader(stream);
+            await DataService.Import(await reader.ReadToEndAsync());
+            await Start();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlertAsync("Import failed", ex.Message, "OK");
+        }
     }
 }

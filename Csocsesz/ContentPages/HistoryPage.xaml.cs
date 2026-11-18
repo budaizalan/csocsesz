@@ -14,11 +14,16 @@ public partial class HistoryPage : ContentPage
         public Player Winner { get; set; }
         public Player Loser { get; set; }
         public string source {  get; set; }
+        public string WinnerNames => TeamNames(Match.winnerId, Match.winnerId2);
+        public string LoserNames => TeamNames(Match.loserId, Match.loserId2);
+        public static string TeamNames(string id1, string? id2) =>
+            string.Join(" & ", new[] { id1, id2 }.Where(id => id != null)
+                .Select(id => DataStore.Players.FirstOrDefault(p => p.id == id)?.name ?? "?"));
         public Color WinnerColor => 
             Match.winnerSide == Side.red ? DataStore.red : DataStore.blue;
         public Color LoserColor =>
             Match.winnerSide == Side.red ? DataStore.blue : DataStore.red;
-        public string ResultText => $"10 - {Match.loserGoals}";
+        public string ResultText => $"{Match.winnerGoals} - {Match.loserGoals}";
         public string DateText => Match.startTime.ToString("MM.dd\nHH:mm");
 
         public MatchDisplay(Match match, Player winner, Player loser, string source)
@@ -64,25 +69,13 @@ public partial class HistoryPage : ContentPage
 
             if (winner != null && loser != null)
             {
-                displayList.Add(new MatchDisplay(match, winner, loser, "DataStore"));
+                displayList.Add(new MatchDisplay(match, winner, loser, match.mode == Mode.TwoVsTwo ? "2v2" : "1v1"));
             }
         }
-        List<Match> matchbuffer = await DataManager.LoadMatchBufferDataBase();
-        foreach (var match in matchbuffer)
-        {
-            var winner = DataStore.Players.FirstOrDefault(p => p.id == match.winnerId);
-            var loser = DataStore.Players.FirstOrDefault(p => p.id == match.loserId);
-
-            if (winner != null && loser != null)
-            {
-                displayList.Add(new MatchDisplay(match, winner, loser, "Buffer"));
-            }
-        }
-
         var grouped = displayList
             .GroupBy(m => m.Match.startTime.ToString("yyyy. MM. dd."))
             .Select(g => new MatchGroup(g.Key, g.OrderByDescending(x => x.Match.startTime).ToList()))
-            .OrderByDescending(g => g.Date) // Legfrissebb nap legyen legfelül
+            .OrderByDescending(g => g.Date) // Legfrissebb nap legyen legfelï¿½l
             .ToList();
 
         MatchesCollectionView.ItemsSource = grouped;
@@ -102,7 +95,7 @@ public partial class HistoryPage : ContentPage
 
         if (clickedMatch != null)
         {
-            //DisplayAlert("Meccs részletei", $"{selectedMatch.Winner.name} nyert {selectedMatch.ResultText} arányban!", "OK");
+            //DisplayAlert("Meccs rï¿½szletei", $"{selectedMatch.Winner.name} nyert {selectedMatch.ResultText} arï¿½nyban!", "OK");
             DataStore.selectedMatch = clickedMatch.Match;
             await Navigation.PushModalAsync(new SelectedMatchPage());
         }

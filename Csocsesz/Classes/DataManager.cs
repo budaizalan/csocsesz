@@ -1,90 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 using System.Text.Json;
 
 namespace Csocsesz.Classes;
+
+// The whole app state, one JSON file. Same shape is used for export/import.
+public class AppData
+{
+    public int version { get; set; } = 2;
+    public List<Player> players { get; set; } = new();
+    public List<Match> matches { get; set; } = new();
+    // Only filled inside an export file: picture file name -> base64.
+    public Dictionary<string, string> images { get; set; } = new();
+}
+
 public static class DataManager
 {
-    public static async Task LoadOfflineDataBases()
-    {
-        DataStore.Players = await LoadPlayerDataBase();
-        DataStore.Matches = await LoadMatchDataBase();
-    }
-    #region Player
-    private static string playersFilePath = Path.Combine(FileSystem.AppDataDirectory, "players.json");
-    public static async Task SavePlayerDataBase(List<Player> players)
-    {
-        string json = JsonSerializer.Serialize(players);
-        await File.WriteAllTextAsync(playersFilePath, json);
-    }
-    public static async Task<List<Player>> LoadPlayerDataBase()
-    {
-        if (!File.Exists(playersFilePath)) return new List<Player>();
-        string json = File.ReadAllText(playersFilePath);
-        return JsonSerializer.Deserialize<List<Player>>(json);
-    }
-    public static async Task DeletePlayerDataBase()
-    {
-        if (File.Exists(playersFilePath)) File.Delete(playersFilePath);
-    }
-    #endregion
+    private static readonly string filePath = Path.Combine(FileSystem.AppDataDirectory, "csocsesz.json");
+    private static readonly JsonSerializerOptions options = new() { WriteIndented = true };
 
-    #region Match
-    private static string matchesFilePath = Path.Combine(FileSystem.AppDataDirectory, "matches.json");
-    public static async Task SaveMatchDataBase(List<Match> matches)
+    public static async Task Save(AppData data)
     {
-        string json = JsonSerializer.Serialize(matches);
-        await File.WriteAllTextAsync(matchesFilePath, json);
+        await File.WriteAllTextAsync(filePath, JsonSerializer.Serialize(data, options));
     }
-    public static async Task<List<Match>> LoadMatchDataBase()
-    {
-        if (!File.Exists(matchesFilePath)) return new List<Match>();
-        string json = File.ReadAllText(matchesFilePath);
-        //return JsonSerializer.Deserialize<List<MatchResults>>(json);
 
-        List<Match> matches = JsonSerializer.Deserialize<List<Match>>(json);
-        List<Match> matchbuffer = await LoadMatchBufferDataBase();
-        if (matchbuffer.Count != 0) matches.AddRange(matchbuffer);
+    public static async Task<AppData?> Load()
+    {
+        if (!File.Exists(filePath)) return null;
+        return Parse(await File.ReadAllTextAsync(filePath));
+    }
 
-        return matches;
+    // Throws on garbage input, so a bad import file can't wipe the data.
+    public static AppData Parse(string json)
+    {
+        var data = JsonSerializer.Deserialize<AppData>(json) ?? throw new InvalidDataException("Empty file.");
+        if (data.players == null || data.matches == null) throw new InvalidDataException("Not a Csocsesz export.");
+        return data;
+    }
 
-    }
-    public static async Task DeleteMatchDataBase()
-    {
-        if (File.Exists(matchesFilePath)) File.Delete(matchesFilePath);
-    }
-    #endregion
-
-    #region Match Buffer
-    private static string matchesBufferFilePath = Path.Combine(FileSystem.AppDataDirectory, "matchesbuffer.json");
-    public static async Task SaveMatchBuffereDataBase(List<Match> matches)
-    {
-        string json = JsonSerializer.Serialize(matches);
-        await File.WriteAllTextAsync(matchesBufferFilePath, json);
-    }
-    public static async Task AppendMatchBufferDataBase(List<Match> matches)
-    {
-        List<Match> matchResultsBuffer = new List<Match>();
-        matchResultsBuffer.AddRange(await LoadMatchBufferDataBase());
-        matchResultsBuffer.AddRange(matches);
-        await DeleteMatchBufferDataBase();
-        await SaveMatchBuffereDataBase(matchResultsBuffer);
-
-        Console.WriteLine("=====================================================");
-        Console.WriteLine($"{matchResultsBuffer.Count} Matches Added to JS MatchBuffer");
-        Console.WriteLine("=====================================================");
-    }
-    public static async Task<List<Match>> LoadMatchBufferDataBase()
-    {
-        if (!File.Exists(matchesBufferFilePath)) return new List<Match>();
-        string json = File.ReadAllText(matchesBufferFilePath);
-        return JsonSerializer.Deserialize<List<Match>>(json);
-    }
-    public static async Task DeleteMatchBufferDataBase()
-    {
-        if (File.Exists(matchesBufferFilePath)) File.Delete(matchesBufferFilePath);
-    }
-    #endregion
+    public static string Serialize(AppData data) => JsonSerializer.Serialize(data, options);
 }

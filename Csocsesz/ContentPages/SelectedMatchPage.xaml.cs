@@ -53,15 +53,15 @@ public partial class SelectedMatchPage : ContentPage
         if (currentMatch == null || currentMatch.goals == null) return;
 
         MatchDateLabel.Text = currentMatch.startTime.ToString("MM.dd\nHH:mm");
-        MatchResultLabel.Text = $"10 - {currentMatch.loserGoals}";
+        MatchResultLabel.Text = $"{currentMatch.winnerGoals} - {currentMatch.loserGoals}";
         var winner = DataStore.Players.FirstOrDefault(p => p.id == currentMatch.winnerId);
         var loser = DataStore.Players.FirstOrDefault(p => p.id == currentMatch.loserId);
         if (winner != null && loser != null)
         {
-            MatchWinnerImage.Source = winner.normalImage;
-            MatchLoserImage.Source = loser.sadImage;
-            MatchWinnerNameLabel.Text = winner.name;
-            MatchLoserNameLabel.Text = loser.name;
+            MatchWinnerImage.Source = winner.normalImagePath;
+            MatchLoserImage.Source = loser.sadImagePath;
+            MatchWinnerNameLabel.Text = MatchDisplay.TeamNames(currentMatch.winnerId, currentMatch.winnerId2);
+            MatchLoserNameLabel.Text = MatchDisplay.TeamNames(currentMatch.loserId, currentMatch.loserId2);
         }
         WinnerColor.Color = currentMatch.winnerSide == Side.red ? DataStore.red : DataStore.blue;
         LoserColor.Color = currentMatch.winnerSide == Side.red ? DataStore.blue : DataStore.red;

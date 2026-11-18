@@ -4,123 +4,64 @@
              xmlns:nav="clr-namespace:Csocsesz.ContentViews"
              x:Class="Csocsesz.ContentPages.SettingsPage"
              BackgroundColor="Black">
-    <Grid RowDefinitions="120, *, 120" ColumnDefinitions="*" Margin="10">
+    <Grid RowDefinitions="100, *, 120" ColumnDefinitions="*" Margin="10">
         <Label
             Text="SETTINGS"
             Style="{StaticResource Title}"
             VerticalOptions="Center"
             HorizontalTextAlignment="Center"
-            Grid.Row="0"
-            />
-        <Grid RowDefinitions="6*,1*,10*,1*" 
-              Grid.Row="1">
-            <Grid RowDefinitions="5*,*,5*" ColumnDefinitions="3*,2*"
-                  Grid.Row="0">
-                <Border
-                    StrokeThickness="0"
-                    BackgroundColor="{StaticResource DarkGray}"
-                    Padding="15"
-                    Grid.Row="0"
-                    Grid.Column="0" Grid.ColumnSpan="2">
-                    <Grid ColumnDefinitions="3*,2*">
-                        <Label 
-                            Text="Player Red"
-                            Style="{StaticResource BiggerNormal}"
-                            VerticalOptions="Center" HorizontalOptions="Start"
-                            Grid.Row="1" Grid.Column="0"/>
-                        <Picker 
-                            x:Name="PlayerRedPicker"
-                            Title="Select Player"
-                            ItemDisplayBinding="{Binding name}"
-                            TextColor="White"
-                            TitleColor="Gray"
-                            SelectedIndexChanged="OnPlayerRedChanged"
-                            VerticalOptions="Center" HorizontalOptions="End"
-                            Grid.Row="1" Grid.Column="1"/>
-                    </Grid>
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="10"/>
-                    </Border.StrokeShape>
+            Grid.Row="0"/>
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="12" Padding="10,0">
+                <Button Text="NEW PLAYER" Style="{StaticResource RegularButtonStyle}" Clicked="AddPlayerButtonClicked"/>
+
+                <Border StrokeThickness="0" BackgroundColor="{StaticResource DarkGray}" Padding="12,8">
+                    <VerticalStackLayout Spacing="6">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Label Text="Images" Style="{StaticResource BiggerNormal}" VerticalOptions="Center"/>
+                            <Picker x:Name="ImagePlayerPicker" Title="Select Player" ItemDisplayBinding="{Binding name}"
+                                    TextColor="White" TitleColor="Gray" HorizontalTextAlignment="End"
+                                    SelectedIndexChanged="OnImagePlayerChanged" Grid.Column="1"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="60,*,60,*" ColumnSpacing="8">
+                            <Image x:Name="NormalPreview" HeightRequest="60" Aspect="AspectFit" Grid.Column="0"/>
+                            <Button Text="NORMAL" FontSize="14" HeightRequest="44" BackgroundColor="Gray" TextColor="White"
+                                    VerticalOptions="Center" Clicked="ChangeImageButtonClicked" Grid.Column="1"/>
+                            <Image x:Name="SadPreview" HeightRequest="60" Aspect="AspectFit" Grid.Column="2"/>
+                            <Button Text="SAD" FontSize="14" HeightRequest="44" BackgroundColor="Gray" TextColor="White"
+                                    VerticalOptions="Center" Clicked="ChangeImageButtonClicked" Grid.Column="3"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                    <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
                 </Border>
-                <Border
-                    StrokeThickness="0"
-                    BackgroundColor="{StaticResource DarkGray}"
-                    Padding="15"
-                    Grid.Row="2"
-                    Grid.Column="0" Grid.ColumnSpan="2">
-                    <Grid ColumnDefinitions="3*,2*">
-                        <Label 
-                            Text="Player Blue"
-                            Style="{StaticResource BiggerNormal}"
-                            VerticalOptions="Center" HorizontalOptions="Start"
-                            Grid.Row="0" Grid.Column="0"/>
-                        <Picker 
-                            x:Name="PlayerBluePicker"
-                            Title="Select Player"
-                            ItemDisplayBinding="{Binding name}"
-                            TextColor="White"
-                            TitleColor="Gray"
-                            SelectedIndexChanged="OnPlayerBlueChanged"
-                            VerticalOptions="Center" HorizontalOptions="End"
-                            Grid.Row="0" Grid.Column="1"/>
-                    </Grid>
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="10"/>
-                    </Border.StrokeShape>
-                </Border>
-            </Grid>
-            <Grid RowDefinitions="*,*,*,*,*,*" ColumnDefinitions="3*, 2*"
-                  Padding="10"
-                  Grid.Row="2">
-                <Label 
-                    Text="Auto Side Switch"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="Start"
-                    Grid.Row="0" Grid.Column="0"/>
-                <Switch
-                    x:Name="AutoSideSwitch"
-                    Toggled="OnAutoSideSwitchChanged"
-                    VerticalOptions="Center" HorizontalOptions="End"
-                    Grid.Row="0" Grid.Column="1"/>
-                <Label 
-                    x:Name="PushUpsMultiplierEntry"
-                    Text="Punishment Multiplier"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="Start"
-                    Grid.Row="1" Grid.Column="0"/>
-                <Entry
-                    Text="3"
-                    HorizontalTextAlignment="Center"
-                    Style="{StaticResource Normal}"
-                    Completed="OnPushUpsMultiplierChanged"
-                    VerticalOptions="Center" HorizontalOptions="End"
-                    Grid.Row="1" Grid.Column="1"/>
-                <Label 
-                    Text="Save Test Matches (&lt;30s)"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="Start"
-                    Grid.Row="2" Grid.Column="0"/>
-                <Switch
-                    x:Name="SaveTestMatchesSwitch"
-                    Toggled="OnSaveTestMatchesChanged"
-                    VerticalOptions="Center" HorizontalOptions="End"
-                    Grid.Row="2" Grid.Column="1"/>
-                <Label
-                    x:Name="DataBaseStatsLabel"
-                    Text="No Data"
-                    Style="{StaticResource Normal}"
-                    VerticalOptions="Center" HorizontalOptions="Center"
-                    Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"/>
-                <Button
-                    x:Name="RefreshDataBaseButton"
-                    Text="REFRESH DATABASE"
-                    Style="{StaticResource BigNormal}"
-                    BackgroundColor="Gray"
-                    Clicked="RefreshDataBaseButtonClicked"
-                    VerticalOptions="Fill" HorizontalOptions="Fill"
-                    Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"/>
-            </Grid>
-        </Grid>
+
+                <Grid ColumnDefinitions="3*,2*" RowDefinitions="50,50,50,50" Padding="5,0">
+                    <Label Text="Auto Side Switch" Style="{StaticResource Normal}"
+                           VerticalOptions="Center" Grid.Row="0" Grid.Column="0"/>
+                    <Switch x:Name="AutoSideSwitch" Toggled="OnAutoSideSwitchChanged"
+                            VerticalOptions="Center" HorizontalOptions="End" Grid.Row="0" Grid.Column="1"/>
+                    <Label x:Name="PushUpsMultiplierEntry" Text="Punishment Multiplier" Style="{StaticResource Normal}"
+                           VerticalOptions="Center" Grid.Row="1" Grid.Column="0"/>
+                    <Entry Text="3" HorizontalTextAlignment="Center" Style="{StaticResource Normal}"
+                           Completed="OnPushUpsMultiplierChanged"
+                           VerticalOptions="Center" HorizontalOptions="End" Grid.Row="1" Grid.Column="1"/>
+                    <Label Text="Save Test Matches (&lt;30s)" Style="{StaticResource Normal}"
+                           VerticalOptions="Center" Grid.Row="2" Grid.Column="0"/>
+                    <Switch x:Name="SaveTestMatchesSwitch" Toggled="OnSaveTestMatchesChanged"
+                            VerticalOptions="Center" HorizontalOptions="End" Grid.Row="2" Grid.Column="1"/>
+                    <Label Text="Overtime (2 goal lead from 9-10)" Style="{StaticResource Normal}"
+                           VerticalOptions="Center" Grid.Row="3" Grid.Column="0"/>
+                    <Switch x:Name="OvertimeSwitch" Toggled="OnOvertimeChanged"
+                            VerticalOptions="Center" HorizontalOptions="End" Grid.Row="3" Grid.Column="1"/>
+                </Grid>
+
+                <Label x:Name="DataBaseStatsLabel" Text="No Data" Style="{StaticResource Normal}" HorizontalOptions="Center"/>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Button Text="EXPORT" Style="{StaticResource RegularButtonStyle}" Clicked="ExportButtonClicked" Grid.Column="0"/>
+                    <Button Text="IMPORT" Style="{StaticResource RegularButtonStyle}" Clicked="ImportButtonClicked" Grid.Column="1"/>
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
         <nav:NavBar x:Name="Navbar" Grid.Row="2"/>
     </Grid>
 </ContentPage>

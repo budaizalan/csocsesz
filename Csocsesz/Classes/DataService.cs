@@ -1,255 +1,136 @@
-﻿using Csocsesz.Classes;
-using System.Net.Http.Json;
-using Xamarin.Google.Crypto.Tink.Shaded.Protobuf;
-
 namespace Csocsesz.Classes;
+
+// Everything is local: one JSON file in the app data folder, export/import by file.
 public static class DataService
 {
-    private static readonly HttpClient _httpClient = new HttpClient();
-
-    private static bool dataLoaded = false;
-    private static bool online = true;
+    private static AppData data = new();
 
     public static async Task LoadDataBases()
     {
-        DataStore.Players = await LoadPlayerDataBase();
-        DataStore.Matches = await LoadMatchDataBase();
-        if(online)
-        {
-            await DataManager.SavePlayerDataBase(DataStore.Players);
-            await DataManager.SaveMatchDataBase(DataStore.Matches);
-        }
-        else await DataManager.LoadOfflineDataBases();
-        dataLoaded = true;
+        var redId = AppSettings.playerRed?.id ?? DataStore.defaultPlayerRedId;
+        var blueId = AppSettings.playerBlue?.id ?? DataStore.defaultPlayerBlueId;
 
-        if (DataStore.Players.Count >= 2)
-        {
-            AppSettings.playerRed = DataStore.Players.FirstOrDefault(p => p.id == DataStore.defaultPlayerRedId);
-            AppSettings.playerBlue = DataStore.Players.FirstOrDefault(p => p.id == DataStore.defaultPlayerBlueId);
-            if (AppSettings.playerRed == null || AppSettings.playerBlue == null)
-            {
-                AppSettings.playerRed = DataStore.Players[0];
-                AppSettings.playerBlue = DataStore.Players[1];
-            }
-        }
-        else
-        {
-            AppSettings.playerRed = new Player();
-            AppSettings.playerBlue = new Player();
-        }
+        data = await DataManager.Load() ?? Seed();
+        if (await SeedDefaultImages()) await DataManager.Save(data);
+        Publish(redId, blueId, AppSettings.playerRed2?.id, AppSettings.playerBlue2?.id);
     }
 
-    #region ONLINE
+    private static AppData Seed() => new()
+    {
+        players = new()
+        {
+            new Player { id = "hugo0001", name = "Hugo" },
+            new Player { id = "zazzzzuska0001", name = "Zazzzzuska" },
+            new Player { id = "guest0001", name = "Guest1" },
+            new Player { id = "guest0002", name = "Guest2" },
+        }
+    };
 
-    #region Load
-    public static async Task<List<Player>> LoadPlayerDataBase()
+    // The two original players get their pictures from bundled files, stored like any uploaded image.
+    private static async Task<bool> SeedDefaultImages()
+    {
+        bool changed = false;
+        foreach (var (id, normal, sad) in new[] { ("hugo0001", "hugo_icon.png", "hugosad_icon.png"), ("zazzzzuska0001", "zalan_icon.png", "zalansad_icon.png") })
+        {
+            var p = data.players.FirstOrDefault(x => x.id == id);
+            if (p == null) continue;
+            if (p.normalImage == "") { p.normalImage = await FromAsset(id, normal, false); changed |= p.normalImage != ""; }
+            if (p.sadImage == "") { p.sadImage = await FromAsset(id, sad, true); changed |= p.sadImage != ""; }
+        }
+        return changed;
+    }
+    private static async Task<string> FromAsset(string playerId, string asset, bool sad)
     {
         try
         {
-            var serverplayers = await _httpClient.GetFromJsonAsync<List<PlayerBridge>>($"{DataStore.BaseUrl}player");
-            List<Player> players = new List<Player>();
-            if(serverplayers != null)
-            {
-                foreach(var p in serverplayers)
-                {
-                    Player player = new Player
-                                    (
-                                        p.id,
-                                        p.name,
-                                        p.normalImage ?? "",
-                                        p.sadImage ?? "",
-                                        p.streak,
-                                        p.totalMatchWon,
-                                        p.totalMatchLost,
-                                        p.totalGoalsScored,
-                                        p.totalGoalsConceded,
-                                        p.totalPunishmentAssigned,
-                                        p.totalPunishmentCompleted
-                                    );
-                    players.Add(player);
-                }
-            }
-            await Shell.Current.DisplayAlertAsync("Success", $"Successfully loaded: {players.Count} players.", "OK");
-            return players ?? new List<Player>();
+            using var stream = await FileSystem.OpenAppPackageFileAsync(asset);
+            return await ImageStore.Save(stream, playerId, sad);
         }
-        catch (Exception ex)
-        {
-            await Shell.Current.DisplayAlertAsync("Error", $"Failed to load players: {ex.Message}", "OK");
-            online = false;
-            return new List<Player>();
-        }
+        catch { return ""; }
     }
 
-    public static async Task<List<Match>> LoadMatchDataBase()
+    private static void Publish(string redId, string blueId, string? red2Id = null, string? blue2Id = null)
     {
-        try
-        {
-            var serverMatches = await _httpClient.GetFromJsonAsync<List<MatchBridge>>($"{DataStore.BaseUrl}match");
-            List<Match> matches = new List<Match>();
+        StatsCalculator.Recalculate(data.players, data.matches);
+        DataStore.Players = data.players;
+        DataStore.Matches = data.matches;
 
-            if (serverMatches != null)
-            {
-                foreach (var m in serverMatches)
-                {
-                    Match match = new Match
-                    (
-                        m.id,
-                        m.winnerId,
-                        m.winnerSide,
-                        m.loserId,
-                        m.loserGoals,
-                        m.startTime,
-                        m.endTime,
-                        new List<Goal>(),
-                        m.punishmentMultiplier
-                    );
-                    if (m.goals != null)
-                    {
-                        foreach (var g in m.goals)
-                        {
-                            Goal newGoal = new Goal(g.side, g.time);
-                            match.goals.Add(newGoal);
-                        }
-                    }
-                    matches.Add(match);
-                }
-            }
-            await Shell.Current.DisplayAlertAsync("Success", $"Successfully loaded: {matches.Count} matches.", "OK");
-            return matches;
-        }
-        catch (Exception ex)
+        var red = data.players.FirstOrDefault(p => p.id == redId);
+        var blue = data.players.FirstOrDefault(p => p.id == blueId);
+        if (red == null || blue == null || red == blue)
         {
-            await Shell.Current.DisplayAlertAsync("Error", $"Failed to load matches: {ex.Message}", "OK");
-            online = false;
-            return new List<Match>();
+            red = data.players.ElementAtOrDefault(0) ?? new Player();
+            blue = data.players.ElementAtOrDefault(1) ?? new Player();
         }
+        AppSettings.playerRed = red;
+        AppSettings.playerBlue = blue;
+        AppSettings.playerRed2 = data.players.FirstOrDefault(p => p.id == red2Id);
+        AppSettings.playerBlue2 = data.players.FirstOrDefault(p => p.id == blue2Id);
     }
-    #endregion
 
-    #region Upload
-    public static async Task<bool> PostPlayer(Player player)
+    private static async Task Commit()
     {
-        try
-        {
-            var bridge = new PlayerBridge
-            {
-                id = player.id,
-                name = player.name,
-                normalImage = player.normalImage,
-                sadImage = player.sadImage,
-                streak = player.stats.streak,
-                totalMatchWon = player.stats.totalMatchWon,
-                totalMatchLost = player.stats.totalMatchLost,
-                totalGoalsScored = player.stats.totalGoalsScored,
-                totalGoalsConceded = player.stats.totalGoalsConceded,
-                totalPunishmentAssigned = player.stats.totalPunishmentAssigned,
-                totalPunishmentCompleted = player.stats.totalPunishmentCompleted
-            };
-
-            var response = await _httpClient.PostAsJsonAsync($"{DataStore.BaseUrl}player", bridge);
-
-            if (response.IsSuccessStatusCode)
-            {
-                await Shell.Current.DisplayAlertAsync("Success", "Player saved successfully.", "OK");
-                return true;
-            }
-
-            var error = await response.Content.ReadAsStringAsync();
-            await Shell.Current.DisplayAlertAsync("Error", $"Server error: {error}", "OK");
-            return false;
-        }
-        catch (Exception ex)
-        {
-            await Shell.Current.DisplayAlertAsync("Error", $"Failed to post player: {ex.Message}", "OK");
-            return false;
-        }
+        StatsCalculator.Recalculate(data.players, data.matches);
+        await DataManager.Save(data);
     }
-    public static async Task<bool> PostMatch(Match match)
+
+    public static async Task AddMatch(Match match)
     {
-        try
-        {
-            var bridge = new MatchBridge
-            {
-                id = 0,
-                winnerId = match.winnerId,
-                winnerSide = match.winnerSide,
-                loserId = match.loserId,
-                loserGoals = match.loserGoals,
-                startTime = match.startTime,
-                endTime = match.endTime,
-                punishmentMultiplier = match.punishmentMultiplier,
-                goals = match.goals.Select(g => new GoalBridge(g.side, g.time)).ToList()
-            };
-
-            var response = await _httpClient.PostAsJsonAsync($"{DataStore.BaseUrl}match", bridge);
-
-            if (response.IsSuccessStatusCode)
-            {
-                await Shell.Current.DisplayAlertAsync("Success", "Match saved successfully.", "OK");
-                return true;
-            }
-
-            return false;
-        }
-        catch (Exception ex)
-        {
-            await Shell.Current.DisplayAlertAsync("Error", $"Failed to post match: {ex.Message}", "OK");
-            return false;
-        }
+        match.id = data.matches.Count == 0 ? 1 : data.matches.Max(m => m.id) + 1;
+        data.matches.Add(match);
+        await Commit();
     }
-    #endregion
 
-    #region Delete
-    public static async Task<bool> DeleteMatch(int matchId)
+    public static async Task DeleteMatch(int matchId)
     {
-        try
-        {
-            var response = await _httpClient.DeleteAsync($"{DataStore.BaseUrl}match/{matchId}");
-
-            if (response.IsSuccessStatusCode)
-            {
-                await Shell.Current.DisplayAlertAsync("Success", "Match deleted successfully.", "OK");
-                return true;
-            }
-
-            var error = await response.Content.ReadAsStringAsync();
-            await Shell.Current.DisplayAlertAsync("Error", $"Failed to delete match: {error}", "OK");
-            return false;
-        }
-        catch (Exception ex)
-        {
-            await Shell.Current.DisplayAlertAsync("Error", $"Connection error: {ex.Message}", "OK");
-            return false;
-        }
+        data.matches.RemoveAll(m => m.id == matchId);
+        await Commit();
     }
-    #endregion
 
-    public static async Task<bool> ChangePunishmentCompleted(string playerId, int amount)
+    public static async Task AddPlayer(string name)
     {
-        try
-        {
-            HttpResponseMessage response = null;
-            if (amount > 0)
-            {
-                response = await _httpClient.PutAsync
-                ($"{DataStore.BaseUrl}player/punishmentcompleted/{playerId}-{amount}", null);
-            }
-            else if (amount < 0)
-            {
-                response = await _httpClient.PutAsync
-                ($"{DataStore.BaseUrl}player/punishmentuncompleted/{playerId}-{Math.Abs(amount)}", null);
-            }
-            else return false;
-
-                await Shell.Current.DisplayAlertAsync("Success", "Punishment(s) has been updated.", "OK");
-            return response.IsSuccessStatusCode;
-        }
-        catch (Exception ex)
-        {
-            await Shell.Current.DisplayAlertAsync("Error", ex.Message, "OK");
-            return false;
-        }
+        name = name.Trim();
+        if (name.Length == 0) throw new ArgumentException("Name is empty.");
+        if (data.players.Any(p => p.name.Equals(name, StringComparison.OrdinalIgnoreCase))) throw new ArgumentException($"{name} already exists.");
+        data.players.Add(new Player { id = "p" + Guid.NewGuid().ToString("N")[..8], name = name });
+        await Commit();
     }
 
-    #endregion
+    public static async Task ChangePunishmentCompleted(string playerId, int amount, Mode mode)
+    {
+        var player = data.players.FirstOrDefault(p => p.id == playerId);
+        if (player == null) return;
+        if (mode == Mode.TwoVsTwo) player.punishmentCompleted2v2 = Math.Max(0, player.punishmentCompleted2v2 + amount);
+        else player.punishmentCompleted = Math.Max(0, player.punishmentCompleted + amount);
+        await Commit();
+    }
+
+    // Pictures travel inside the export file, so an import on another device brings them along.
+    public static string Export()
+    {
+        data.images = ImageStore.CollectAll(data.players);
+        try { return DataManager.Serialize(data); }
+        finally { data.images = new(); }
+    }
+
+    public static async Task SetPlayerImage(string playerId, Stream source, bool sad)
+    {
+        var player = data.players.FirstOrDefault(p => p.id == playerId);
+        if (player == null) return;
+        string name = await ImageStore.Save(source, playerId, sad);
+        ImageStore.Delete(sad ? player.sadImage : player.normalImage);
+        if (sad) player.sadImage = name; else player.normalImage = name;
+        await Commit();
+    }
+
+    // Replaces everything with the file's content. Parse throws before anything is touched.
+    public static async Task Import(string json)
+    {
+        var imported = DataManager.Parse(json);
+        ImageStore.WriteAll(imported.images);
+        imported.images = new();
+        data = imported;
+        await DataManager.Save(data);
+        Publish(AppSettings.playerRed?.id ?? "", AppSettings.playerBlue?.id ?? "", AppSettings.playerRed2?.id, AppSettings.playerBlue2?.id);
+    }
 }
