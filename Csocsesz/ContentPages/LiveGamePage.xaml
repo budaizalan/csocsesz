@@ -4,6 +4,8 @@
              x:Class="Csocsesz.ContentPages.LiveGamePage"
              BackgroundColor="Black">
     <Grid RowDefinitions="*, 64, *" Margin="10">
+        <!-- Overtime pulse: first child, so it only shows in the black gaps behind the cards -->
+        <BoxView x:Name="OvertimePulse" Color="Red" BackgroundColor="Transparent" Opacity="0" InputTransparent="True" Margin="-10" Grid.RowSpan="3"/>
         <Border 
             x:Name="BlueButton"
             StrokeThickness="0"
@@ -117,10 +119,8 @@
                 <RoundRectangle CornerRadius="20"/>
            </Border.StrokeShape>
         </Border>
-        <!-- Overtime effects; never block taps -->
-        <BoxView x:Name="OvertimePulse" Color="Red" BackgroundColor="Transparent" Opacity="0" InputTransparent="True" CornerRadius="20" Grid.RowSpan="3"/>
         <Label x:Name="OvertimeLabel" Text="OVERTIME" Opacity="0" InputTransparent="True" Rotation="90"
-               FontSize="48" FontFamily="CenturyGothicBold" TextColor="White"
+               FontSize="72" FontFamily="CenturyGothicBold" TextColor="White"
                HorizontalOptions="Center" VerticalOptions="Center" Grid.RowSpan="3"/>
     </Grid>
 </ContentPage>

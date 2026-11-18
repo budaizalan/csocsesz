@@ -203,7 +203,7 @@ public partial class LiveGamePage : ContentPage
         await OvertimeLabel.FadeToAsync(0, 700);
         while (id == overtimeToken)
         {
-            await OvertimePulse.FadeToAsync(0.25, 700, Easing.SinInOut);
+            await OvertimePulse.FadeToAsync(0.5, 700, Easing.SinInOut);
             await OvertimePulse.FadeToAsync(0, 700, Easing.SinInOut);
         }
     }
