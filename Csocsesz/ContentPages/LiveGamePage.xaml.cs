@@ -171,6 +171,41 @@ public partial class LiveGamePage : ContentPage
         EndGameButton.IsVisible = started && extended && !gameWon && !paused;
         PauseButton.IsVisible = started && !gameWon;
         PauseButton.Source = paused ? "resume_icon.svg" : "pause_icon.svg";
+        UpdateOvertime();
+    }
+    // Overtime = setting on and someone is at 10+ without having won yet.
+    private int overtimeToken;
+    private bool overtimeOn;
+    private void UpdateOvertime()
+    {
+        bool on = AppSettings.overtime && started && !gameWon && !extended
+            && Math.Max(playerRed.inGame.goals, playerBlue.inGame.goals) >= 10;
+        if (on == overtimeOn) return;
+        overtimeOn = on;
+        int id = ++overtimeToken;
+        OvertimePulse.CancelAnimations();
+        OvertimeLabel.CancelAnimations();
+        if (!on)
+        {
+            OvertimePulse.Opacity = 0;
+            OvertimeLabel.Opacity = 0;
+            return;
+        }
+        _ = OvertimeEffect(id);
+    }
+    private async Task OvertimeEffect(int id)
+    {
+        // Text grows while fading in, then fades out; the red pulse keeps going until overtime ends.
+        OvertimeLabel.Scale = 0.5;
+        _ = OvertimeLabel.ScaleToAsync(1.5, 1200, Easing.CubicOut);
+        await OvertimeLabel.FadeToAsync(1, 500);
+        if (id != overtimeToken) return;
+        await OvertimeLabel.FadeToAsync(0, 700);
+        while (id == overtimeToken)
+        {
+            await OvertimePulse.FadeToAsync(0.25, 700, Easing.SinInOut);
+            await OvertimePulse.FadeToAsync(0, 700, Easing.SinInOut);
+        }
     }
     private async void PauseButtonClicked(object sender, EventArgs e)
     {
@@ -279,6 +314,7 @@ public partial class LiveGamePage : ContentPage
             if (red >= 10 && red - blue >= lead) GameWon(Side.red);
             else if (blue >= 10 && blue - red >= lead) GameWon(Side.blue);
         }
+        UpdateOvertime();
 
         var clickedElement = sender as Border;
         if (clickedElement != null)
@@ -293,6 +329,13 @@ public partial class LiveGamePage : ContentPage
     private async void ExitButtonClicked(object sender, EventArgs e)
     {
         if (gameWon) SaveMatchToBuffer();
+        await Leave();
+    }
+    // Games already finished with NEXT are saved; the running one is not.
+    private async Task Leave()
+    {
+        StopTimer();
+        overtimeToken++;
         await SaveBuffer();
         await DataService.LoadDataBases();
         await Navigation.PopModalAsync();
@@ -320,6 +363,7 @@ public partial class LiveGamePage : ContentPage
             StartTimer();
             RestorePlayView();
         }
+        UpdateOvertime();
     }
     private void SwapButtonClicked(object sender, EventArgs e)
     {
@@ -390,6 +434,7 @@ public partial class LiveGamePage : ContentPage
     #endregion
     protected override bool OnBackButtonPressed()
     {
+        _ = Leave();
         return true;
     }
     #region Unimportant

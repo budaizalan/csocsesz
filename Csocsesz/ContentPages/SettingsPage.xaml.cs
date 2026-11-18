@@ -32,6 +32,7 @@ public partial class SettingsPage : ContentPage
         AutoSideSwitch.IsToggled = AppSettings.changingSide;
         SaveTestMatchesSwitch.IsToggled = AppSettings.sendTestMatches;
         OvertimeSwitch.IsToggled = AppSettings.overtime;
+        MultiplierEntry.Text = AppSettings.punishmentMultiplier.ToString();
 
         DataBaseStatsLabel.Text = $"Players: {DataStore.Players.Count}, Matches: {DataStore.Matches.Count}";
 

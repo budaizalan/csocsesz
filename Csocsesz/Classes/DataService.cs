@@ -5,6 +5,9 @@ public static class DataService
 {
     private static AppData data = new();
 
+    // Pages await this so they never read players before the first load is done.
+    public static Task Loading = Task.CompletedTask;
+
     public static async Task LoadDataBases()
     {
         var redId = AppSettings.playerRed?.id ?? DataStore.defaultPlayerRedId;

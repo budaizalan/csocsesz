@@ -17,6 +17,7 @@ namespace Csocsesz.ContentPages
 
             try
             {
+                await DataService.Loading;
                 foreach (var picker in new[] { RedPicker, Red2Picker, BluePicker, Blue2Picker })
                     picker.ItemsSource = DataStore.Players;
                 RedPicker.SelectedItem = AppSettings.playerRed;

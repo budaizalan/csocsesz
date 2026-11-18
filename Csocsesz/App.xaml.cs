@@ -19,7 +19,8 @@ namespace Csocsesz
         {
             try
             {
-                await DataService.LoadDataBases();
+                DataService.Loading = DataService.LoadDataBases();
+                await DataService.Loading;
             }
             catch (Exception ex)
             {

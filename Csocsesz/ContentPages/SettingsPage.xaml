@@ -42,7 +42,7 @@
                             VerticalOptions="Center" HorizontalOptions="End" Grid.Row="0" Grid.Column="1"/>
                     <Label x:Name="PushUpsMultiplierEntry" Text="Punishment Multiplier" Style="{StaticResource Normal}"
                            VerticalOptions="Center" Grid.Row="1" Grid.Column="0"/>
-                    <Entry Text="3" HorizontalTextAlignment="Center" Style="{StaticResource Normal}"
+                    <Entry x:Name="MultiplierEntry" Text="3" HorizontalTextAlignment="Center" Style="{StaticResource Normal}"
                            Completed="OnPushUpsMultiplierChanged"
                            VerticalOptions="Center" HorizontalOptions="End" Grid.Row="1" Grid.Column="1"/>
                     <Label Text="Save Test Matches (&lt;30s)" Style="{StaticResource Normal}"

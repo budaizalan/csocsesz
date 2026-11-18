@@ -117,5 +117,10 @@
                 <RoundRectangle CornerRadius="20"/>
            </Border.StrokeShape>
         </Border>
+        <!-- Overtime effects; never block taps -->
+        <BoxView x:Name="OvertimePulse" Color="Red" Opacity="0" InputTransparent="True" CornerRadius="20" Grid.RowSpan="3"/>
+        <Label x:Name="OvertimeLabel" Text="OVERTIME" Opacity="0" InputTransparent="True" Rotation="90"
+               FontSize="48" FontFamily="CenturyGothicBold" TextColor="White"
+               HorizontalOptions="Center" VerticalOptions="Center" Grid.RowSpan="3"/>
     </Grid>
 </ContentPage>
