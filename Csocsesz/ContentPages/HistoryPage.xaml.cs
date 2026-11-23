@@ -17,12 +17,15 @@ public partial class HistoryPage : ContentPage
         public string WinnerNames => TeamNames(Match.winnerId, Match.winnerId2);
         public string LoserNames => TeamNames(Match.loserId, Match.loserId2);
         public static string TeamNames(string id1, string? id2) =>
-            string.Join(" & ", new[] { id1, id2 }.Where(id => id != null)
+            string.Join("\n", new[] { id1, id2 }.Where(id => id != null)
                 .Select(id => DataStore.Players.FirstOrDefault(p => p.id == id)?.name ?? "?"));
         public Color WinnerColor => 
             Match.winnerSide == Side.red ? DataStore.red : DataStore.blue;
         public Color LoserColor =>
             Match.winnerSide == Side.red ? DataStore.blue : DataStore.red;
+        // The mates' pictures (2v2 only), null in 1v1.
+        public string? Winner2Path => Match.winnerId2 == null ? null : DataStore.Players.FirstOrDefault(p => p.id == Match.winnerId2)?.normalImagePath;
+        public string? Loser2Path => Match.loserId2 == null ? null : DataStore.Players.FirstOrDefault(p => p.id == Match.loserId2)?.sadImagePath;
         public string ResultText => $"{Match.winnerGoals} - {Match.loserGoals}";
         public string DateText => Match.startTime.ToString("MM.dd\nHH:mm");
 

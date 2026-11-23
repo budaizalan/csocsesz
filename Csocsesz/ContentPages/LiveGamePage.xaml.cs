@@ -113,10 +113,15 @@ public partial class LiveGamePage : ContentPage
         var mate = MateBySide(side);
         first.Source = GetImageBySide(side, normal);
         second.IsVisible = mate != null;
-        first.HeightRequest = mate != null ? 95 : 120;
-        first.Rotation = mate != null ? -12 : 0;
-        first.TranslationX = mate != null ? -65 : 0;
-        first.TranslationY = mate != null ? -10 : 0;
+        // The first picked player is in front (drawn last, on the right), the mate behind on the left.
+        double h = mate != null ? 90 : 120;
+        first.HeightRequest = second.HeightRequest = h;
+        first.Rotation = mate != null ? 10 : 0;
+        first.TranslationX = mate != null ? h * 0.35 : 0;
+        first.TranslationY = mate != null ? h * 0.06 : 0;
+        second.Rotation = -10;
+        second.TranslationX = -h * 0.35;
+        second.TranslationY = -h * 0.06;
         if (mate != null) second.Source = normal ? mate.normalImagePath : mate.sadImagePath;
     }
     private Side winnerSide()

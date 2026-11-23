@@ -12,33 +12,32 @@
             BackgroundColor="{StaticResource Blue}"
             Style="{StaticResource CBframeStyle}"
             Grid.Row="0">
-            <Grid RowDefinitions="425*,575*" ColumnDefinitions="575*,425*"
-                  Rotation="90">
-                <VerticalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+            <Grid Rotation="90">
+                <!-- Pictures, counter and name as one block, always centered in the card -->
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                    <Grid HorizontalOptions="Center">
+                        <Image x:Name="BCBimage2" IsVisible="False" Aspect="AspectFit"/>
+                        <Image x:Name="BCBimage" Style="{StaticResource CBimageStyle}" Aspect="AspectFit"/>
+                    </Grid>
                     <Label
-                    x:Name="BCBgoalLabel"
-                    Text="0"
-                    Style="{StaticResource CBgoalLabelStyle}"
-                    HorizontalOptions="Center" VerticalOptions="Start"
-                    HorizontalTextAlignment="Center" VerticalTextAlignment="Start"/>
+                        x:Name="BCBgoalLabel"
+                        Text="0"
+                        Style="{StaticResource CBgoalLabelStyle}"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                     <Label
-                    x:Name="BCBnameLabel"
-                    Text="Name"
-                    Style="{StaticResource Normal}"
-                    HorizontalOptions="Center" VerticalOptions="End"
-                    HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+                        x:Name="BCBnameLabel"
+                        Text="Name"
+                        Style="{StaticResource Normal}"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                 </VerticalStackLayout>
-                <Grid HorizontalOptions="End" VerticalOptions="End" Grid.Row="0" Grid.Column="0">
-                    <Image x:Name="BCBimage" Style="{StaticResource CBimageStyle}"/>
-                    <Image x:Name="BCBimage2" IsVisible="False" HeightRequest="95" Rotation="12" TranslationY="8"/>
-                </Grid>
                 <Label
                     x:Name="BCBmatchLabel"
                     Text="0"
                     Style="{StaticResource CBmatchLabelStyle}"
-                    HorizontalOptions="Start" VerticalOptions="End"
-                    HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
-                    Grid.Row="0" Grid.Column="1"/>
+                    HorizontalOptions="End" VerticalOptions="Start" Margin="0,8,14,0"
+                    HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
             </Grid>
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="CounterButtonClicked"/>
@@ -82,34 +81,33 @@
             BackgroundColor="{StaticResource Red}"
             Style="{StaticResource CBframeStyle}"
             Grid.Row="2">
-            <Grid RowDefinitions="425*,575*" ColumnDefinitions="575*,425*"
-                  Rotation="90">
-                <VerticalStackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+            <Grid Rotation="90">
+                <!-- Pictures, counter and name as one block, always centered in the card -->
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                    <Grid HorizontalOptions="Center">
+                        <Image x:Name="RCBimage2" IsVisible="False" Aspect="AspectFit"/>
+                        <Image x:Name="RCBimage" Style="{StaticResource CBimageStyle}" Aspect="AspectFit"/>
+                    </Grid>
                     <Label
                         x:Name="RCBgoalLabel"
                         Text="0"
                         Style="{StaticResource CBgoalLabelStyle}"
-                        HorizontalOptions="Center" VerticalOptions="Start"
-                        HorizontalTextAlignment="Center" VerticalTextAlignment="Start"/>
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                     <Label
                         x:Name="RCBnameLabel"
                         Text="Name"
                         Style="{StaticResource Normal}"
-                        HorizontalOptions="Center" VerticalOptions="End"
+                        HorizontalOptions="Center"
                         HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                 </VerticalStackLayout>
-                  <Grid HorizontalOptions="End" VerticalOptions="End" Grid.Row="0" Grid.Column="0">
-                    <Image x:Name="RCBimage" Style="{StaticResource CBimageStyle}"/>
-                    <Image x:Name="RCBimage2" IsVisible="False" HeightRequest="95" Rotation="12" TranslationY="8"/>
-                  </Grid>
-                  <Label
+                <Label
                     x:Name="RCBmatchLabel"
                     Text="0"
                     Style="{StaticResource CBmatchLabelStyle}"
-                    HorizontalOptions="Start" VerticalOptions="End"
-                    HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
-                    Grid.Row="0" Grid.Column="1"/>
-           </Grid>
+                    HorizontalOptions="End" VerticalOptions="Start" Margin="0,8,14,0"
+                    HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+            </Grid>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="CounterButtonClicked"/>
                 </Border.GestureRecognizers>

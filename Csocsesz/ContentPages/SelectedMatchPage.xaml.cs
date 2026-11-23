@@ -58,8 +58,10 @@ public partial class SelectedMatchPage : ContentPage
         var loser = DataStore.Players.FirstOrDefault(p => p.id == currentMatch.loserId);
         if (winner != null && loser != null)
         {
-            MatchWinnerImage.Source = winner.normalImagePath;
-            MatchLoserImage.Source = loser.sadImagePath;
+            MatchWinnerImage.Source1 = winner.normalImagePath;
+            MatchLoserImage.Source1 = loser.sadImagePath;
+            MatchWinnerImage.Source2 = DataStore.Players.FirstOrDefault(p => p.id == currentMatch.winnerId2)?.normalImagePath;
+            MatchLoserImage.Source2 = DataStore.Players.FirstOrDefault(p => p.id == currentMatch.loserId2)?.sadImagePath;
             MatchWinnerNameLabel.Text = MatchDisplay.TeamNames(currentMatch.winnerId, currentMatch.winnerId2);
             MatchLoserNameLabel.Text = MatchDisplay.TeamNames(currentMatch.loserId, currentMatch.loserId2);
         }
