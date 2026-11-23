@@ -87,6 +87,30 @@ public partial class SelectedMatchPage : ContentPage
     {
         await Navigation.PopModalAsync();
     }
+    private async void ModifyButtonClicked(object sender, EventArgs e)
+    {
+        var m = DataStore.selectedMatch;
+        if (m == null) return;
+        // Names per side, whoever won.
+        string winners = MatchDisplay.TeamNames(m.winnerId, m.winnerId2).Replace("\n", " & ");
+        string losers = MatchDisplay.TeamNames(m.loserId, m.loserId2).Replace("\n", " & ");
+        bool redWon = m.winnerSide == Side.red;
+        int red = redWon ? m.winnerGoals : m.loserGoals, blue = redWon ? m.loserGoals : m.winnerGoals;
+        string? r = await DisplayPromptAsync("Red goals", redWon ? winners : losers, "NEXT", "Cancel", keyboard: Keyboard.Numeric, initialValue: red.ToString());
+        if (r == null) return;
+        string? b = await DisplayPromptAsync("Blue goals", redWon ? losers : winners, "SAVE", "Cancel", keyboard: Keyboard.Numeric, initialValue: blue.ToString());
+        if (b == null) return;
+        try
+        {
+            if (!int.TryParse(r, out int newRed) || !int.TryParse(b, out int newBlue)) throw new ArgumentException("Enter whole numbers.");
+            await DataService.EditMatch(m.id, newRed, newBlue);
+            await Start();
+        }
+        catch (ArgumentException ex)
+        {
+            await DisplayAlertAsync("Modify", ex.Message, "OK");
+        }
+    }
     private async void DeleteButtonClicked(object sender, EventArgs e)
     {
         var currentMatch = DataStore.selectedMatch;

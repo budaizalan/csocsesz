@@ -107,6 +107,33 @@ public static class DataService
         await Commit();
     }
 
+    // Sets the final score. Fewer goals for a side: its last goals are removed; more: the extra goals
+    // land on the match's last timestamp. The winner is whoever ends up ahead.
+    public static async Task EditMatch(int matchId, int red, int blue)
+    {
+        var m = data.matches.FirstOrDefault(x => x.id == matchId);
+        if (m == null) return;
+        if (red < 0 || blue < 0 || red == blue) throw new ArgumentException("Goals can't be negative and the game can't end in a draw.");
+        m.goals ??= new();
+        foreach (var (side, target) in new[] { (Side.red, red), (Side.blue, blue) })
+        {
+            int have = m.goals.Count(g => g.side == side);
+            for (; have > target; have--) m.goals.RemoveAt(m.goals.FindLastIndex(g => g.side == side));
+            for (; have < target; have++) m.goals.Add(new Goal(side, m.endTime));
+        }
+        var winSide = red > blue ? Side.red : Side.blue;
+        if (winSide != m.winnerSide)
+        {
+            (m.winnerId, m.loserId) = (m.loserId, m.winnerId);
+            (m.winnerId2, m.loserId2) = (m.loserId2, m.winnerId2);
+        }
+        m.winnerSide = winSide;
+        m.winnerGoals = Math.Max(red, blue);
+        m.loserGoals = Math.Min(red, blue);
+        if (m.goals.Count > 0) m.endTime = m.goals[^1].time;
+        await Commit();
+    }
+
     public static async Task DeleteMatch(int matchId)
     {
         data.matches.RemoveAll(m => m.id == matchId);

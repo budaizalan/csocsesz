@@ -136,21 +136,28 @@
             Padding="20"
             BackgroundColor="{StaticResource DarkGray}"
             Grid.Row="2">
-            <Grid ColumnDefinitions="*, *" ColumnSpacing="20">
+            <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10">
                 <Button
                     Text="DELETE"
-                    Style="{StaticResource BigNormal}"
+                    Style="{StaticResource BigNormal}" FontSize="16"
                     BackgroundColor="{StaticResource Red}"
                     Clicked="DeleteButtonClicked"
                     CornerRadius="10"
                     Grid.Column="0"/>
                 <Button
+                    Text="MODIFY"
+                    Style="{StaticResource BigNormal}" FontSize="16"
+                    BackgroundColor="Gray"
+                    Clicked="ModifyButtonClicked"
+                    CornerRadius="10"
+                    Grid.Column="1"/>
+                <Button
                     Text="BACK"
-                    Style="{StaticResource BigNormal}"
+                    Style="{StaticResource BigNormal}" FontSize="16"
                     BackgroundColor="Gray"
                     Clicked="BackButtonClicked"
                     CornerRadius="10"
-                    Grid.Column="1"/>
+                    Grid.Column="2"/>
             </Grid>
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="20"/>

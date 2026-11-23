@@ -20,7 +20,9 @@ public static class Backup
     private static Android.Net.Uri? Find()
     {
         var resolver = Platform.AppContext.ContentResolver!;
-        using var cursor = resolver.Query(Downloads, new[] { "_id" }, "_display_name=?", new[] { Name }, null);
+        // Android renames to "csocsesz-backup (3).json" when the plain name is taken (e.g. by a file left by a
+        // previous install), so match by prefix and take the newest of ours instead of piling up copies.
+        using var cursor = resolver.Query(Downloads, new[] { "_id" }, "_display_name LIKE ?", new[] { "csocsesz-backup%" }, "date_modified DESC");
         if (cursor != null && cursor.MoveToFirst()) return ContentUris.WithAppendedId(Downloads, cursor.GetLong(0));
         return null;
     }
