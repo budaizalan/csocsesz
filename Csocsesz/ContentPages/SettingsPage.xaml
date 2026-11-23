@@ -18,10 +18,16 @@
                 <Border StrokeThickness="0" BackgroundColor="{StaticResource DarkGray}" Padding="12,8">
                     <VerticalStackLayout Spacing="6">
                         <Grid ColumnDefinitions="Auto,*">
-                            <Label Text="Images" Style="{StaticResource BiggerNormal}" VerticalOptions="Center"/>
+                            <Label Text="Player" Style="{StaticResource BiggerNormal}" VerticalOptions="Center"/>
                             <Picker x:Name="ImagePlayerPicker" Title="Select Player" ItemDisplayBinding="{Binding name}"
                                     TextColor="White" TitleColor="Gray" HorizontalTextAlignment="End"
                                     SelectedIndexChanged="OnImagePlayerChanged" Grid.Column="1"/>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <Button Text="RENAME" FontSize="14" HeightRequest="44" BackgroundColor="Gray" TextColor="White"
+                                    Clicked="RenamePlayerButtonClicked" Grid.Column="0"/>
+                            <Button Text="DELETE" FontSize="14" HeightRequest="44" BackgroundColor="{StaticResource Red}" TextColor="White"
+                                    Clicked="DeletePlayerButtonClicked" Grid.Column="1"/>
                         </Grid>
                         <Grid ColumnDefinitions="60,*,60,*" ColumnSpacing="8">
                             <Image x:Name="NormalPreview" HeightRequest="60" Aspect="AspectFit" Grid.Column="0"/>
@@ -49,7 +55,7 @@
                            VerticalOptions="Center" Grid.Row="2" Grid.Column="0"/>
                     <Switch x:Name="SaveTestMatchesSwitch" Toggled="OnSaveTestMatchesChanged"
                             VerticalOptions="Center" HorizontalOptions="End" Grid.Row="2" Grid.Column="1"/>
-                    <Label Text="Overtime (2 goal lead from 9-10)" Style="{StaticResource Normal}"
+                    <Label Text="Overtime (win by 2 from 9-9)" Style="{StaticResource Normal}"
                            VerticalOptions="Center" Grid.Row="3" Grid.Column="0"/>
                     <Switch x:Name="OvertimeSwitch" Toggled="OnOvertimeChanged"
                             VerticalOptions="Center" HorizontalOptions="End" Grid.Row="3" Grid.Column="1"/>

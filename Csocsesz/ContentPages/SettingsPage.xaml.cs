@@ -80,6 +80,38 @@ public partial class SettingsPage : ContentPage
             await DisplayAlertAsync("Player", ex.Message, "OK");
         }
     }
+    private async void RenamePlayerButtonClicked(object sender, EventArgs e)
+    {
+        if (ImagePlayerPicker.SelectedItem is not Player p) return;
+        string? name = await DisplayPromptAsync("Rename", "New name:", "SAVE", "Cancel", initialValue: p.name, maxLength: 20);
+        if (string.IsNullOrWhiteSpace(name) || name.Trim() == p.name) return;
+        try
+        {
+            await DataService.RenamePlayer(p.id, name);
+            await Start();
+        }
+        catch (ArgumentException ex)
+        {
+            await DisplayAlertAsync("Player", ex.Message, "OK");
+        }
+    }
+    private async void DeletePlayerButtonClicked(object sender, EventArgs e)
+    {
+        if (ImagePlayerPicker.SelectedItem is not Player p) return;
+        int matches = DataService.MatchCount(p.id);
+        string text = matches == 0 ? $"Delete {p.name}?" : $"Delete {p.name} and their {matches} match(es)? This cannot be undone.";
+        if (!await DisplayAlertAsync("Delete player", text, "Delete", "Cancel")) return;
+        try
+        {
+            await DataService.DeletePlayer(p.id);
+            await DataService.LoadDataBases();
+            await Start();
+        }
+        catch (ArgumentException ex)
+        {
+            await DisplayAlertAsync("Player", ex.Message, "OK");
+        }
+    }
     void OnAutoSideSwitchChanged(object sender, ToggledEventArgs e)
     {
         AppSettings.changingSide = e.Value;

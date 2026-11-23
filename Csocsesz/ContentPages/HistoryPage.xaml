@@ -47,7 +47,7 @@
                             VerticalOptions="Fill" HorizontalOptions="Fill"
                             HeightRequest="150" Padding="5">
 
-                            <Grid RowDefinitions="*,*,*" ColumnDefinitions="*,*,*">
+                            <Grid RowDefinitions="*,*,*" ColumnDefinitions="*,1.5*,*">
                                 <Grid ColumnDefinitions="*,3*,*"
                                       Grid.Row="0" Grid.Column="1">
                                     <Border StrokeThickness="0"
@@ -73,7 +73,7 @@
                                 <Label
                                     Text="{Binding ResultText}" 
                                     Style="{StaticResource BigNormal}"
-                                    FontSize="40"
+                                    FontSize="34"
                                     HorizontalTextAlignment="Center"
                                     VerticalTextAlignment="Center"
                                     Grid.Row="1" Grid.Column="1">

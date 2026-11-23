@@ -57,8 +57,8 @@ public partial class LiveGamePage : ContentPage
             playerRed.inGame.matchWon = 0;
             playerBlue.inGame.goals = 0;
             playerBlue.inGame.matchWon = 0;
-            RCBimage.Source = GetImageBySide(Side.red, true);
-            BCBimage.Source = GetImageBySide(Side.blue, true);
+            ShowImage(Side.red, true);
+            ShowImage(Side.blue, true);
             RCBnameLabel.Text = TeamName(Side.red);
             BCBnameLabel.Text = TeamName(Side.blue);
         }
@@ -106,6 +106,19 @@ public partial class LiveGamePage : ContentPage
         if (normal) return GetPlayerBySide(side).normalImagePath;
         else return GetPlayerBySide(side).sadImagePath;
     }
+    // 1v1: one big picture. 2v2: both team mates, smaller and fanned out like two cards.
+    private void ShowImage(Side side, bool normal)
+    {
+        var (first, second) = side == Side.red ? (RCBimage, RCBimage2) : (BCBimage, BCBimage2);
+        var mate = MateBySide(side);
+        first.Source = GetImageBySide(side, normal);
+        second.IsVisible = mate != null;
+        first.HeightRequest = mate != null ? 95 : 120;
+        first.Rotation = mate != null ? -12 : 0;
+        first.TranslationX = mate != null ? -65 : 0;
+        first.TranslationY = mate != null ? -10 : 0;
+        if (mate != null) second.Source = normal ? mate.normalImagePath : mate.sadImagePath;
+    }
     private Side winnerSide()
     {
         int red = playerRed.inGame.goals, blue = playerBlue.inGame.goals;
@@ -139,7 +152,7 @@ public partial class LiveGamePage : ContentPage
             RedButton.BackgroundColor = DataStore.red;
             RCBgoalLabel.Text = "W";
             BCBgoalLabel.Text = "L";
-            BCBimage.Source = GetImageBySide(Side.blue, false);
+            ShowImage(Side.blue, false);
         }
         else
         {
@@ -147,7 +160,7 @@ public partial class LiveGamePage : ContentPage
             RedButton.BackgroundColor = DataStore.blue;
             RCBgoalLabel.Text = "L";
             BCBgoalLabel.Text = "W";
-            RCBimage.Source = GetImageBySide(Side.red, false);
+            ShowImage(Side.red, false);
         }
 
         if (vibrate) Vibrate();
@@ -159,8 +172,8 @@ public partial class LiveGamePage : ContentPage
         BlueButton.BackgroundColor = DataStore.blue;
         RedButton.BackgroundColor = DataStore.red;
         ExitButton.BackgroundColor = DataStore.gray;
-        RCBimage.Source = GetImageBySide(Side.red, true);
-        BCBimage.Source = GetImageBySide(Side.blue, true);
+        ShowImage(Side.red, true);
+        ShowImage(Side.blue, true);
         gameWon = false;
         UpdateBar();
     }
@@ -173,13 +186,13 @@ public partial class LiveGamePage : ContentPage
         PauseButton.Source = paused ? "resume_icon.svg" : "pause_icon.svg";
         UpdateOvertime();
     }
-    // Overtime = setting on and someone is at 10+ without having won yet.
+    // Overtime = setting on and both sides are at 9+ (9-9 and beyond), game not won yet.
     private int overtimeToken;
     private bool overtimeOn;
     private void UpdateOvertime()
     {
         bool on = AppSettings.overtime && started && !gameWon && !extended
-            && Math.Max(playerRed.inGame.goals, playerBlue.inGame.goals) >= 10;
+            && Math.Min(playerRed.inGame.goals, playerBlue.inGame.goals) >= 9;
         if (on == overtimeOn) return;
         overtimeOn = on;
         int id = ++overtimeToken;
@@ -204,8 +217,8 @@ public partial class LiveGamePage : ContentPage
         while (id == overtimeToken)
         {
             // Stays visible (never fully off) so it reads as a steady glow, not a blink.
-            await OvertimePulse.FadeToAsync(0.225, 500, Easing.SinInOut);
-            await OvertimePulse.FadeToAsync(0.07, 500, Easing.SinInOut);
+            await OvertimePulse.FadeToAsync(0.32, 500, Easing.SinInOut);
+            await OvertimePulse.FadeToAsync(0.12, 500, Easing.SinInOut);
         }
     }
     private async void PauseButtonClicked(object sender, EventArgs e)
@@ -405,8 +418,8 @@ public partial class LiveGamePage : ContentPage
         ExitButton.BackgroundColor = DataStore.gray;
         BlueButton.BackgroundColor = DataStore.blue;
         RedButton.BackgroundColor = DataStore.red;
-        RCBimage.Source = GetImageBySide(Side.red, true);
-        BCBimage.Source = GetImageBySide(Side.blue, true);
+        ShowImage(Side.red, true);
+        ShowImage(Side.blue, true);
 
         GetPlayerBySide(Side.red).inGame.goals = 0;
         GetPlayerBySide(Side.blue).inGame.goals = 0;
@@ -423,8 +436,8 @@ public partial class LiveGamePage : ContentPage
             (playerRed, playerBlue) = (playerBlue, playerRed);
             (playerRed2, playerBlue2) = (playerBlue2, playerRed2);
 
-            RCBimage.Source = GetImageBySide(Side.red, true);
-            BCBimage.Source = GetImageBySide(Side.blue, true);
+            ShowImage(Side.red, true);
+            ShowImage(Side.blue, true);
             RCBnameLabel.Text = TeamName(Side.red);
             BCBnameLabel.Text = TeamName(Side.blue);
             UpdateCounterButtonsLabel();

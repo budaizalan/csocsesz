@@ -28,11 +28,10 @@
                     HorizontalOptions="Center" VerticalOptions="End"
                     HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                 </VerticalStackLayout>
-                <Image
-                    x:Name="BCBimage"
-                    Style="{StaticResource CBimageStyle}"
-                    HorizontalOptions="End" VerticalOptions="End"
-                    Grid.Row="0" Grid.Column="0"/>
+                <Grid HorizontalOptions="End" VerticalOptions="End" Grid.Row="0" Grid.Column="0">
+                    <Image x:Name="BCBimage" Style="{StaticResource CBimageStyle}"/>
+                    <Image x:Name="BCBimage2" IsVisible="False" HeightRequest="95" Rotation="12" TranslationY="8"/>
+                </Grid>
                 <Label
                     x:Name="BCBmatchLabel"
                     Text="0"
@@ -99,11 +98,10 @@
                         HorizontalOptions="Center" VerticalOptions="End"
                         HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                 </VerticalStackLayout>
-                  <Image
-                    x:Name="RCBimage"
-                    Style="{StaticResource CBimageStyle}"
-                    HorizontalOptions="End" VerticalOptions="End"
-                    Grid.Row="0" Grid.Column="0"/>
+                  <Grid HorizontalOptions="End" VerticalOptions="End" Grid.Row="0" Grid.Column="0">
+                    <Image x:Name="RCBimage" Style="{StaticResource CBimageStyle}"/>
+                    <Image x:Name="RCBimage2" IsVisible="False" HeightRequest="95" Rotation="12" TranslationY="8"/>
+                  </Grid>
                   <Label
                     x:Name="RCBmatchLabel"
                     Text="0"

@@ -122,6 +122,33 @@ public static class DataService
         await Commit();
     }
 
+    public static async Task RenamePlayer(string playerId, string name)
+    {
+        name = name.Trim();
+        if (name.Length == 0) throw new ArgumentException("Name is empty.");
+        var player = data.players.FirstOrDefault(p => p.id == playerId);
+        if (player == null) return;
+        if (data.players.Any(p => p.id != playerId && p.name.Equals(name, StringComparison.OrdinalIgnoreCase))) throw new ArgumentException($"{name} already exists.");
+        player.name = name;
+        await Commit();
+    }
+
+    private static bool Involves(Match m, string id) => m.winnerId == id || m.loserId == id || m.winnerId2 == id || m.loserId2 == id;
+    public static int MatchCount(string playerId) => data.matches.Count(m => Involves(m, playerId));
+
+    // The player's matches go with them, otherwise history would point at nobody.
+    public static async Task DeletePlayer(string playerId)
+    {
+        if (data.players.Count <= 2) throw new ArgumentException("At least 2 players are needed.");
+        var player = data.players.FirstOrDefault(p => p.id == playerId);
+        if (player == null) return;
+        data.matches.RemoveAll(m => Involves(m, playerId));
+        data.players.Remove(player);
+        ImageStore.Delete(player.normalImage);
+        ImageStore.Delete(player.sadImage);
+        await Commit();
+    }
+
     public static async Task ChangePunishmentCompleted(string playerId, int amount, Mode mode)
     {
         var player = data.players.FirstOrDefault(p => p.id == playerId);
